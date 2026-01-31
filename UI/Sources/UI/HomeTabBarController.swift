@@ -1,0 +1,118 @@
+//
+//  HomeTabBarController.swift
+//  UI
+//
+//  Tab bar controller that displays the main tabs of the app
+//  Coordinators are injected from outside to avoid circular dependencies
+//
+
+import UIKit
+import FunViewModel
+import FunModel
+import FunToolbox
+import FunServices
+import Combine
+
+public class HomeTabBarController: UITabBarController {
+
+    // MARK: - ViewModel
+
+    private let viewModel: HomeTabBarViewModel
+
+    // MARK: - Services
+
+    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+
+    // MARK: - Private Properties
+
+    private var cancellables = Set<AnyCancellable>()
+
+    // MARK: - Initialization
+
+    public init(viewModel: HomeTabBarViewModel, tabNavigationControllers: [UINavigationController]) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+        delegate = self
+        viewControllers = tabNavigationControllers
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Lifecycle
+
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        print("HomeTabBarController.viewDidLoad")
+
+        // Sync initial tab selection
+        viewModel.selectedTabIndex = selectedIndex
+
+        // Observe view model for programmatic tab changes
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            for await index in viewModel.$selectedTabIndex.values {
+                if self.selectedIndex != index {
+                    self.selectedIndex = index
+                }
+            }
+        }
+
+        observeDarkModeChanges()
+        observeAppSettingChanges()
+    }
+
+    // MARK: - Dark Mode
+
+    private func observeDarkModeChanges() {
+        updateAppearance()
+    }
+
+    private func observeAppSettingChanges() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateAppearance),
+            name: NSNotification.Name("AppSettingsChanged"),
+            object: nil
+        )
+    }
+
+    @objc private func updateAppearance() {
+        let isDarkModeEnabled = UserDefaults.standard.bool(forKey: "app.darkModeEnabled")
+        let style: UIUserInterfaceStyle = isDarkModeEnabled ? .dark : .light
+        overrideUserInterfaceStyle = style
+
+        // Also set on all windows to ensure modal presentations are affected
+        if let windowScene = view.window?.windowScene {
+            windowScene.windows.forEach { window in
+                window.overrideUserInterfaceStyle = style
+            }
+        }
+
+        // Force refresh all presented view controllers
+        if let presented = presentedViewController {
+            presented.overrideUserInterfaceStyle = style
+        }
+    }
+}
+
+// MARK: - UITabBarControllerDelegate
+
+extension HomeTabBarController: UITabBarControllerDelegate {
+    public func tabBarController(
+        _ tabBarController: UITabBarController,
+        didSelect viewController: UIViewController
+    ) {
+        // Notify view model of tab change
+        viewModel.tabDidChange(to: selectedIndex)
+    }
+
+    public func tabBarController(
+        _ tabBarController: UITabBarController,
+        shouldSelect viewController: UIViewController
+    ) -> Bool {
+        true
+    }
+}
