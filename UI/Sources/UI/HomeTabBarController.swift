@@ -9,17 +9,12 @@
 import UIKit
 import FunViewModel
 import FunModel
-import Combine
 
 public class HomeTabBarController: UITabBarController {
 
     // MARK: - ViewModel
 
     private let viewModel: HomeTabBarViewModel
-
-    // MARK: - Private Properties
-
-    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
@@ -39,7 +34,6 @@ public class HomeTabBarController: UITabBarController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        print("HomeTabBarController.viewDidLoad")
 
         // Sync initial tab selection
         viewModel.selectedTabIndex = selectedIndex

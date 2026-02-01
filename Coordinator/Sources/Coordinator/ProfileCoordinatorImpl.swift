@@ -11,14 +11,9 @@ import FunModel
 
 public final class ProfileCoordinatorImpl: BaseCoordinator, ProfileCoordinator {
 
-    // MARK: - Tab Bar
-
-    private weak var tabBarViewModel: HomeTabBarViewModel?
-
     // MARK: - Initialization
 
-    public init(navigationController: UINavigationController, tabBarViewModel: HomeTabBarViewModel?) {
-        self.tabBarViewModel = tabBarViewModel
+    public init(navigationController: UINavigationController, tabBarViewModel _: HomeTabBarViewModel? = nil) {
         super.init(navigationController: navigationController)
     }
 

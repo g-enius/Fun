@@ -25,7 +25,6 @@ public class Tab3ViewModel: ObservableObject {
     // MARK: - Published State
 
     @Published public var items: [ListItem] = []
-    @Published public var isLoading: Bool = false
 
     // MARK: - Initialization
 
