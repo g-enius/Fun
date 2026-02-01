@@ -2,76 +2,92 @@
 
 A modern iOS application demonstrating clean architecture principles, modular design with Swift Package Manager, and best practices for scalable iOS development.
 
-## Architecture Overview
+## Projects/Modules
+
+The workspace contains the following sub-projects:
+
+| Project | Provides |
+|---------|----------|
+| Application | FunApp.app (iOS application entry point) |
+| App | FunApp.framework |
+| UI | FunUI.framework |
+| Coordinator | FunCoordinator.framework |
+| Services | FunServices.framework |
+| ViewModel | FunViewModel.framework |
+| Model | FunModel.framework |
+| Toolbox | FunToolbox.framework |
+
+Each project (except for Application) defines a single `.framework` (and accompanying unit tests). These modules/frameworks are designed to fit together in a particular structure.
+
+## Module Dependency Hierarchy
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         Application Layer                           │
-│                    (AppDelegate, SceneDelegate)                     │
-└─────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                        Coordinator Layer                            │
-│              (Navigation, Flow Control, Deep Linking)               │
-└─────────────────────────────────────────────────────────────────────┘
-                                    │
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-┌──────────────────────┐  ┌──────────────────┐  ┌──────────────────────┐
-│      UI Layer        │  │  ViewModel Layer │  │   Services Layer     │
-│  (Views, ViewCtrl)   │◄─│    (Business     │─►│  (Network, Storage,  │
-│  SwiftUI + UIKit     │  │     Logic)       │  │   Feature Toggles)   │
-└──────────────────────┘  └──────────────────┘  └──────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                          Model Layer                                │
-│            (Data Models, Protocols, Coordinator Protocols)          │
-└─────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                          Toolbox Layer                              │
-│              (ServiceLocator, Utilities, Extensions)                │
-└─────────────────────────────────────────────────────────────────────┘
+                    ┌─────────────────────────┐
+                    │     FunApplication      │
+                    └─────────────────────────┘
+                                │
+            ┌───────────────────┼───────────────────┐
+            ▼                   ▼                   ▼
+    ┌───────────┐       ┌─────────────┐     ┌─────────────┐
+    │    UI     │       │ Coordinator │     │  Services   │
+    └───────────┘       └─────────────┘     └─────────────┘
+            │                   │                   │
+            └───────────────────┼───────────────────┘
+                                ▼
+                    ┌─────────────────────────┐
+                    │       ViewModel         │
+                    └─────────────────────────┘          ▲
+                                │                        │
+                                ▼                    Imports
+                    ┌─────────────────────────┐          │
+                    │         Model           │      Modules higher in
+                    └─────────────────────────┘      the stack should
+                                │                    only import from
+                                ▼                    modules further
+                    ┌─────────────────────────┐      down the stack.
+                    │        Toolbox          │          │
+                    └─────────────────────────┘          │
+                                │                        ▼
+                                ▼
+                    ┌─────────────────────────┐
+                    │     Apple Platform      │
+                    │   (Foundation, UIKit,   │
+                    │    SwiftUI, Combine)    │
+                    └─────────────────────────┘
 ```
 
-## Module Structure
+Modules higher in this stack should only `import` (and link with) modules lower in the stack. For example, code in the `FunServices` can, and should, import `FunModel` & `FunToolbox` in addition to any appropriate frameworks provided by the platform.
 
-The project is organized into **7 independent Swift packages**, enabling:
-- Clear separation of concerns
-- Parallel development across teams
-- Independent testing and versioning
-- Faster incremental builds
+## Directory Structure
 
 ```
 Fun/
-├── Application/          # Xcode project (entry point)
-│   └── FunApp/
-├── Model/               # Data models & protocols
-├── Toolbox/             # Utilities & DI container
-├── Services/            # Concrete service implementations
-├── ViewModel/           # Business logic (MVVM)
-├── UI/                  # SwiftUI views & UIKit controllers
-├── Coordinator/         # Navigation coordinators
-└── App/                 # SPM package for app-level code
-```
-
-### Package Dependencies
-
-```
-Application
-    └── Coordinator
-            ├── UI
-            │   ├── ViewModel
-            │   │   ├── Model
-            │   │   ├── Services
-            │   │   └── Toolbox
-            │   └── Model
-            └── Services
-                    ├── Model
-                    └── Toolbox
+├── Application/           # Xcode project (entry point)
+│   ├── FunApp/           # App target source files
+│   ├── FunAppTests/      # Unit tests
+│   └── FunAppUITests/    # UI tests
+├── Coordinator/          # Navigation coordinators
+│   └── Sources/Coordinator/
+├── Model/                # Data models & protocols
+│   └── Sources/Model/
+│       ├── Coordinators/ # Coordinator protocols
+│       ├── Services/     # Service protocols
+│       └── Mocks/        # Mock implementations
+├── Services/             # Concrete service implementations
+│   └── Sources/Services/
+│       └── CoreServices/ # Default implementations
+├── Toolbox/              # Utilities & DI container
+│   └── Sources/Toolbox/
+├── UI/                   # SwiftUI views & UIKit controllers
+│   └── Sources/UI/
+│       ├── Tab1-5/       # Tab-specific views
+│       ├── Detail/       # Detail screens
+│       ├── Settings/     # Settings screens
+│       └── Extensions/   # UIKit extensions
+├── ViewModel/            # Business logic (MVVM)
+│   └── Sources/ViewModel/
+├── App/                  # SPM package for app-level code
+└── Documentation/        # Project documentation
 ```
 
 ## Design Patterns
@@ -124,6 +140,70 @@ class Tab1CoordinatorImpl: BaseCoordinator, Tab1Coordinator {
 }
 ```
 
+## Data Flow & System Dependencies
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              User Interaction                                │
+│                         (Tap, Scroll, Pull-to-Refresh)                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                 UI Layer                                     │
+│                    (SwiftUI Views, UIKit ViewControllers)                    │
+│                                                                              │
+│   • Tab1View (Home) - Featured carousel, pull-to-refresh                    │
+│   • Tab2View (Search) - Bottom search bar, debounced input                  │
+│   • Tab3View (Favorites) - Persisted favorites list                         │
+│   • Tab4View (Profile) - User profile display                               │
+│   • Tab5View (Settings) - Feature toggles, app configuration                │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                         ┌────────────┴────────────┐
+                         │   @ObservedObject       │
+                         ▼                         ▼
+┌─────────────────────────────────┐   ┌───────────────────────────────────────┐
+│         ViewModel Layer          │   │           Coordinator Layer            │
+│                                  │   │                                        │
+│  • Business logic                │   │  • Navigation flow control             │
+│  • State management              │◄──│  • Screen transitions                  │
+│  • Data transformation           │   │  • Deep linking support                │
+│  • Combine publishers            │   │  • Child coordinator management        │
+│  • Async/await operations        │   │                                        │
+└─────────────────────────────────┘   └───────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             Services Layer                                   │
+│                                                                              │
+│   NetworkService ────► API calls (simulated)                                │
+│   FavoritesService ──► UserDefaults persistence                             │
+│   FeatureToggleService ► Runtime feature flags                              │
+│   LoggerService ─────► Console logging                                      │
+│   ToastService ──────► In-app notifications                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Model Layer                                     │
+│                                                                              │
+│   • FeaturedItem, ListItem, SearchResult (Data models)                      │
+│   • Service protocols (NetworkService, FavoritesService, etc.)              │
+│   • Coordinator protocols (Tab1Coordinator, DetailCoordinator, etc.)        │
+│   • Mock implementations for testing                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             Toolbox Layer                                    │
+│                                                                              │
+│   • ServiceLocator (Dependency injection container)                         │
+│   • @Service property wrapper                                               │
+│   • ObjectIdentityEquatable/Hashable utilities                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Key Features
 
 ### Reactive Data Flow
@@ -144,7 +224,7 @@ featureToggleService.featuredCarousel = false  // Instantly hides carousel
 ### Modern Search Implementation
 - Bottom search bar (iOS 18+ style)
 - Debounced input (400ms)
-- Minimum character requirement
+- Minimum character requirement (2 chars)
 - Loading state with spinner
 - Cancel button on focus
 
