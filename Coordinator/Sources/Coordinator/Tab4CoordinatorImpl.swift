@@ -1,0 +1,37 @@
+//
+//  Tab4CoordinatorImpl.swift
+//  Coordinator
+//
+//  Coordinator implementation for Tab4
+//
+
+import UIKit
+import FunViewModel
+import FunModel
+import FunUI
+
+public final class Tab4CoordinatorImpl: BaseCoordinator, Tab4Coordinator {
+
+    // MARK: - Tab Bar
+
+    private weak var tabBarViewModel: HomeTabBarViewModel?
+
+    // MARK: - Initialization
+
+    public init(navigationController: UINavigationController, tabBarViewModel: HomeTabBarViewModel?) {
+        self.tabBarViewModel = tabBarViewModel
+        super.init(navigationController: navigationController)
+    }
+
+    public override func start() {
+        let viewModel = Tab4ViewModel(coordinator: self)
+        let viewController = Tab4ViewController(viewModel: viewModel)
+        navigationController.setViewControllers([viewController], animated: false)
+    }
+
+    // MARK: - Tab4Coordinator
+
+    public func dismiss() {
+        safePop()
+    }
+}
