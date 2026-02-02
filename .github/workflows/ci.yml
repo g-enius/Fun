@@ -43,7 +43,7 @@ jobs:
           xcodebuild build \
             -project Application/FunApp.xcodeproj \
             -scheme FunApp \
-            -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO
 
@@ -52,6 +52,6 @@ jobs:
           xcodebuild test \
             -project Application/FunApp.xcodeproj \
             -scheme FunApp \
-            -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO
