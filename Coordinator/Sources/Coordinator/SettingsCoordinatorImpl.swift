@@ -13,7 +13,7 @@ public final class SettingsCoordinatorImpl: BaseCoordinator, SettingsCoordinator
 
     // MARK: - Initialization
 
-    public init(navigationController: UINavigationController) {
+    public override init(navigationController: UINavigationController) {
         super.init(navigationController: navigationController)
     }
 

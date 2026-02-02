@@ -39,9 +39,9 @@ public class Tab1ViewModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
     private var hasLoadedInitialData: Bool = false
-    private var featureToggleObserver: NSObjectProtocol?
-    private var backgroundObserver: NSObjectProtocol?
-    private var foregroundObserver: NSObjectProtocol?
+    nonisolated(unsafe) private var featureToggleObserver: NSObjectProtocol?
+    nonisolated(unsafe) private var backgroundObserver: NSObjectProtocol?
+    nonisolated(unsafe) private var foregroundObserver: NSObjectProtocol?
     private var carouselTimerCancellable: AnyCancellable?
 
     // MARK: - Initialization

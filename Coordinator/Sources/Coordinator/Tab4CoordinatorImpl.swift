@@ -14,7 +14,7 @@ public final class Tab4CoordinatorImpl: BaseCoordinator, Tab4Coordinator {
 
     // MARK: - Initialization
 
-    public init(navigationController: UINavigationController) {
+    public override init(navigationController: UINavigationController) {
         super.init(navigationController: navigationController)
     }
 
