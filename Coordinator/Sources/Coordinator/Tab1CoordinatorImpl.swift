@@ -30,7 +30,7 @@ public final class Tab1CoordinatorImpl: BaseCoordinator, Tab1Coordinator {
         super.init(navigationController: navigationController)
     }
 
-    public override func start() {
+    override public func start() {
         let viewModel = Tab1ViewModel(coordinator: self, tabBarViewModel: tabBarViewModel)
         let viewController = Tab1ViewController(viewModel: viewModel)
         navigationController.setViewControllers([viewController], animated: false)

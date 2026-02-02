@@ -24,7 +24,7 @@ public final class Tab3ViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         title = L10n.Tabs.items
         embedSwiftUIView(Tab3View(viewModel: viewModel))

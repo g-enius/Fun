@@ -24,7 +24,7 @@ public final class Tab5ViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         title = L10n.Tabs.settings
         embedSwiftUIView(Tab5View(viewModel: viewModel))

@@ -24,7 +24,7 @@ public final class ProfileViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         title = L10n.Profile.title
         navigationItem.rightBarButtonItem = UIBarButtonItem(

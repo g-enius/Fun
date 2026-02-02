@@ -23,7 +23,7 @@ public final class DetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         title = viewModel.itemTitle
         embedSwiftUIView(DetailView(viewModel: viewModel))

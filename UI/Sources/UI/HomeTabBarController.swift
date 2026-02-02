@@ -32,7 +32,7 @@ public class HomeTabBarController: UITabBarController {
 
     // MARK: - Lifecycle
 
-    public override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
 
         // Sync initial tab selection
@@ -41,10 +41,8 @@ public class HomeTabBarController: UITabBarController {
         // Observe view model for programmatic tab changes
         Task { @MainActor [weak self] in
             guard let self else { return }
-            for await index in viewModel.$selectedTabIndex.values {
-                if self.selectedIndex != index {
-                    self.selectedIndex = index
-                }
+            for await index in viewModel.$selectedTabIndex.values where self.selectedIndex != index {
+                self.selectedIndex = index
             }
         }
 

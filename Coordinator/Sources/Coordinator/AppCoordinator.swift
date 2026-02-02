@@ -24,7 +24,7 @@ public final class AppCoordinator: BaseCoordinator {
     // Store tab bar view model for tab switching
     private var tabBarViewModel: HomeTabBarViewModel?
 
-    public override func start() {
+    override public func start() {
         // Create navigation controllers for each tab
         let tab1NavController = UINavigationController()
         let tab2NavController = UINavigationController()

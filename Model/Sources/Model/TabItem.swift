@@ -17,7 +17,12 @@ public struct TabItem: Identifiable, Equatable, Sendable {
 public extension TabItem {
     static let tab1 = TabItem(id: 0, title: "Tab 1", iconName: "1.circle", selectedIconName: "1.circle.fill")
     static let tab2 = TabItem(id: 1, title: "Tab 2", iconName: "2.circle", selectedIconName: "2.circle.fill")
-    static let tab3 = TabItem(id: 2, title: "Item", iconName: "square.grid.2x2", selectedIconName: "square.grid.2x2.fill")
+    static let tab3 = TabItem(
+        id: 2,
+        title: "Item",
+        iconName: "square.grid.2x2",
+        selectedIconName: "square.grid.2x2.fill"
+    )
     static let tab4 = TabItem(id: 3, title: "Tab 4", iconName: "4.circle", selectedIconName: "4.circle.fill")
     static let settings = TabItem(id: 4, title: "Settings", iconName: "gearshape", selectedIconName: "gearshape.fill")
 

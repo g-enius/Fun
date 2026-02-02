@@ -47,7 +47,9 @@ public class ServiceLocator {
     public func resolve<T>(for key: ServiceKey) -> T {
         let keyString = String(describing: key)
         guard let service = services[keyString] as? T else {
-            fatalError("Service not registered for key: \(key). Make sure to register it in ServiceLocator.shared.register()")
+            fatalError(
+                "Service not registered for key: \(key). Register in ServiceLocator.shared."
+            )
         }
         return service
     }

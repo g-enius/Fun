@@ -13,7 +13,7 @@ public final class ProfileCoordinatorImpl: BaseCoordinator, ProfileCoordinator {
 
     // MARK: - Initialization
 
-    public override init(navigationController: UINavigationController) {
+    override public init(navigationController: UINavigationController) {
         super.init(navigationController: navigationController)
     }
 

@@ -23,7 +23,7 @@ public final class Tab4ViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         title = viewModel.title
         embedSwiftUIView(Tab4View(viewModel: viewModel))

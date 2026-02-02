@@ -68,7 +68,11 @@ public struct DetailView: View {
                         .cornerRadius(10)
                     }
                     .accessibilityIdentifier(AccessibilityID.Detail.favoriteButton)
-                    .accessibilityLabel(viewModel.isFavorited ? L10n.Detail.removeFromFavorites : L10n.Detail.addToFavorites)
+                    .accessibilityLabel(
+                        viewModel.isFavorited
+                            ? L10n.Detail.removeFromFavorites
+                            : L10n.Detail.addToFavorites
+                    )
 
                     Button(action: { viewModel.didTapSwitchToTab2() }) {
                         HStack {

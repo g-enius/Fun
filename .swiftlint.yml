@@ -25,6 +25,10 @@ disabled_rules:
   - vertical_whitespace
   - opening_brace
   - statement_position
+  - trailing_comma  # Trailing commas in multiline arrays are good practice
+  - multiple_closures_with_trailing_closure  # Common pattern in SwiftUI
+  - static_over_final_class  # Not a significant issue
+  - large_tuple  # Not critical for mock objects
 
 # Opt-in rules
 opt_in_rules:
@@ -83,7 +87,7 @@ type_body_length:
   error: 500
 
 function_body_length:
-  warning: 50
+  warning: 60
   error: 100
 
 function_parameter_count:

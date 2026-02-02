@@ -14,11 +14,11 @@ public final class Tab5CoordinatorImpl: BaseCoordinator, Tab5Coordinator {
 
     // MARK: - Initialization
 
-    public override init(navigationController: UINavigationController) {
+    override public init(navigationController: UINavigationController) {
         super.init(navigationController: navigationController)
     }
 
-    public override func start() {
+    override public func start() {
         let viewModel = Tab5ViewModel(coordinator: self)
         let viewController = Tab5ViewController(viewModel: viewModel)
         navigationController.setViewControllers([viewController], animated: false)
