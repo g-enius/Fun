@@ -16,50 +16,50 @@ public struct Tab5View: View {
     }
 
     public var body: some View {
-        NavigationView {
-            Form {
-                // Dark Mode Section
-                Section(header: Text("Appearance")) {
-                    Toggle("Dark Mode", isOn: $viewModel.isDarkModeEnabled)
+        Form {
+            Section(header: Text("Appearance")) {
+                Toggle("Dark Mode", isOn: $viewModel.isDarkModeEnabled)
+                    .accessibilityIdentifier(AccessibilityID.Tab5.darkModeToggle)
+            }
+
+            Section(header: Text("Feature Toggles")) {
+                Toggle("Featured Carousel", isOn: $viewModel.featuredCarouselEnabled)
+                    .accessibilityIdentifier("toggle_carousel")
+                Toggle("Analytics", isOn: $viewModel.analyticsEnabled)
+                    .accessibilityIdentifier("toggle_analytics")
+                Toggle("Debug Mode", isOn: $viewModel.debugModeEnabled)
+                    .accessibilityIdentifier("toggle_debug")
+            }
+
+            Section {
+                Button("Reset Dark Mode") {
+                    viewModel.resetDarkMode()
                 }
+                .foregroundColor(.red)
+                .accessibilityLabel("Reset dark mode to default")
 
-                // Feature Toggles Section
-                Section(header: Text("Feature Toggles")) {
-                    Toggle("Featured Carousel", isOn: $viewModel.featuredCarouselEnabled)
-                    Toggle("Analytics", isOn: $viewModel.analyticsEnabled)
-                    Toggle("Debug Mode", isOn: $viewModel.debugModeEnabled)
+                Button("Reset Feature Toggles") {
+                    viewModel.resetFeatureToggles()
                 }
+                .foregroundColor(.red)
+                .accessibilityLabel("Reset all feature toggles to defaults")
+            }
 
-                // Reset Section
-                Section {
-                    Button("Reset Dark Mode") {
-                        viewModel.resetDarkMode()
-                    }
-                    .foregroundColor(.red)
-
-                    Button("Reset Feature Toggles") {
-                        viewModel.resetFeatureToggles()
-                    }
-                    .foregroundColor(.red)
+            Section(header: Text("System Information")) {
+                HStack {
+                    Text("Version")
+                    Spacer()
+                    Text("1.0.0")
+                        .foregroundColor(.gray)
                 }
-
-                // System Info Section
-                Section(header: Text("System Information")) {
-                    HStack {
-                        Text("Version")
-                        Spacer()
-                        Text("1.0.0")
-                            .foregroundColor(.gray)
-                    }
-                    HStack {
-                        Text("Build")
-                        Spacer()
-                        Text("42")
-                            .foregroundColor(.gray)
-                    }
+                HStack {
+                    Text("Build")
+                    Spacer()
+                    Text("42")
+                        .foregroundColor(.gray)
                 }
             }
-            .navigationTitle("Settings")
         }
+        .accessibilityIdentifier(AccessibilityID.Tab5.settingsList)
     }
 }

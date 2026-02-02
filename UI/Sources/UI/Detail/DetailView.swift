@@ -18,12 +18,10 @@ public struct DetailView: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Title
                 Text(viewModel.itemTitle)
                     .font(.largeTitle)
                     .fontWeight(.bold)
 
-                // Category & Time
                 HStack {
                     Image(systemName: "folder")
                     Text(viewModel.category)
@@ -35,7 +33,6 @@ public struct DetailView: View {
 
                 Divider()
 
-                // Description
                 Text("Description")
                     .font(.headline)
                 Text("This is a detailed description of \(viewModel.itemTitle). It showcases the coordinator pattern for navigation in iOS apps.")
@@ -43,7 +40,6 @@ public struct DetailView: View {
 
                 Divider()
 
-                // Action Buttons
                 VStack(spacing: 12) {
                     Button(action: { viewModel.didTapShare() }) {
                         HStack {
@@ -56,6 +52,8 @@ public struct DetailView: View {
                         .foregroundColor(.white)
                         .cornerRadius(10)
                     }
+                    .accessibilityIdentifier(AccessibilityID.Detail.shareButton)
+                    .accessibilityLabel("Share this item")
 
                     Button(action: { viewModel.didTapToggleFavorite() }) {
                         HStack {
@@ -68,6 +66,8 @@ public struct DetailView: View {
                         .foregroundColor(.red)
                         .cornerRadius(10)
                     }
+                    .accessibilityIdentifier(AccessibilityID.Detail.favoriteButton)
+                    .accessibilityLabel(viewModel.isFavorited ? "Remove from favorites" : "Add to favorites")
 
                     Button(action: { viewModel.didTapSwitchToTab2() }) {
                         HStack {
@@ -80,9 +80,9 @@ public struct DetailView: View {
                         .cornerRadius(10)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Switch to Search tab")
                 }
 
-                // Footer
                 VStack(spacing: 8) {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
@@ -98,14 +98,6 @@ public struct DetailView: View {
                 .padding(.top)
             }
             .padding()
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { viewModel.didTapBack() }) {
-                    Image(systemName: "chevron.left")
-                }
-            }
         }
     }
 }

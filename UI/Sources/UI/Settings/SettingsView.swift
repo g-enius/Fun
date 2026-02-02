@@ -16,26 +16,19 @@ public struct SettingsView: View {
     }
 
     public var body: some View {
-        NavigationView {
-            Form {
-                Section {
-                    Toggle("Notifications", isOn: $viewModel.notificationsEnabled)
-                    Toggle("Privacy Mode", isOn: $viewModel.privacyModeEnabled)
-                }
-
-                Section {
-                    Button("About") {
-                        viewModel.didTapAbout()
-                    }
-                }
+        Form {
+            Section {
+                Toggle("Notifications", isOn: $viewModel.notificationsEnabled)
+                    .accessibilityIdentifier("toggle_notifications")
+                Toggle("Privacy Mode", isOn: $viewModel.privacyModeEnabled)
+                    .accessibilityIdentifier("toggle_privacy")
             }
-            .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        viewModel.didTapDismiss()
-                    }
+
+            Section {
+                Button("About") {
+                    viewModel.didTapAbout()
                 }
+                .accessibilityLabel("View about information")
             }
         }
     }

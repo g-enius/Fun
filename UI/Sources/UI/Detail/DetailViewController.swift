@@ -25,6 +25,7 @@ public final class DetailViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = viewModel.itemTitle
         embedSwiftUIView(DetailView(viewModel: viewModel))
     }
 }

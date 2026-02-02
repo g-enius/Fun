@@ -17,88 +17,79 @@ public struct Tab1View: View {
     }
 
     public var body: some View {
-        NavigationView {
-            Group {
-                if viewModel.isLoading {
-                    // Initial loading state
-                    VStack(spacing: 16) {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .scaleEffect(1.5)
-                        Text("Loading...")
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    // Content with pull-to-refresh
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            // Featured Carousel (controlled by feature toggle)
-                            if viewModel.isCarouselEnabled && !viewModel.featuredItems.isEmpty {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Featured")
-                                        .font(.headline)
-                                        .padding(.horizontal)
+        Group {
+            if viewModel.isLoading {
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(1.5)
+                    Text("Loading...")
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        if viewModel.isCarouselEnabled && !viewModel.featuredItems.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Featured")
+                                    .font(.headline)
+                                    .padding(.horizontal)
 
-                                    TabView(selection: $viewModel.currentCarouselIndex) {
-                                        ForEach(Array(viewModel.featuredItems.enumerated()), id: \.offset) { index, items in
-                                            HStack(spacing: 16) {
-                                                ForEach(items) { item in
-                                                    FeaturedCardView(item: item) {
-                                                        viewModel.didTapFeaturedItem(item)
-                                                    }
+                                TabView(selection: $viewModel.currentCarouselIndex) {
+                                    ForEach(Array(viewModel.featuredItems.enumerated()), id: \.offset) { index, items in
+                                        HStack(spacing: 16) {
+                                            ForEach(items) { item in
+                                                FeaturedCardView(item: item) {
+                                                    viewModel.didTapFeaturedItem(item)
                                                 }
                                             }
-                                            .padding(.horizontal)
-                                            .tag(index)
                                         }
+                                        .padding(.horizontal)
+                                        .tag(index)
                                     }
-                                    .tabViewStyle(.page(indexDisplayMode: .automatic))
-                                    .frame(height: 200)
                                 }
+                                .tabViewStyle(.page(indexDisplayMode: .automatic))
+                                .frame(height: 200)
+                                .accessibilityIdentifier(AccessibilityID.Tab1.carousel)
                             }
-
-                            // Action Buttons
-                            VStack(spacing: 12) {
-                                Button(action: { viewModel.didTapSettings() }) {
-                                    HStack {
-                                        Image(systemName: "gearshape")
-                                        Text("Settings")
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.gray.opacity(0.2))
-                                    .cornerRadius(10)
-                                }
-                                .buttonStyle(.plain)
-
-                                Button(action: { viewModel.didTapSwitchToTab2() }) {
-                                    HStack {
-                                        Image(systemName: "arrow.right")
-                                        Text("Switch to Tab 2")
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.purple.opacity(0.2))
-                                    .cornerRadius(10)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .padding(.horizontal)
                         }
-                        .padding(.vertical)
+
+                        VStack(spacing: 12) {
+                            Button(action: { viewModel.didTapSettings() }) {
+                                HStack {
+                                    Image(systemName: "gearshape")
+                                    Text("Settings")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.gray.opacity(0.2))
+                                .cornerRadius(10)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier(AccessibilityID.Tab1.settingsButton)
+                            .accessibilityLabel("Open Settings")
+
+                            Button(action: { viewModel.didTapSwitchToTab2() }) {
+                                HStack {
+                                    Image(systemName: "arrow.right")
+                                    Text("Switch to Tab 2")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.purple.opacity(0.2))
+                                .cornerRadius(10)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier(AccessibilityID.Tab1.switchTabButton)
+                            .accessibilityLabel("Switch to Search tab")
+                        }
+                        .padding(.horizontal)
                     }
-                    .refreshable {
-                        await viewModel.refresh()
-                    }
+                    .padding(.vertical)
                 }
-            }
-            .navigationTitle("Home")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { viewModel.didTapProfile() }) {
-                        Image(systemName: "person.circle")
-                    }
+                .refreshable {
+                    await viewModel.refresh()
                 }
             }
         }
@@ -125,6 +116,9 @@ struct FeaturedCardView: View {
             .cornerRadius(12)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("featured_card_\(item.id)")
+        .accessibilityLabel("\(item.title), \(item.subtitle)")
+        .accessibilityHint("Double tap to view details")
     }
 
     private func cardColor(for colorName: String) -> Color {

@@ -30,7 +30,7 @@ public class Tab5ViewModel: ObservableObject {
 
     @Published public var isDarkModeEnabled: Bool = false {
         didSet {
-            UserDefaults.standard.set(isDarkModeEnabled, forKey: "app.darkModeEnabled")
+            UserDefaults.standard.set(isDarkModeEnabled, forKey: .darkModeEnabled)
             NotificationCenter.default.post(name: .appSettingsDidChange, object: nil)
         }
     }
@@ -57,9 +57,7 @@ public class Tab5ViewModel: ObservableObject {
 
     public init(coordinator: Tab5Coordinator?) {
         self.coordinator = coordinator
-
-        // Load initial values
-        self.isDarkModeEnabled = UserDefaults.standard.bool(forKey: "app.darkModeEnabled")
+        self.isDarkModeEnabled = UserDefaults.standard.bool(forKey: .darkModeEnabled)
         self.featuredCarouselEnabled = featureToggleService.featuredCarousel
         self.analyticsEnabled = featureToggleService.featureAnalytics
         self.debugModeEnabled = featureToggleService.featureDebugMode

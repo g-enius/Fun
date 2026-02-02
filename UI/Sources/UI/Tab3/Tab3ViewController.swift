@@ -25,6 +25,7 @@ public final class Tab3ViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Items"
         embedSwiftUIView(Tab3View(viewModel: viewModel))
     }
 }

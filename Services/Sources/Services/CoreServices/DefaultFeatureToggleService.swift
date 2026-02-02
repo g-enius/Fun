@@ -11,38 +11,33 @@ import FunModel
 @MainActor
 public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
 
-    private let carouselKey = "feature.carousel"
-    private let analyticsKey = "feature.analytics"
-    private let debugModeKey = "feature.debugMode"
-
     public var featuredCarousel: Bool {
-        get { UserDefaults.standard.bool(forKey: carouselKey) }
+        get { UserDefaults.standard.bool(forKey: .featureCarousel) }
         set {
-            UserDefaults.standard.set(newValue, forKey: carouselKey)
+            UserDefaults.standard.set(newValue, forKey: .featureCarousel)
             NotificationCenter.default.post(name: .featureTogglesDidChange, object: nil)
         }
     }
 
     public var featureAnalytics: Bool {
-        get { UserDefaults.standard.bool(forKey: analyticsKey) }
+        get { UserDefaults.standard.bool(forKey: .featureAnalytics) }
         set {
-            UserDefaults.standard.set(newValue, forKey: analyticsKey)
+            UserDefaults.standard.set(newValue, forKey: .featureAnalytics)
             NotificationCenter.default.post(name: .featureTogglesDidChange, object: nil)
         }
     }
 
     public var featureDebugMode: Bool {
-        get { UserDefaults.standard.bool(forKey: debugModeKey) }
+        get { UserDefaults.standard.bool(forKey: .featureDebugMode) }
         set {
-            UserDefaults.standard.set(newValue, forKey: debugModeKey)
+            UserDefaults.standard.set(newValue, forKey: .featureDebugMode)
             NotificationCenter.default.post(name: .featureTogglesDidChange, object: nil)
         }
     }
 
     public init() {
-        // Set default values if not already set
-        if UserDefaults.standard.object(forKey: carouselKey) == nil {
-            UserDefaults.standard.set(true, forKey: carouselKey)
+        if UserDefaults.standard.object(forKey: .featureCarousel) == nil {
+            UserDefaults.standard.set(true, forKey: .featureCarousel)
         }
     }
 }

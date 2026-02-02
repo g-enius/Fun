@@ -5,7 +5,7 @@
 //  ViewModel for Tab1 (Home) screen
 //
 
-import Foundation
+import UIKit
 import Combine
 import FunModel
 import FunToolbox
@@ -39,6 +39,10 @@ public class Tab1ViewModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
     private var hasLoadedInitialData: Bool = false
+    private var featureToggleObserver: NSObjectProtocol?
+    private var backgroundObserver: NSObjectProtocol?
+    private var foregroundObserver: NSObjectProtocol?
+    private var carouselTimerCancellable: AnyCancellable?
 
     // MARK: - Initialization
 
@@ -51,6 +55,7 @@ public class Tab1ViewModel: ObservableObject {
 
         startCarouselTimer()
         observeFeatureToggleChanges()
+        observeSceneLifecycle()
 
         // Load data asynchronously on init
         Task {
@@ -58,10 +63,22 @@ public class Tab1ViewModel: ObservableObject {
         }
     }
 
+    deinit {
+        if let observer = featureToggleObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = backgroundObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = foregroundObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+
     // MARK: - Feature Toggle Observation
 
     private func observeFeatureToggleChanges() {
-        NotificationCenter.default.addObserver(
+        featureToggleObserver = NotificationCenter.default.addObserver(
             forName: .featureTogglesDidChange,
             object: nil,
             queue: .main
@@ -70,6 +87,40 @@ public class Tab1ViewModel: ObservableObject {
                 self?.refreshFeatureToggles()
             }
         }
+    }
+
+    // MARK: - Scene Lifecycle
+
+    private func observeSceneLifecycle() {
+        backgroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.pauseCarouselTimer()
+            }
+        }
+
+        foregroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.resumeCarouselTimer()
+            }
+        }
+    }
+
+    private func pauseCarouselTimer() {
+        carouselTimerCancellable?.cancel()
+        carouselTimerCancellable = nil
+    }
+
+    private func resumeCarouselTimer() {
+        guard carouselTimerCancellable == nil else { return }
+        startCarouselTimer()
     }
 
     private func refreshFeatureToggles() {
@@ -129,12 +180,11 @@ public class Tab1ViewModel: ObservableObject {
     }
 
     private func startCarouselTimer() {
-        Timer.publish(every: 5.0, on: .main, in: .common)
+        carouselTimerCancellable = Timer.publish(every: 5.0, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 self?.rotateCarousel()
             }
-            .store(in: &cancellables)
     }
 
     private func rotateCarousel() {

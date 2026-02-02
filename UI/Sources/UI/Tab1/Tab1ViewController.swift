@@ -25,6 +25,19 @@ public final class Tab1ViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Home"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "person.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(profileTapped)
+        )
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = AccessibilityID.Tab1.profileButton
+        navigationItem.rightBarButtonItem?.accessibilityLabel = "Profile"
         embedSwiftUIView(Tab1View(viewModel: viewModel))
+    }
+
+    @objc private func profileTapped() {
+        viewModel.didTapProfile()
     }
 }

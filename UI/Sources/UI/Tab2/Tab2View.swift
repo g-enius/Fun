@@ -17,74 +17,74 @@ public struct Tab2View: View {
     }
 
     public var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Category Buttons
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(viewModel.categories, id: \.self) { category in
-                            Button(action: { viewModel.didSelectCategory(category) }) {
-                                Text(category)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        viewModel.selectedCategory == category
-                                            ? Color.blue
-                                            : Color.gray.opacity(0.2)
-                                    )
-                                    .foregroundColor(
-                                        viewModel.selectedCategory == category
-                                            ? .white
-                                            : .primary
-                                    )
-                                    .cornerRadius(20)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 12)
-                }
-
-                // Results List or Loading/Empty State
-                if viewModel.isSearching {
-                    Spacer()
-                    ProgressView("Searching...")
-                        .progressViewStyle(.circular)
-                    Spacer()
-                } else if viewModel.searchResults.isEmpty {
-                    Spacer()
-                    EmptySearchResultsView(message: emptyStateMessage)
-                    Spacer()
-                } else {
-                    List(viewModel.searchResults) { result in
-                        Button(action: { viewModel.didSelectResult(result) }) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(result.title)
-                                    .font(.headline)
-                                Text(result.subtitle)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                Text(result.category)
-                                    .font(.caption)
-                                    .foregroundColor(.blue)
-                            }
-                            .padding(.vertical, 4)
+        VStack(spacing: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(viewModel.categories, id: \.self) { category in
+                        Button(action: { viewModel.didSelectCategory(category) }) {
+                            Text(category)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(
+                                    viewModel.selectedCategory == category
+                                        ? Color.blue
+                                        : Color.gray.opacity(0.2)
+                                )
+                                .foregroundColor(
+                                    viewModel.selectedCategory == category
+                                        ? .white
+                                        : .primary
+                                )
+                                .cornerRadius(20)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("category_\(category)")
                     }
-                    .listStyle(.plain)
                 }
-
-                // Bottom Search Bar (iOS 18+ style)
-                SearchBarView(
-                    text: $viewModel.searchText,
-                    isSearching: viewModel.isSearching,
-                    minimumCharacters: viewModel.minimumSearchCharacters,
-                    onClear: { viewModel.clearSearch() }
-                )
+                .padding(.horizontal)
+                .padding(.vertical, 12)
             }
-            .navigationTitle("Search")
+            .accessibilityIdentifier(AccessibilityID.Tab2.categoryPicker)
+
+            if viewModel.isSearching {
+                Spacer()
+                ProgressView("Searching...")
+                    .progressViewStyle(.circular)
+                Spacer()
+            } else if viewModel.searchResults.isEmpty {
+                Spacer()
+                EmptySearchResultsView(message: emptyStateMessage)
+                Spacer()
+            } else {
+                List(viewModel.searchResults) { result in
+                    Button(action: { viewModel.didSelectResult(result) }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(result.title)
+                                .font(.headline)
+                            Text(result.subtitle)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Text(result.category)
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("search_result_\(result.id)")
+                    .accessibilityLabel("\(result.title), \(result.subtitle)")
+                }
+                .listStyle(.plain)
+                .accessibilityIdentifier(AccessibilityID.Tab2.resultsList)
+            }
+
+            SearchBarView(
+                text: $viewModel.searchText,
+                isSearching: viewModel.isSearching,
+                minimumCharacters: viewModel.minimumSearchCharacters,
+                onClear: { viewModel.clearSearch() }
+            )
+            .accessibilityIdentifier(AccessibilityID.Tab2.searchField)
         }
     }
 

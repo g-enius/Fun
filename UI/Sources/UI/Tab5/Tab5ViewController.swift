@@ -25,6 +25,7 @@ public final class Tab5ViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Settings"
         embedSwiftUIView(Tab5View(viewModel: viewModel))
     }
 }

@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import FunModel
+import FunToolbox
 
 // MARK: - Coordinator Protocol
 
@@ -21,6 +23,8 @@ public protocol Coordinator: AnyObject {
 open class BaseCoordinator: Coordinator {
 
     public let navigationController: UINavigationController
+
+    @Service(.logger) private var logger: LoggerService
 
     private var isTransitioning: Bool {
         navigationController.transitionCoordinator != nil
@@ -48,7 +52,7 @@ open class BaseCoordinator: Coordinator {
 
         // Prevent duplicate pushes
         if navigationController.topViewController?.isKind(of: type(of: viewController)) == true {
-            print("Attempted to push duplicate screen")
+            logger.log("Attempted to push duplicate screen")
             return
         }
 
@@ -77,7 +81,7 @@ open class BaseCoordinator: Coordinator {
 
     public func safePresent(_ viewController: UIViewController, animated: Bool = true, completion: (@MainActor () -> Void)? = nil) {
         guard navigationController.presentedViewController == nil else {
-            print("Already presenting a view controller")
+            logger.log("Already presenting a view controller")
             return
         }
         navigationController.present(viewController, animated: animated, completion: completion)

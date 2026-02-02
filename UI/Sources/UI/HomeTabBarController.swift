@@ -64,18 +64,16 @@ public class HomeTabBarController: UITabBarController {
     }
 
     @objc private func updateAppearance() {
-        let isDarkModeEnabled = UserDefaults.standard.bool(forKey: "app.darkModeEnabled")
+        let isDarkModeEnabled = UserDefaults.standard.bool(forKey: .darkModeEnabled)
         let style: UIUserInterfaceStyle = isDarkModeEnabled ? .dark : .light
         overrideUserInterfaceStyle = style
 
-        // Also set on all windows to ensure modal presentations are affected
         if let windowScene = view.window?.windowScene {
             windowScene.windows.forEach { window in
                 window.overrideUserInterfaceStyle = style
             }
         }
 
-        // Force refresh all presented view controllers
         if let presented = presentedViewController {
             presented.overrideUserInterfaceStyle = style
         }
@@ -89,14 +87,6 @@ extension HomeTabBarController: UITabBarControllerDelegate {
         _ tabBarController: UITabBarController,
         didSelect viewController: UIViewController
     ) {
-        // Notify view model of tab change
         viewModel.tabDidChange(to: selectedIndex)
-    }
-
-    public func tabBarController(
-        _ tabBarController: UITabBarController,
-        shouldSelect viewController: UIViewController
-    ) -> Bool {
-        true
     }
 }

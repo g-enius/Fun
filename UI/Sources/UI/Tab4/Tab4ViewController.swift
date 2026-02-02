@@ -25,6 +25,7 @@ public final class Tab4ViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = viewModel.title
         embedSwiftUIView(Tab4View(viewModel: viewModel))
     }
 }

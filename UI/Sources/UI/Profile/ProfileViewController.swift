@@ -25,6 +25,17 @@ public final class ProfileViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Profile"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(dismissTapped)
+        )
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = AccessibilityID.Profile.dismissButton
         embedSwiftUIView(ProfileView(viewModel: viewModel))
+    }
+
+    @objc private func dismissTapped() {
+        viewModel.didTapDismiss()
     }
 }

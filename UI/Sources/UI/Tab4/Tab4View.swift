@@ -16,13 +16,11 @@ public struct Tab4View: View {
     }
 
     public var body: some View {
-        NavigationView {
-            VStack {
-                Text("Tab 4 Content")
-                    .font(.title2)
-                    .foregroundColor(.gray)
-            }
-            .navigationTitle(viewModel.title)
+        VStack {
+            Text("Tab 4 Content")
+                .font(.title2)
+                .foregroundColor(.gray)
         }
+        .accessibilityIdentifier(AccessibilityID.Tab4.featureTogglesList)
     }
 }

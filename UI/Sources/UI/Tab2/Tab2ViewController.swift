@@ -25,6 +25,7 @@ public final class Tab2ViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Search"
         embedSwiftUIView(Tab2View(viewModel: viewModel))
     }
 }

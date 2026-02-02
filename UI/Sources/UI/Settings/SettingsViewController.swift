@@ -25,6 +25,17 @@ public final class SettingsViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Settings"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(dismissTapped)
+        )
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = AccessibilityID.Settings.dismissButton
         embedSwiftUIView(SettingsView(viewModel: viewModel))
+    }
+
+    @objc private func dismissTapped() {
+        viewModel.didTapDismiss()
     }
 }
