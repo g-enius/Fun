@@ -8,6 +8,7 @@
 import UIKit
 import SwiftUI
 import FunViewModel
+import FunModel
 
 public final class Tab3ViewController: UIViewController {
 
@@ -25,7 +26,7 @@ public final class Tab3ViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Items"
+        title = L10n.Tabs.items
         embedSwiftUIView(Tab3View(viewModel: viewModel))
     }
 }

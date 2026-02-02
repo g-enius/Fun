@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FunViewModel
+import FunModel
 
 public struct SettingsView: View {
     @ObservedObject var viewModel: SettingsViewModel
@@ -18,17 +19,17 @@ public struct SettingsView: View {
     public var body: some View {
         Form {
             Section {
-                Toggle("Notifications", isOn: $viewModel.notificationsEnabled)
+                Toggle(L10n.Settings.notifications, isOn: $viewModel.notificationsEnabled)
                     .accessibilityIdentifier("toggle_notifications")
-                Toggle("Privacy Mode", isOn: $viewModel.privacyModeEnabled)
+                Toggle(L10n.Settings.privacyMode, isOn: $viewModel.privacyModeEnabled)
                     .accessibilityIdentifier("toggle_privacy")
             }
 
             Section {
-                Button("About") {
+                Button(L10n.Settings.about) {
                     viewModel.didTapAbout()
                 }
-                .accessibilityLabel("View about information")
+                .accessibilityLabel(L10n.Settings.about)
             }
         }
     }

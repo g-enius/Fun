@@ -18,7 +18,7 @@ public struct Tab3View: View {
 
     public var body: some View {
         List {
-            Section(header: Text("Loaded Items")) {
+            Section(header: Text(L10n.Items.loadedItems)) {
                 ForEach(viewModel.items) { item in
                     Button(action: { viewModel.didSelectItem(item) }) {
                         HStack {
@@ -48,7 +48,7 @@ public struct Tab3View: View {
                     .swipeActions(edge: .trailing) {
                         Button(action: { viewModel.toggleFavorite(for: item.id) }) {
                             Label(
-                                viewModel.isFavorited(item.id) ? "Unfavorite" : "Favorite",
+                                viewModel.isFavorited(item.id) ? L10n.Items.unfavorite : L10n.Items.favorite,
                                 systemImage: viewModel.isFavorited(item.id) ? "star.slash" : "star"
                             )
                         }

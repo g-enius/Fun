@@ -8,6 +8,7 @@
 import UIKit
 import SwiftUI
 import FunViewModel
+import FunModel
 
 public final class Tab1ViewController: UIViewController {
 
@@ -25,7 +26,7 @@ public final class Tab1ViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Home"
+        title = L10n.Tabs.home
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             image: UIImage(systemName: "person.circle"),
             style: .plain,

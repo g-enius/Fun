@@ -48,7 +48,7 @@ public struct Tab2View: View {
 
             if viewModel.isSearching {
                 Spacer()
-                ProgressView("Searching...")
+                ProgressView(L10n.Search.searching)
                     .progressViewStyle(.circular)
                 Spacer()
             } else if viewModel.searchResults.isEmpty {
@@ -91,9 +91,9 @@ public struct Tab2View: View {
     private var emptyStateMessage: String {
         let trimmed = viewModel.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty && trimmed.count < viewModel.minimumSearchCharacters {
-            return "Type at least \(viewModel.minimumSearchCharacters) characters to search"
+            return L10n.Search.typeMinCharacters(viewModel.minimumSearchCharacters)
         }
-        return "Try a different search term or category"
+        return L10n.Search.tryDifferentTerm
     }
 }
 
@@ -121,13 +121,11 @@ struct SearchBarView: View {
                         .foregroundColor(.gray)
                 }
 
-                // Text field
-                TextField("Search (min \(minimumCharacters) chars)...", text: $text)
+                TextField(L10n.Search.minCharacters(minimumCharacters), text: $text)
                     .textFieldStyle(.plain)
                     .focused($isFocused)
                     .submitLabel(.search)
 
-                // Clear button
                 if !text.isEmpty {
                     Button(action: onClear) {
                         Image(systemName: "xmark.circle.fill")
@@ -141,9 +139,8 @@ struct SearchBarView: View {
             .background(Color(.systemGray6))
             .cornerRadius(10)
 
-            // Cancel button when focused
             if isFocused {
-                Button("Cancel") {
+                Button(L10n.Common.cancel) {
                     text = ""
                     isFocused = false
                     onClear()
@@ -169,7 +166,7 @@ struct EmptySearchResultsView: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 48))
                 .foregroundColor(.gray)
-            Text("No Results")
+            Text(L10n.Search.noResults)
                 .font(.title2)
                 .fontWeight(.semibold)
             Text(message)

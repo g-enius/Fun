@@ -8,6 +8,7 @@
 import UIKit
 import SwiftUI
 import FunViewModel
+import FunModel
 
 public final class Tab2ViewController: UIViewController {
 
@@ -25,7 +26,7 @@ public final class Tab2ViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Search"
+        title = L10n.Tabs.search
         embedSwiftUIView(Tab2View(viewModel: viewModel))
     }
 }

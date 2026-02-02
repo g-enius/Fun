@@ -23,7 +23,7 @@ public struct Tab1View: View {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .scaleEffect(1.5)
-                    Text("Loading...")
+                    Text(L10n.Common.loading)
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -32,7 +32,7 @@ public struct Tab1View: View {
                     VStack(spacing: 20) {
                         if viewModel.isCarouselEnabled && !viewModel.featuredItems.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Featured")
+                                Text(L10n.Home.featured)
                                     .font(.headline)
                                     .padding(.horizontal)
 
@@ -59,7 +59,7 @@ public struct Tab1View: View {
                             Button(action: { viewModel.didTapSettings() }) {
                                 HStack {
                                     Image(systemName: "gearshape")
-                                    Text("Settings")
+                                    Text(L10n.Tabs.settings)
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
@@ -68,12 +68,12 @@ public struct Tab1View: View {
                             }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier(AccessibilityID.Tab1.settingsButton)
-                            .accessibilityLabel("Open Settings")
+                            .accessibilityLabel(L10n.Tabs.settings)
 
                             Button(action: { viewModel.didTapSwitchToTab2() }) {
                                 HStack {
                                     Image(systemName: "arrow.right")
-                                    Text("Switch to Tab 2")
+                                    Text(L10n.Home.switchToTab2)
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
@@ -82,7 +82,7 @@ public struct Tab1View: View {
                             }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier(AccessibilityID.Tab1.switchTabButton)
-                            .accessibilityLabel("Switch to Search tab")
+                            .accessibilityLabel(L10n.Tabs.search)
                         }
                         .padding(.horizontal)
                     }

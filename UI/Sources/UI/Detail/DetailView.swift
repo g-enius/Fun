@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FunViewModel
+import FunModel
 
 public struct DetailView: View {
     @ObservedObject var viewModel: DetailViewModel
@@ -26,16 +27,16 @@ public struct DetailView: View {
                     Image(systemName: "folder")
                     Text(viewModel.category)
                     Spacer()
-                    Text("Just now")
+                    Text(L10n.Detail.justNow)
                         .foregroundColor(.gray)
                 }
                 .font(.subheadline)
 
                 Divider()
 
-                Text("Description")
+                Text(L10n.Detail.description)
                     .font(.headline)
-                Text("This is a detailed description of \(viewModel.itemTitle). It showcases the coordinator pattern for navigation in iOS apps.")
+                Text(L10n.Detail.itemDescription(viewModel.itemTitle))
                     .foregroundColor(.secondary)
 
                 Divider()
@@ -44,7 +45,7 @@ public struct DetailView: View {
                     Button(action: { viewModel.didTapShare() }) {
                         HStack {
                             Image(systemName: "square.and.arrow.up")
-                            Text("Share")
+                            Text(L10n.Common.share)
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -53,12 +54,12 @@ public struct DetailView: View {
                         .cornerRadius(10)
                     }
                     .accessibilityIdentifier(AccessibilityID.Detail.shareButton)
-                    .accessibilityLabel("Share this item")
+                    .accessibilityLabel(L10n.Common.share)
 
                     Button(action: { viewModel.didTapToggleFavorite() }) {
                         HStack {
                             Image(systemName: viewModel.isFavorited ? "heart.fill" : "heart")
-                            Text(viewModel.isFavorited ? "Remove from Favorites" : "Add to Favorites")
+                            Text(viewModel.isFavorited ? L10n.Detail.removeFromFavorites : L10n.Detail.addToFavorites)
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -67,12 +68,12 @@ public struct DetailView: View {
                         .cornerRadius(10)
                     }
                     .accessibilityIdentifier(AccessibilityID.Detail.favoriteButton)
-                    .accessibilityLabel(viewModel.isFavorited ? "Remove from favorites" : "Add to favorites")
+                    .accessibilityLabel(viewModel.isFavorited ? L10n.Detail.removeFromFavorites : L10n.Detail.addToFavorites)
 
                     Button(action: { viewModel.didTapSwitchToTab2() }) {
                         HStack {
                             Image(systemName: "arrow.right")
-                            Text("Switch to Tab 2")
+                            Text(L10n.Home.switchToTab2)
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -80,17 +81,17 @@ public struct DetailView: View {
                         .cornerRadius(10)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Switch to Search tab")
+                    .accessibilityLabel(L10n.Tabs.search)
                 }
 
                 VStack(spacing: 8) {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
-                        Text("Push Navigation")
+                        Text(L10n.Detail.pushNavigation)
                             .font(.caption)
                     }
-                    Text("Using Coordinator Pattern")
+                    Text(L10n.Detail.usingCoordinatorPattern)
                         .font(.caption)
                         .foregroundColor(.gray)
                 }

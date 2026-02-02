@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FunViewModel
+import FunModel
 
 public struct ProfileView: View {
     @ObservedObject var viewModel: ProfileViewModel
@@ -26,7 +27,7 @@ public struct ProfileView: View {
                             .font(.system(size: 50))
                             .foregroundColor(.white)
                     )
-                    .accessibilityLabel("Profile avatar")
+                    .accessibilityLabel(L10n.Profile.title)
 
                 VStack(spacing: 8) {
                     Text(viewModel.userName)
@@ -43,7 +44,7 @@ public struct ProfileView: View {
                 }
 
                 Button(action: { viewModel.didTapEditProfile() }) {
-                    Text("Edit Profile")
+                    Text(L10n.Profile.editProfile)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.blue.opacity(0.1))
@@ -51,15 +52,15 @@ public struct ProfileView: View {
                         .cornerRadius(10)
                 }
                 .padding(.horizontal)
-                .accessibilityLabel("Edit your profile")
+                .accessibilityLabel(L10n.Profile.editProfile)
 
                 HStack(spacing: 40) {
-                    StatView(title: "Views", value: "\(viewModel.viewCount)")
-                    StatView(title: "Favorites", value: "\(viewModel.favoritesCount)")
-                    StatView(title: "Days", value: "\(viewModel.daysCount)")
+                    StatView(title: L10n.Profile.views, value: "\(viewModel.viewCount)")
+                    StatView(title: L10n.Profile.favorites, value: "\(viewModel.favoritesCount)")
+                    StatView(title: L10n.Profile.days, value: "\(viewModel.daysCount)")
                 }
 
-                Text("Version 1.0.0 (Build 42)")
+                Text("\(L10n.Common.version) 1.0.0 (\(L10n.Common.build) 42)")
                     .font(.caption)
                     .foregroundColor(.gray)
                     .padding(.top)

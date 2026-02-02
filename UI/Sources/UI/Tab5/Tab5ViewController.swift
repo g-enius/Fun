@@ -8,6 +8,7 @@
 import UIKit
 import SwiftUI
 import FunViewModel
+import FunModel
 
 public final class Tab5ViewController: UIViewController {
 
@@ -25,7 +26,7 @@ public final class Tab5ViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Settings"
+        title = L10n.Tabs.settings
         embedSwiftUIView(Tab5View(viewModel: viewModel))
     }
 }
