@@ -214,6 +214,42 @@ class Tab1CoordinatorImpl: BaseCoordinator, Tab1Coordinator {
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+## AI-Assisted Development
+
+This project demonstrates **end-to-end AI-assisted iOS development** using Claude Code with MCP (Model Context Protocol) integration.
+
+### Workflow
+
+```
+Prompt → Code Generation → Build → Test → Simulator → Verify → Commit
+   │          │              │       │        │          │        │
+   └──────────┴──────────────┴───────┴────────┴──────────┴────────┘
+                        All within Claude Code CLI
+```
+
+### What MCP Enables
+
+| Capability | Description |
+|------------|-------------|
+| **XcodeBuildMCP** | Build, run, and test directly from AI conversation |
+| **Simulator Control** | Launch app, capture screenshots, verify UI |
+| **Code Indexing** | Deep codebase understanding for accurate changes |
+| **File System** | Read, write, edit files with full context |
+
+### Evidence of AI Collaboration
+
+- All commits include `Co-Authored-By: Claude` attribution
+- Consistent code style and architecture across the project
+- Comprehensive test coverage generated alongside features
+- Documentation written in tandem with implementation
+
+### Key Differentiator
+
+Most developers use AI for **code completion**. This project demonstrates **full development lifecycle automation**:
+- Architecture decisions → Implementation → Testing → CI/CD → Documentation
+
+---
+
 ## Key Features
 
 ### Reactive Data Flow
@@ -224,11 +260,16 @@ class Tab1CoordinatorImpl: BaseCoordinator, Tab1Coordinator {
 ### Feature Toggles
 - Runtime feature flag management
 - Persisted via UserDefaults
-- NotificationCenter for cross-component updates
+- Combine publishers for reactive cross-component updates
 
 ```swift
 // Toggle carousel visibility at runtime
 featureToggleService.featuredCarousel = false  // Instantly hides carousel
+
+// Observe changes via Combine
+featureToggleService.featureTogglesDidChange
+    .sink { /* update UI */ }
+    .store(in: &cancellables)
 ```
 
 ### Modern Search Implementation
