@@ -1,0 +1,74 @@
+/*
+  Localizable.strings
+  UI
+
+  English localization strings
+*/
+
+// MARK: - Common
+
+"common.loading" = "Loading...";
+"common.cancel" = "Cancel";
+"common.done" = "Done";
+"common.share" = "Share";
+"common.version" = "Version";
+"common.build" = "Build";
+
+// MARK: - Tabs
+
+"tabs.home" = "Home";
+"tabs.search" = "Search";
+"tabs.items" = "Items";
+"tabs.settings" = "Settings";
+
+// MARK: - Home
+
+"home.featured" = "Featured";
+"home.switchToTab2" = "Switch to Tab 2";
+
+// MARK: - Search
+
+"search.noResults" = "No Results";
+"search.searching" = "Searching...";
+"search.minCharacters" = "Search (min %d chars)...";
+"search.typeMinCharacters" = "Type at least %d characters to search";
+"search.tryDifferentTerm" = "Try a different search term or category";
+
+// MARK: - Items
+
+"items.loadedItems" = "Loaded Items";
+"items.favorite" = "Favorite";
+"items.unfavorite" = "Unfavorite";
+
+// MARK: - Settings
+
+"settings.appearance" = "Appearance";
+"settings.darkMode" = "Dark Mode";
+"settings.featureToggles" = "Feature Toggles";
+"settings.featuredCarousel" = "Featured Carousel";
+"settings.analytics" = "Analytics";
+"settings.debugMode" = "Debug Mode";
+"settings.resetDarkMode" = "Reset Dark Mode";
+"settings.resetFeatureToggles" = "Reset Feature Toggles";
+"settings.systemInfo" = "System Information";
+"settings.notifications" = "Notifications";
+"settings.privacyMode" = "Privacy Mode";
+"settings.about" = "About";
+
+// MARK: - Detail
+
+"detail.description" = "Description";
+"detail.justNow" = "Just now";
+"detail.addToFavorites" = "Add to Favorites";
+"detail.removeFromFavorites" = "Remove from Favorites";
+"detail.pushNavigation" = "Push Navigation";
+"detail.usingCoordinatorPattern" = "Using Coordinator Pattern";
+"detail.itemDescription" = "This is a detailed description of %@. It showcases the coordinator pattern for navigation in iOS apps.";
+
+// MARK: - Profile
+
+"profile.title" = "Profile";
+"profile.editProfile" = "Edit Profile";
+"profile.views" = "Views";
+"profile.favorites" = "Favorites";
+"profile.days" = "Days";

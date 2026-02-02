@@ -24,7 +24,10 @@ let package = Package(
                 .product(name: "FunModel", package: "Model"),
                 .product(name: "FunToolbox", package: "Toolbox"),
             ],
-            path: "Sources/UI"
+            path: "Sources/UI",
+            resources: [
+                .process("Resources")
+            ]
         ),
         .testTarget(
             name: "UITests",
