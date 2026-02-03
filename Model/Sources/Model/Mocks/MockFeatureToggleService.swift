@@ -25,8 +25,13 @@ public final class MockFeatureToggleService: FeatureToggleServiceProtocol {
         didSet { togglesChangedSubject.send() }
     }
 
-    public init(featuredCarousel: Bool = true, simulateErrors: Bool = false) {
+    public var darkModeEnabled: Bool {
+        didSet { togglesChangedSubject.send() }
+    }
+
+    public init(featuredCarousel: Bool = true, simulateErrors: Bool = false, darkModeEnabled: Bool = false) {
         self.featuredCarousel = featuredCarousel
         self.simulateErrors = simulateErrors
+        self.darkModeEnabled = darkModeEnabled
     }
 }

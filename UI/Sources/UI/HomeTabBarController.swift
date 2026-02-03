@@ -22,6 +22,7 @@ public class HomeTabBarController: UITabBarController {
     // MARK: - Services
 
     @Service(.toast) private var toastService: ToastServiceProtocol
+    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
     // MARK: - Combine
 
@@ -119,7 +120,7 @@ public class HomeTabBarController: UITabBarController {
     }
 
     private func updateAppearance() {
-        let isDarkModeEnabled = UserDefaults.standard.bool(forKey: .darkModeEnabled)
+        let isDarkModeEnabled = featureToggleService.darkModeEnabled
         let style: UIUserInterfaceStyle = isDarkModeEnabled ? .dark : .light
         overrideUserInterfaceStyle = style
 

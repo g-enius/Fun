@@ -38,6 +38,15 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
         }
     }
 
+    public var darkModeEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: .darkModeEnabled) }
+        set {
+            UserDefaults.standard.set(newValue, forKey: .darkModeEnabled)
+            togglesChangedSubject.send()
+            AppSettingsPublisher.shared.notifySettingsChanged()
+        }
+    }
+
     // MARK: - Initialization
 
     public init() {

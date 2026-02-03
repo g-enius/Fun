@@ -29,10 +29,7 @@ public class SettingsViewModel: ObservableObject {
     // MARK: - Published State
 
     @Published public var isDarkModeEnabled: Bool = false {
-        didSet {
-            UserDefaults.standard.set(isDarkModeEnabled, forKey: .darkModeEnabled)
-            AppSettingsPublisher.shared.notifySettingsChanged()
-        }
+        didSet { featureToggleService.darkModeEnabled = isDarkModeEnabled }
     }
 
     @Published public var featuredCarouselEnabled: Bool = false {
@@ -47,7 +44,7 @@ public class SettingsViewModel: ObservableObject {
 
     public init(coordinator: SettingsCoordinator?) {
         self.coordinator = coordinator
-        self.isDarkModeEnabled = UserDefaults.standard.bool(forKey: .darkModeEnabled)
+        self.isDarkModeEnabled = featureToggleService.darkModeEnabled
         self.featuredCarouselEnabled = featureToggleService.featuredCarousel
         self.simulateErrorsEnabled = featureToggleService.simulateErrors
     }
