@@ -9,6 +9,7 @@
 
 "common.loading" = "Loading...";
 "common.cancel" = "Cancel";
+"common.close" = "Close";
 "common.done" = "Done";
 "common.share" = "Share";
 "common.version" = "Version";

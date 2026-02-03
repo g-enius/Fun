@@ -1,3 +1,10 @@
+//
+//  UserProfile.swift
+//  Model
+//
+//  User profile data model
+//
+
 import Foundation
 
 public struct UserProfile: Equatable, Sendable {

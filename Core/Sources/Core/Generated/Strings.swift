@@ -19,6 +19,8 @@ public enum L10n {
     public static let build = L10n.tr("Localizable", "common.build", fallback: "Build")
     /// Cancel
     public static let cancel = L10n.tr("Localizable", "common.cancel", fallback: "Cancel")
+    /// Close
+    public static let close = L10n.tr("Localizable", "common.close", fallback: "Close")
     /// Done
     public static let done = L10n.tr("Localizable", "common.done", fallback: "Done")
     /// Localizable.strings

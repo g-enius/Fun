@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FunCore
 import FunModel
 
 public struct ToastView: View {
@@ -39,7 +40,7 @@ public struct ToastView: View {
                         Image(systemName: "xmark")
                             .font(.system(size: 14, weight: .semibold))
                     }
-                    .accessibilityLabel("Close")
+                    .accessibilityLabel(L10n.Common.close)
                     .accessibilityIdentifier(AccessibilityID.Toast.closeButton)
                 }
                 .foregroundColor(.white)

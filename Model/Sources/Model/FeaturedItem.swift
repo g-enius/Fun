@@ -1,3 +1,10 @@
+//
+//  FeaturedItem.swift
+//  Model
+//
+//  Data model for featured technology items in the carousel
+//
+
 import Foundation
 
 public struct FeaturedItem: Identifiable, Equatable, Sendable {

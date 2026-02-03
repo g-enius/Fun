@@ -1,6 +1,6 @@
 //
 //  ObjectIdentityEquatable.swift
-//  Toolbox
+//  Core
 //
 //  Protocol for reference types that use object identity for equality
 //
