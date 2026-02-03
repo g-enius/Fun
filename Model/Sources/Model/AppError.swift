@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FunCore
 
 public enum AppError: LocalizedError, Equatable {
     case networkError
@@ -15,22 +16,11 @@ public enum AppError: LocalizedError, Equatable {
     public var errorDescription: String? {
         switch self {
         case .networkError:
-            return "Network connection failed"
+            return L10n.Error.networkError
         case .serverError:
-            return "Server error occurred"
+            return L10n.Error.serverError
         case .unknown:
-            return "An unknown error occurred"
-        }
-    }
-
-    public var recoverySuggestion: String? {
-        switch self {
-        case .networkError:
-            return "Please check your internet connection and try again."
-        case .serverError:
-            return "Please try again later."
-        case .unknown:
-            return "Please try again."
+            return L10n.Error.unknownError
         }
     }
 }
