@@ -7,7 +7,6 @@
 
 import SwiftUI
 import FunViewModel
-import FunModel
 import FunCore
 
 public struct ProfileView: View {
