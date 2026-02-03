@@ -37,11 +37,6 @@ public class ProfileViewModel: ObservableObject {
 
     // MARK: - Actions
 
-    public func didTapSettings() {
-        logger.log("Settings tapped from Profile")
-        coordinator?.showSettings()
-    }
-
     public func didTapSearchItems() {
         logger.log("Search Items tapped from Profile")
         coordinator?.dismissAndSwitchToItems()

@@ -44,33 +44,18 @@ public struct ProfileView: View {
                         .padding(.horizontal)
                 }
 
-                VStack(spacing: 12) {
-                    Button(action: { viewModel.didTapSettings() }) {
-                        HStack {
-                            Image(systemName: "gearshape")
-                            Text(L10n.Tabs.settings)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .foregroundColor(.primary)
-                        .cornerRadius(10)
+                Button(action: { viewModel.didTapSearchItems() }) {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                        Text(L10n.Profile.searchItems)
                     }
-                    .accessibilityLabel(L10n.Tabs.settings)
-
-                    Button(action: { viewModel.didTapSearchItems() }) {
-                        HStack {
-                            Image(systemName: "magnifyingglass")
-                            Text(L10n.Profile.searchItems)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue.opacity(0.1))
-                        .foregroundColor(.blue)
-                        .cornerRadius(10)
-                    }
-                    .accessibilityLabel(L10n.Profile.searchItems)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue.opacity(0.1))
+                    .foregroundColor(.blue)
+                    .cornerRadius(10)
                 }
+                .accessibilityLabel(L10n.Profile.searchItems)
                 .padding(.horizontal)
 
                 HStack(spacing: 40) {
