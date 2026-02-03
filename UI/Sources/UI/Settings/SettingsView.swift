@@ -36,11 +36,13 @@ public struct SettingsView: View {
                     viewModel.resetDarkMode()
                 }
                 .foregroundColor(.red)
+                .accessibilityIdentifier(AccessibilityID.Settings.resetDarkModeButton)
 
                 Button(L10n.Settings.resetFeatureToggles) {
                     viewModel.resetFeatureToggles()
                 }
                 .foregroundColor(.red)
+                .accessibilityIdentifier(AccessibilityID.Settings.resetTogglesButton)
             }
 
             Section(header: Text(L10n.Settings.systemInfo)) {

@@ -39,6 +39,8 @@ public struct ToastView: View {
                         Image(systemName: "xmark")
                             .font(.system(size: 14, weight: .semibold))
                     }
+                    .accessibilityLabel("Close")
+                    .accessibilityIdentifier(AccessibilityID.Toast.closeButton)
                 }
                 .foregroundColor(.white)
                 .padding(.horizontal, 16)

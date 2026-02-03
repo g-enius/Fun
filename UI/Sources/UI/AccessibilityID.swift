@@ -25,6 +25,12 @@ public enum AccessibilityID {
         public static let darkModeToggle = "settings_dark_mode_toggle"
         public static let carouselToggle = "settings_carousel_toggle"
         public static let simulateErrorsToggle = "settings_simulate_errors_toggle"
+        public static let resetDarkModeButton = "settings_reset_dark_mode"
+        public static let resetTogglesButton = "settings_reset_toggles"
+    }
+
+    public enum Toast {
+        public static let closeButton = "toast_close_button"
     }
 
     public enum Detail {
