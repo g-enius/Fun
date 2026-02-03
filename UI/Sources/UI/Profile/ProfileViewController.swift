@@ -8,7 +8,6 @@
 import UIKit
 import SwiftUI
 import FunViewModel
-import FunModel
 import FunCore
 
 public final class ProfileViewController: UIViewController {
