@@ -9,13 +9,8 @@ import UIKit
 import FunViewModel
 import FunModel
 import FunUI
-import FunCore
 
 public final class HomeCoordinatorImpl: BaseCoordinator, HomeCoordinator {
-
-    // MARK: - Services
-
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
     // MARK: - Child Coordinators
 
@@ -60,11 +55,6 @@ public final class HomeCoordinatorImpl: BaseCoordinator, HomeCoordinator {
 
     public func showProfile() {
         let profileNavController = UINavigationController()
-
-        // Apply current dark mode setting to modal via service
-        let isDarkMode = featureToggleService.darkModeEnabled
-        profileNavController.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
-
         let coordinator = ProfileCoordinatorImpl(navigationController: profileNavController)
         profileCoordinator = coordinator
 

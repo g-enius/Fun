@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 import FunUI
 import FunViewModel
 import FunCore
@@ -18,6 +19,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     var appCoordinator: AppCoordinator?
+    private var cancellables = Set<AnyCancellable>()
+
+    // Access feature toggle service for appearance
+    private var featureToggleService: FeatureToggleServiceProtocol {
+        ServiceLocator.shared.resolve(for: .featureToggles)
+    }
 
     func scene(
         _ scene: UIScene,
@@ -78,6 +85,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = navigationController
         self.window = window
         window.makeKeyAndVisible()
+
+        // Apply initial appearance and observe changes
+        updateAppearance()
+        observeAppearanceChanges()
+    }
+
+    // MARK: - Appearance (Single Source of Truth)
+
+    private func observeAppearanceChanges() {
+        AppSettingsPublisher.shared.settingsDidChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.updateAppearance()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func updateAppearance() {
+        let isDarkMode = featureToggleService.darkModeEnabled
+        let style: UIUserInterfaceStyle = isDarkMode ? .dark : .light
+        window?.overrideUserInterfaceStyle = style
     }
 
     // MARK: - Deep Link Handling

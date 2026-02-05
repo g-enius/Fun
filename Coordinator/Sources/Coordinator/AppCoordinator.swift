@@ -14,10 +14,6 @@ import FunCore
 /// Main app coordinator that manages the root navigation and app flow
 public final class AppCoordinator: BaseCoordinator {
 
-    // MARK: - Services
-
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
-
     // MARK: - App Flow State
 
     private var currentFlow: AppFlow = .login
@@ -54,9 +50,6 @@ public final class AppCoordinator: BaseCoordinator {
     private func showLoginFlow() {
         // Clear any existing main flow coordinators
         clearMainFlowCoordinators()
-
-        // Apply dark mode to login flow
-        applyAppearance()
 
         let loginCoordinator = LoginCoordinatorImpl(navigationController: navigationController)
         loginCoordinator.onLoginSuccess = { [weak self] in
@@ -163,21 +156,6 @@ public final class AppCoordinator: BaseCoordinator {
     private func transitionToLoginFlow() {
         currentFlow = .login
         showLoginFlow()
-    }
-
-    // MARK: - Appearance
-
-    private func applyAppearance() {
-        let isDarkMode = featureToggleService.darkModeEnabled
-        let style: UIUserInterfaceStyle = isDarkMode ? .dark : .light
-        navigationController.overrideUserInterfaceStyle = style
-
-        // Apply to all windows
-        if let windowScene = navigationController.view.window?.windowScene {
-            windowScene.windows.forEach { window in
-                window.overrideUserInterfaceStyle = style
-            }
-        }
     }
 
     // MARK: - Cleanup

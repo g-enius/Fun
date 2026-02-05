@@ -22,7 +22,6 @@ public class HomeTabBarController: UITabBarController {
     // MARK: - Services
 
     @Service(.toast) private var toastService: ToastServiceProtocol
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
     // MARK: - Combine
 
@@ -70,8 +69,6 @@ public class HomeTabBarController: UITabBarController {
             }
         }
 
-        updateAppearance()
-        observeAppSettingChanges()
         observeToastEvents()
     }
 
@@ -121,32 +118,6 @@ public class HomeTabBarController: UITabBarController {
         toastHostingController = nil
     }
 
-    // MARK: - Appearance (Combine)
-
-    private func observeAppSettingChanges() {
-        AppSettingsPublisher.shared.settingsDidChange
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.updateAppearance()
-            }
-            .store(in: &cancellables)
-    }
-
-    private func updateAppearance() {
-        let isDarkModeEnabled = featureToggleService.darkModeEnabled
-        let style: UIUserInterfaceStyle = isDarkModeEnabled ? .dark : .light
-        overrideUserInterfaceStyle = style
-
-        if let windowScene = view.window?.windowScene {
-            windowScene.windows.forEach { window in
-                window.overrideUserInterfaceStyle = style
-            }
-        }
-
-        if let presented = presentedViewController {
-            presented.overrideUserInterfaceStyle = style
-        }
-    }
 }
 
 // MARK: - UITabBarControllerDelegate
