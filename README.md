@@ -467,10 +467,42 @@ Visual regression testing using swift-snapshot-testing:
 - Structured concurrency with async/await
 - Sendable conformance where required
 
-### UIKit + SwiftUI Interoperability
+### UIKit + SwiftUI Hybrid Approach
+
+This app uses a hybrid architecture: **UIKit for navigation, SwiftUI for content**. This follows production best practices for enterprise iOS apps.
+
+#### Why UIKit for Navigation?
+SwiftUI's NavigationStack has limitations:
+- Custom presentation transitions not fully supported
+- Unpredictable behavior changes between iOS versions
+- Limited control over navigation stack manipulation
+- UIKit provides reliable, testable navigation via Coordinator pattern
+
+#### When to Use UIKit vs SwiftUI
+
+| Scenario | Framework | This App |
+|----------|-----------|----------|
+| **Navigation/Presentation** | UIKit | ✅ `UINavigationController` + Coordinators |
+| **Large lists (500+ items)** | UIKit (`UICollectionView`) | N/A - only 14 items, SwiftUI List is fine |
+| **Keyboard on appearance** | UIKit | N/A - no auto-focus screens |
+| **Swipe actions on List items** | SwiftUI | ✅ Favorite swipe in ItemsView |
+| **Swipe actions on custom cards** | UIKit | N/A - not needed |
+| **Content & Layout** | SwiftUI | ✅ All views (HomeView, ItemsView, etc.) |
+| **Forms & Settings** | SwiftUI | ✅ SettingsView |
+| **Small-medium lists (<500)** | SwiftUI | ✅ Items list, carousel |
+
+#### Architecture Pattern
 ```swift
-// Embedding SwiftUI in UIKit
-extension UIViewController {
+// UIKit handles navigation
+class HomeCoordinatorImpl: BaseCoordinator, HomeCoordinator {
+    func showDetail(for item: FeaturedItem) {
+        let detailVC = DetailViewController(viewModel: ...)
+        navigationController.pushViewController(detailVC, animated: true)
+    }
+}
+
+// SwiftUI handles content via UIHostingController
+class DetailViewController: UIViewController {
     func embedSwiftUIView<Content: View>(_ content: Content) {
         let hostingController = UIHostingController(rootView: content)
         addChild(hostingController)
@@ -479,6 +511,12 @@ extension UIViewController {
     }
 }
 ```
+
+#### Future Considerations
+If the app grows to need:
+- **500+ items**: Migrate to `UICollectionView` with SwiftUI cells via `UIHostingConfiguration`
+- **Keyboard auto-focus**: Use UIKit `viewDidAppear` with `becomeFirstResponder()`
+- **Custom card swipes**: Implement `UISwipeActionsConfiguration` in UIKit
 
 ## Getting Started
 
