@@ -445,10 +445,14 @@ func testCarouselVisibility(scenario: FeatureScenario) async {
 }
 ```
 
-### Snapshot Tests
-- Visual regression testing for UI components
-- Multiple device configurations
-- Light/dark mode variants
+### Snapshot Tests (18 tests across 6 views)
+Visual regression testing using swift-snapshot-testing:
+- **HomeView**: Carousel enabled/disabled, dark mode
+- **SettingsView**: Default, dark mode, carousel toggles
+- **LoginView**: Default, logging in state, dark mode
+- **ItemsView**: Default, with search, dark mode
+- **DetailView**: Default, favorited, dark mode
+- **ProfileView**: Default, dark mode
 
 ## Project Highlights
 
