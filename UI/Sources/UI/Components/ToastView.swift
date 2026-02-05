@@ -57,15 +57,14 @@ public struct ToastView: View {
 
             Spacer()
         }
-        .onAppear {
+        .task {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 isVisible = true
             }
 
             // Auto-dismiss after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                dismiss()
-            }
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            dismiss()
         }
     }
 
@@ -73,7 +72,8 @@ public struct ToastView: View {
         withAnimation(.easeOut(duration: 0.25)) {
             isVisible = false
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+        Task {
+            try? await Task.sleep(nanoseconds: 250_000_000)
             onDismiss()
         }
     }
