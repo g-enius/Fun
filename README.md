@@ -196,17 +196,17 @@ class AppCoordinator: BaseCoordinator {
 
 **Flow Transition Diagram:**
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        AppCoordinator                        │
-│                                                             │
-│  ┌─────────────┐    didLogin()    ┌─────────────────────┐  │
-│  │  LoginFlow  │ ───────────────► │     MainFlow        │  │
-│  │             │                  │                     │  │
-│  │ LoginCoord. │                  │ TabBarCoordinator   │  │
-│  │ LoginView   │ ◄─────────────── │ HomeCoord/ItemsCoord│  │
-│  └─────────────┘    logout()      │ SettingsCoordinator │  │
-│                                   └─────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+                         AppCoordinator
+    ┌────────────────────────────────────────────────────┐
+    │                                                    │
+    │   ┌─────────────┐            ┌─────────────────┐   │
+    │   │ LoginFlow   │  didLogin  │   MainFlow      │   │
+    │   │             │ ─────────► │                 │   │
+    │   │ LoginCoord  │            │ TabBarCoord     │   │
+    │   │ LoginView   │ ◄───────── │ SettingsCoord   │   │
+    │   └─────────────┘   logout   └─────────────────┘   │
+    │                                                    │
+    └────────────────────────────────────────────────────┘
 ```
 
 **Key Design Decisions:**
