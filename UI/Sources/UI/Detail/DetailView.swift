@@ -145,9 +145,27 @@ private enum ContentBlock {
 
 // MARK: - Code Block View
 
+/// Code block view that adapts styling based on color scheme.
+/// Demonstrates @Environment usage for reading system settings.
 private struct CodeBlockView: View {
     let code: String
     let language: String
+
+    // MARK: - Environment
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    // MARK: - Computed Properties
+
+    private var backgroundColor: Color {
+        colorScheme == .dark ? Color(.systemGray5) : Color(.systemGray6)
+    }
+
+    private var borderColor: Color {
+        colorScheme == .dark ? Color(.systemGray4) : Color.clear
+    }
+
+    // MARK: - Body
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -163,7 +181,11 @@ private struct CodeBlockView: View {
                 .foregroundColor(.primary)
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.systemGray6))
+                .background(backgroundColor)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(borderColor, lineWidth: 1)
+                )
                 .cornerRadius(8)
         }
     }
