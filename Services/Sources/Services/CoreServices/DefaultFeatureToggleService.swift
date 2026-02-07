@@ -56,8 +56,16 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
         darkModeEnabled = defaults.bool(forKey: .darkModeEnabled)
 
         // Persist changes back to UserDefaults
-        $featuredCarousel.dropFirst().sink { UserDefaults.standard.set($0, forKey: .featureCarousel) }.store(in: &cancellables)
-        $simulateErrors.dropFirst().sink { UserDefaults.standard.set($0, forKey: .simulateErrors) }.store(in: &cancellables)
-        $darkModeEnabled.dropFirst().sink { UserDefaults.standard.set($0, forKey: .darkModeEnabled) }.store(in: &cancellables)
+        $featuredCarousel.dropFirst().sink {
+            UserDefaults.standard.set($0, forKey: .featureCarousel)
+        }.store(in: &cancellables)
+
+        $simulateErrors.dropFirst().sink {
+            UserDefaults.standard.set($0, forKey: .simulateErrors)
+        }.store(in: &cancellables)
+
+        $darkModeEnabled.dropFirst().sink {
+            UserDefaults.standard.set($0, forKey: .darkModeEnabled)
+        }.store(in: &cancellables)
     }
 }

@@ -124,7 +124,7 @@ public enum TechnologyDescriptions {
         """
 
     private static let spmDescription = """
-        The app is modularized into 8 Swift packages:
+        The app is modularized into 6 Swift packages:
 
         • Core - ServiceLocator, utilities
         • Model - Data models, protocols
@@ -132,7 +132,6 @@ public enum TechnologyDescriptions {
         • ViewModel - Business logic
         • UI - SwiftUI views, UIKit controllers
         • Coordinator - Navigation logic
-        • App - App-level configuration
 
         Benefits:
         • Clear dependency boundaries

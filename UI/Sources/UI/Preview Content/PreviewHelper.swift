@@ -24,8 +24,11 @@ public enum PreviewHelper {
 
         // Register mock services
         locator.register(PreviewLoggerService() as LoggerService, for: .logger)
-        locator.register(MockFavoritesService(initialFavorites: ["asyncawait", "swiftui"]) as FavoritesServiceProtocol, for: .favorites)
-        locator.register(MockFeatureToggleService(featuredCarousel: true, simulateErrors: false) as FeatureToggleServiceProtocol, for: .featureToggles)
+        let favorites = MockFavoritesService(initialFavorites: ["asyncawait", "swiftui"])
+        locator.register(favorites as FavoritesServiceProtocol, for: .favorites)
+
+        let toggles = MockFeatureToggleService(featuredCarousel: true, simulateErrors: false)
+        locator.register(toggles as FeatureToggleServiceProtocol, for: .featureToggles)
         locator.register(MockToastService() as ToastServiceProtocol, for: .toast)
 
         isConfigured = true
