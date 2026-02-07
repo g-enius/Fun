@@ -72,7 +72,7 @@ struct DetailViewModelTests {
         viewModel.didTapToggleFavorite()
 
         // Wait for publisher to propagate
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(viewModel.isFavorited == true)
     }
@@ -88,7 +88,7 @@ struct DetailViewModelTests {
         viewModel.didTapToggleFavorite()
 
         // Wait for publisher to propagate
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(viewModel.isFavorited == false)
     }
@@ -110,7 +110,7 @@ struct DetailViewModelTests {
         mockFavorites.addFavorite(item.id)
 
         // Wait for publisher
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(viewModel.isFavorited == true)
     }

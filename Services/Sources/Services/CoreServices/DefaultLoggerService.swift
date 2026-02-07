@@ -18,7 +18,8 @@ public final class DefaultLoggerService: LoggerService {
     /// Default category for logs
     private let defaultCategory: String
 
-    /// Cache of loggers by category
+    /// Cache of loggers by category (bounded to prevent unbounded growth)
+    private static let maxCacheSize = 50
     private var loggers: [String: Logger] = [:]
 
     public init(
@@ -31,20 +32,8 @@ public final class DefaultLoggerService: LoggerService {
 
     // MARK: - LoggerService
 
-    public func log(_ message: String) {
-        log(message, level: .info, category: defaultCategory)
-    }
-
-    public func log(_ message: String, level: LogLevel) {
-        log(message, level: level, category: defaultCategory)
-    }
-
     public func log(_ message: String, level: LogLevel, category: LogCategory) {
-        log(message, level: level, category: category.rawValue)
-    }
-
-    public func log(_ message: String, level: LogLevel, category: String) {
-        let logger = getLogger(for: category)
+        let logger = getLogger(for: category.rawValue)
 
         switch level {
         case .debug:
@@ -65,6 +54,9 @@ public final class DefaultLoggerService: LoggerService {
     private func getLogger(for category: String) -> Logger {
         if let existing = loggers[category] {
             return existing
+        }
+        if loggers.count >= Self.maxCacheSize {
+            loggers.removeAll()
         }
         let logger = Logger(subsystem: subsystem, category: category)
         loggers[category] = logger

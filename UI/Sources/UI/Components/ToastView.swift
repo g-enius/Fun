@@ -54,6 +54,9 @@ public struct ToastView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
                 .transition(.move(edge: .top).combined(with: .opacity))
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(type.accessibilityDescription): \(message)")
+                .accessibilityAddTraits(.isStaticText)
                 .accessibilityIdentifier("toast_view")
             }
 

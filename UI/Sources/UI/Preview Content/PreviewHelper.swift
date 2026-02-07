@@ -94,7 +94,7 @@ private final class PreviewFavoritesService: FavoritesServiceProtocol {
         self.subject = CurrentValueSubject(initialFavorites)
     }
     func isFavorited(_ itemId: String) -> Bool { favorites.contains(itemId) }
-    func toggleFavorite(forKey itemId: String) {
+    func toggleFavorite(_ itemId: String) {
         if favorites.contains(itemId) { favorites.remove(itemId) } else { favorites.insert(itemId) }
         subject.send(favorites)
     }

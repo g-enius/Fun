@@ -21,13 +21,16 @@ public struct SettingsView: View {
         Form {
             Section(header: Text(L10n.Settings.appearance)) {
                 Toggle(L10n.Settings.darkMode, isOn: $viewModel.isDarkModeEnabled)
+                    .accessibilityHint("Toggles dark mode appearance for the app")
                     .accessibilityIdentifier(AccessibilityID.Settings.darkModeToggle)
             }
 
             Section(header: Text(L10n.Settings.featureToggles)) {
                 Toggle(L10n.Settings.featuredCarousel, isOn: $viewModel.featuredCarouselEnabled)
+                    .accessibilityHint("Shows or hides the featured carousel on the home screen")
                     .accessibilityIdentifier(AccessibilityID.Settings.carouselToggle)
                 Toggle(L10n.Settings.simulateErrors, isOn: $viewModel.simulateErrorsEnabled)
+                    .accessibilityHint("Simulates network errors for testing purposes")
                     .accessibilityIdentifier(AccessibilityID.Settings.simulateErrorsToggle)
             }
 

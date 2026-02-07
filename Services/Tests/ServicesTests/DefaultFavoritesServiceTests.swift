@@ -74,7 +74,7 @@ struct DefaultFavoritesServiceTests {
 
         #expect(service.isFavorited("item3") == false)
 
-        service.toggleFavorite(forKey: "item3")
+        service.toggleFavorite( "item3")
 
         #expect(service.isFavorited("item3") == true)
         #expect(service.favorites.count == initialCount + 1)
@@ -89,7 +89,7 @@ struct DefaultFavoritesServiceTests {
         #expect(service.isFavorited("item1") == true)
         let initialCount = service.favorites.count
 
-        service.toggleFavorite(forKey: "item1")
+        service.toggleFavorite( "item1")
 
         #expect(service.isFavorited("item1") == false)
         #expect(service.favorites.count == initialCount - 1)
@@ -205,8 +205,8 @@ struct DefaultFavoritesServiceTests {
             }
             .store(in: &cancellables)
 
-        service.toggleFavorite(forKey: "item1")
-        service.toggleFavorite(forKey: "item1")
+        service.toggleFavorite( "item1")
+        service.toggleFavorite( "item1")
 
         #expect(publishCount == 2)
     }

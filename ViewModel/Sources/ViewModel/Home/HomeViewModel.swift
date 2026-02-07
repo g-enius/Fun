@@ -38,6 +38,7 @@ public class HomeViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private var cancellables = Set<AnyCancellable>()
+    private var loadTask: Task<Void, Never>?
     private var hasLoadedInitialData: Bool = false
 
     // MARK: - Initialization
@@ -49,9 +50,13 @@ public class HomeViewModel: ObservableObject {
         observeFavoritesChanges()
 
         // Load data asynchronously on init
-        Task { [weak self] in
+        loadTask = Task { [weak self] in
             await self?.loadFeaturedItems()
         }
+    }
+
+    deinit {
+        loadTask?.cancel()
     }
 
     // MARK: - Feature Toggle Observation (Combine)
@@ -86,7 +91,7 @@ public class HomeViewModel: ObservableObject {
     }
 
     public func toggleFavorite(for itemId: String) {
-        favoritesService.toggleFavorite(forKey: itemId)
+        favoritesService.toggleFavorite(itemId)
         logger.log("Toggled favorite for: \(itemId)")
     }
 
@@ -142,7 +147,8 @@ public class HomeViewModel: ObservableObject {
 
     /// Retry loading after error
     public func retry() {
-        Task { [weak self] in
+        loadTask?.cancel()
+        loadTask = Task { [weak self] in
             await self?.loadFeaturedItems()
         }
     }

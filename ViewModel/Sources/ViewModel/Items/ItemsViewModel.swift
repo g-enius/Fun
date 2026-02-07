@@ -208,7 +208,7 @@ public class ItemsViewModel: ObservableObject {
     }
 
     public func toggleFavorite(for itemId: String) {
-        favoritesService.toggleFavorite(forKey: itemId)
+        favoritesService.toggleFavorite(itemId)
     }
 
     // MARK: - Actions

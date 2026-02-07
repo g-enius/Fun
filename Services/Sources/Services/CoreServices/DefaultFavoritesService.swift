@@ -50,7 +50,7 @@ public final class DefaultFavoritesService: FavoritesServiceProtocol {
         favorites.contains(itemId)
     }
 
-    public func toggleFavorite(forKey itemId: String) {
+    public func toggleFavorite(_ itemId: String) {
         if favorites.contains(itemId) {
             favorites.remove(itemId)
         } else {

@@ -167,7 +167,7 @@ public enum TechnologyDescriptions {
         ```swift
         protocol FavoritesServiceProtocol {
             var favorites: Set<String> { get }
-            func toggleFavorite(forKey: String)
+            func toggleFavorite(_ itemId: String)
         }
         ```
 
@@ -206,7 +206,7 @@ public enum TechnologyDescriptions {
         @Service(.logger) private var logger: LoggerService
 
         logger.log("Item selected: \\(item.title)")
-        logger.log("Error occurred", level: .error, category: "network")
+        logger.log("Error occurred", level: .error, category: .network)
         ```
 
         Log levels: .debug, .info, .warning, .error, .fault
@@ -247,7 +247,7 @@ public enum TechnologyDescriptions {
             @Test("toggleFavorite adds item when not favorited")
             func testToggleFavoriteAdds() async {
                 let service = DefaultFavoritesService()
-                service.toggleFavorite(forKey: "item3")
+                service.toggleFavorite( "item3")
                 #expect(service.isFavorited("item3") == true)
             }
         }

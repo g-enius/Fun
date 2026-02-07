@@ -25,7 +25,7 @@ public struct ProfileView: View {
         ScrollView {
             VStack(spacing: 24) {
                 Circle()
-                    .fill(Color.purple)
+                    .fill(Color.accentColor)
                     .frame(width: 100, height: 100)
                     .overlay(
                         Image(systemName: "person.fill")
@@ -107,6 +107,8 @@ private struct StatView: View {
                 .font(.caption)
                 .foregroundColor(.gray)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(value) \(title)")
     }
 }
 

@@ -109,7 +109,7 @@ struct ItemsViewModelTests {
         viewModel.didSelectCategory("All")
 
         // Wait for filtering
-        try? await Task.sleep(nanoseconds: 500_000_000)
+        await waitForCondition { viewModel.items.count == allItemsCount }
 
         #expect(viewModel.items.count == allItemsCount)
     }
@@ -164,7 +164,7 @@ struct ItemsViewModelTests {
         viewModel.toggleFavorite(for: "test_item")
 
         // Wait for publisher to propagate
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -179,7 +179,7 @@ struct ItemsViewModelTests {
         viewModel.toggleFavorite(for: "test_item")
 
         // Wait for publisher to propagate
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(viewModel.isFavorited("test_item") == false)
     }
@@ -200,7 +200,7 @@ struct ItemsViewModelTests {
         mockFavorites.addFavorite("new_item")
 
         // Wait for publisher to propagate
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(viewModel.favoriteIds.contains("new_item"))
     }
@@ -239,7 +239,7 @@ struct ItemsViewModelTests {
         viewModel.didSelectCategory(testCategory)
 
         // Wait for filtering
-        try? await Task.sleep(nanoseconds: 500_000_000)
+        await waitForCondition { viewModel.items.count < allItemsCount }
 
         let filteredCount = viewModel.items.count
 
@@ -260,7 +260,7 @@ struct ItemsViewModelTests {
         viewModel.didSelectCategory(testCategory)
 
         // Wait for filtering
-        try? await Task.sleep(nanoseconds: 500_000_000)
+        await waitForCondition { viewModel.items.allSatisfy { $0.category == testCategory } }
 
         for item in viewModel.items {
             #expect(item.category == testCategory)

@@ -42,8 +42,15 @@ public enum LogCategory: String, Sendable {
 /// Protocol for structured logging
 @MainActor
 public protocol LoggerService {
-    func log(_ message: String)
-    func log(_ message: String, level: LogLevel)
     func log(_ message: String, level: LogLevel, category: LogCategory)
-    func log(_ message: String, level: LogLevel, category: String)
+}
+
+extension LoggerService {
+    public func log(_ message: String) {
+        log(message, level: .info, category: .general)
+    }
+
+    public func log(_ message: String, level: LogLevel) {
+        log(message, level: level, category: .general)
+    }
 }

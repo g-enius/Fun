@@ -71,7 +71,7 @@ public class DetailViewModel: ObservableObject {
     }
 
     public func didTapToggleFavorite() {
-        favoritesService.toggleFavorite(forKey: itemId)
+        favoritesService.toggleFavorite(itemId)
         logger.log("Favorite toggled for \(itemTitle)")
     }
 }

@@ -61,8 +61,8 @@ struct DefaultFeatureToggleServiceTests {
 
         service.featuredCarousel = false
 
-        // Wait a moment for publisher
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        // Yield to allow publisher propagation
+        await Task.yield()
 
         #expect(receivedValue == false)
     }
@@ -117,7 +117,7 @@ struct DefaultFeatureToggleServiceTests {
 
         service.simulateErrors = true
 
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(receivedValue == true)
     }
@@ -157,7 +157,7 @@ struct DefaultFeatureToggleServiceTests {
 
         service.darkModeEnabled = true
 
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(receivedValue == true)
     }

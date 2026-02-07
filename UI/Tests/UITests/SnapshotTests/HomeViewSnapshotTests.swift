@@ -63,4 +63,28 @@ final class HomeViewSnapshotTests: XCTestCase {
 
         assertSnapshot(of: hostingController, as: .image(on: .iPhone13Pro), record: recording)
     }
+
+    // MARK: - iPad Tests
+
+    func testHomeView_iPad_portrait() {
+        let viewModel = HomeViewModel(coordinator: nil)
+        viewModel.isCarouselEnabled = true
+
+        let view = HomeView(viewModel: viewModel)
+        let hostingController = UIHostingController(rootView: view)
+        hostingController.view.frame = CGRect(x: 0, y: 0, width: 1024, height: 1366)
+
+        assertSnapshot(of: hostingController, as: .image(on: .iPadPro12_9), record: recording)
+    }
+
+    func testHomeView_iPad_landscape() {
+        let viewModel = HomeViewModel(coordinator: nil)
+        viewModel.isCarouselEnabled = true
+
+        let view = HomeView(viewModel: viewModel)
+        let hostingController = UIHostingController(rootView: view)
+        hostingController.view.frame = CGRect(x: 0, y: 0, width: 1366, height: 1024)
+
+        assertSnapshot(of: hostingController, as: .image(on: .iPadPro12_9(.landscape)), record: recording)
+    }
 }

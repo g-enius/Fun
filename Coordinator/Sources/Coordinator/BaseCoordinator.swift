@@ -32,6 +32,8 @@ open class BaseCoordinator: Coordinator {
     }
 
     private var pendingActions: [@MainActor () -> Void] = []
+    private var lastPushTime: CFAbsoluteTime = 0
+    private static let pushDebounceInterval: CFAbsoluteTime = 0.3
 
     public init(navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -56,6 +58,14 @@ open class BaseCoordinator: Coordinator {
             logger.log("Attempted to push duplicate screen")
             return
         }
+
+        // Debounce rapid taps
+        let now = CFAbsoluteTimeGetCurrent()
+        guard now - lastPushTime >= Self.pushDebounceInterval else {
+            logger.log("Push debounced — too rapid")
+            return
+        }
+        lastPushTime = now
 
         navigationController.pushViewController(viewController, animated: animated)
     }

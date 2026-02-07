@@ -26,10 +26,18 @@ public class LoginViewModel: ObservableObject {
 
     @Published public var isLoggingIn: Bool = false
 
+    // MARK: - Private Properties
+
+    private var loginTask: Task<Void, Never>?
+
     // MARK: - Initialization
 
     public init(coordinator: LoginCoordinator?) {
         self.coordinator = coordinator
+    }
+
+    deinit {
+        loginTask?.cancel()
     }
 
     // MARK: - Actions
@@ -41,7 +49,8 @@ public class LoginViewModel: ObservableObject {
         logger.log("User tapped login", level: .info, category: .general)
 
         // Simulate a brief login delay for realism
-        Task { [weak self] in
+        loginTask?.cancel()
+        loginTask = Task { [weak self] in
             defer { self?.isLoggingIn = false }
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
             self?.coordinator?.didLogin()

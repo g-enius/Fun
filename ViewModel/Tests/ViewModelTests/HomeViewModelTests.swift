@@ -174,7 +174,7 @@ struct HomeViewModelTests {
         viewModel.toggleFavorite(for: "test_item")
 
         // Wait for publisher to propagate
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -189,7 +189,7 @@ struct HomeViewModelTests {
         viewModel.toggleFavorite(for: "test_item")
 
         // Wait for publisher to propagate
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        await Task.yield()
 
         #expect(viewModel.isFavorited("test_item") == false)
     }
@@ -256,7 +256,7 @@ struct HomeViewModelTests {
         viewModel.retry()
 
         // Wait for async task
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        await waitForCondition { !viewModel.featuredItems.isEmpty }
 
         #expect(!viewModel.featuredItems.isEmpty)
         #expect(viewModel.hasError == false)

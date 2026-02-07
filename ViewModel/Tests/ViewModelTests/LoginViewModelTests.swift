@@ -49,7 +49,7 @@ struct LoginViewModelTests {
     }
 
     @Test("Login calls coordinator didLogin after delay")
-    func loginCallsCoordinator() async throws {
+    func loginCallsCoordinator() async {
         setupServices()
         let coordinator = MockLoginCoordinator()
         let viewModel = LoginViewModel(coordinator: coordinator)
@@ -57,7 +57,7 @@ struct LoginViewModelTests {
         viewModel.login()
 
         // Wait for the simulated login delay
-        try await Task.sleep(nanoseconds: 600_000_000) // 0.6 seconds
+        await waitForCondition { coordinator.didLoginCalled }
 
         #expect(coordinator.didLoginCalled == true)
         #expect(viewModel.isLoggingIn == false)
@@ -80,7 +80,7 @@ struct LoginViewModelTests {
         #expect(viewModel.isLoggingIn == true)
 
         // Wait for completion and verify coordinator called only once
-        try await Task.sleep(nanoseconds: 600_000_000)
+        await waitForCondition { coordinator.didLoginCallCount == 1 }
         #expect(coordinator.didLoginCallCount == 1)
     }
 
@@ -92,7 +92,7 @@ struct LoginViewModelTests {
         viewModel.login()
         #expect(viewModel.isLoggingIn == true)
 
-        try await Task.sleep(nanoseconds: 600_000_000)
+        await waitForCondition { viewModel.isLoggingIn == false }
         #expect(viewModel.isLoggingIn == false)
     }
 }

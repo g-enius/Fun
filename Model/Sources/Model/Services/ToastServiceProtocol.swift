@@ -12,6 +12,14 @@ public enum ToastType: Sendable {
     case success
     case error
     case info
+
+    public var accessibilityDescription: String {
+        switch self {
+        case .success: return "Success"
+        case .error: return "Error"
+        case .info: return "Information"
+        }
+    }
 }
 
 public struct ToastEvent: Sendable {

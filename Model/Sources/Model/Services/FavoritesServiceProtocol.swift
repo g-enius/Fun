@@ -16,7 +16,7 @@ public protocol FavoritesServiceProtocol {
     var favoritesDidChange: AnyPublisher<Set<String>, Never> { get }
 
     func isFavorited(_ itemId: String) -> Bool
-    func toggleFavorite(forKey itemId: String)
+    func toggleFavorite(_ itemId: String)
     func addFavorite(_ itemId: String)
     func removeFavorite(_ itemId: String)
 

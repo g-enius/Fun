@@ -11,8 +11,6 @@ import FunModel
 @MainActor
 public final class AuthenticatedSession: Session {
 
-    @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
-
     public init() {}
 
     public func activate() {
@@ -25,7 +23,11 @@ public final class AuthenticatedSession: Session {
     }
 
     public func teardown() {
-        favoritesService.resetFavorites()
-        ServiceLocator.shared.reset()
+        let locator = ServiceLocator.shared
+        if locator.isRegistered(for: .favorites) {
+            let favorites: FavoritesServiceProtocol = locator.resolve(for: .favorites)
+            favorites.resetFavorites()
+        }
+        locator.reset()
     }
 }
