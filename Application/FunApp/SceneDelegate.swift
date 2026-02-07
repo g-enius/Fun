@@ -38,32 +38,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let navigationController = UINavigationController()
         navigationController.setNavigationBarHidden(true, animated: false)
 
+        window.rootViewController = navigationController
+        self.window = window
+
+        // Observe before coordinator.start() so serviceDidRegister triggers initial subscription
+        observeDarkMode()
+
         // Create and start app coordinator with session factory
         let coordinator = AppCoordinator(
             navigationController: navigationController,
             sessionFactory: AppSessionFactory()
         )
         coordinator.start()
-
-        // Store coordinator to prevent deallocation
         self.appCoordinator = coordinator
 
-        window.rootViewController = navigationController
-        self.window = window
         window.makeKeyAndVisible()
-
-        observeDarkMode()
     }
 
     // MARK: - Dark Mode Observation
 
     private func observeDarkMode() {
-        subscribeToDarkMode()
-
-        // Re-subscribe when feature toggle service is replaced (session transition)
         ServiceLocator.shared.serviceDidRegister
             .filter { $0 == .featureToggles }
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.subscribeToDarkMode()
             }
