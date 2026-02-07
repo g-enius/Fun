@@ -60,9 +60,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // MARK: - Appearance (Single Source of Truth)
 
     private func observeAppearanceChanges() {
-        AppSettingsPublisher.shared.settingsDidChange
+        featureToggleService.featureTogglesDidChange
+            .map { [weak self] in self?.featureToggleService.darkModeEnabled }
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
+            .sink { [weak self] _ in
                 self?.updateAppearance()
             }
             .store(in: &cancellables)

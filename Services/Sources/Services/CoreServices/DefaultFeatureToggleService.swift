@@ -43,7 +43,6 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
         set {
             UserDefaults.standard.set(newValue, forKey: .darkModeEnabled)
             togglesChangedSubject.send()
-            AppSettingsPublisher.shared.notifySettingsChanged()
         }
     }
 
