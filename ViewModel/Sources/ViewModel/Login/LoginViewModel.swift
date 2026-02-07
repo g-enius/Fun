@@ -41,10 +41,10 @@ public class LoginViewModel: ObservableObject {
         logger.log("User tapped login", level: .info, category: .general)
 
         // Simulate a brief login delay for realism
-        Task {
+        Task { [weak self] in
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-            isLoggingIn = false
-            coordinator?.didLogin()
+            self?.isLoggingIn = false
+            self?.coordinator?.didLogin()
         }
     }
 }

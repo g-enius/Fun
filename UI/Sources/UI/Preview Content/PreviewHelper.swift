@@ -5,6 +5,7 @@
 //  Helper utilities for SwiftUI previews
 //
 
+import Combine
 import SwiftUI
 
 import FunCore
@@ -23,14 +24,14 @@ public enum PreviewHelper {
 
         let locator = ServiceLocator.shared
 
-        // Register mock services
+        // Register preview stub services
         locator.register(PreviewLoggerService() as LoggerService, for: .logger)
-        let favorites = MockFavoritesService(initialFavorites: ["asyncawait", "swiftui"])
+        let favorites = PreviewFavoritesService(initialFavorites: ["asyncawait", "swiftui"])
         locator.register(favorites as FavoritesServiceProtocol, for: .favorites)
 
-        let toggles = MockFeatureToggleService(featuredCarousel: true, simulateErrors: false)
+        let toggles = PreviewFeatureToggleService()
         locator.register(toggles as FeatureToggleServiceProtocol, for: .featureToggles)
-        locator.register(MockToastService() as ToastServiceProtocol, for: .toast)
+        locator.register(PreviewToastService() as ToastServiceProtocol, for: .toast)
 
         isConfigured = true
     }
@@ -72,13 +73,46 @@ public enum PreviewHelper {
     }
 }
 
-// MARK: - Preview Logger Service
+// MARK: - Preview Stub Services
 
-/// Minimal logger for previews - does nothing
 @MainActor
 private final class PreviewLoggerService: LoggerService {
     func log(_ message: String) {}
     func log(_ message: String, level: LogLevel) {}
     func log(_ message: String, level: LogLevel, category: LogCategory) {}
     func log(_ message: String, level: LogLevel, category: String) {}
+}
+
+@MainActor
+private final class PreviewFavoritesService: FavoritesServiceProtocol {
+    var favorites: Set<String>
+    private let subject = PassthroughSubject<Set<String>, Never>()
+    var favoritesDidChange: AnyPublisher<Set<String>, Never> { subject.eraseToAnyPublisher() }
+
+    init(initialFavorites: Set<String> = []) { self.favorites = initialFavorites }
+    func isFavorited(_ itemId: String) -> Bool { favorites.contains(itemId) }
+    func toggleFavorite(forKey itemId: String) {
+        if favorites.contains(itemId) { favorites.remove(itemId) } else { favorites.insert(itemId) }
+        subject.send(favorites)
+    }
+    func addFavorite(_ itemId: String) { favorites.insert(itemId); subject.send(favorites) }
+    func removeFavorite(_ itemId: String) { favorites.remove(itemId); subject.send(favorites) }
+    func resetFavorites() { favorites.removeAll(); subject.send(favorites) }
+}
+
+@MainActor
+private final class PreviewFeatureToggleService: FeatureToggleServiceProtocol {
+    @Published var featuredCarousel: Bool = true
+    @Published var simulateErrors: Bool = false
+    @Published var darkModeEnabled: Bool = false
+    var featuredCarouselPublisher: AnyPublisher<Bool, Never> { $featuredCarousel.eraseToAnyPublisher() }
+    var simulateErrorsPublisher: AnyPublisher<Bool, Never> { $simulateErrors.eraseToAnyPublisher() }
+    var darkModePublisher: AnyPublisher<Bool, Never> { $darkModeEnabled.eraseToAnyPublisher() }
+}
+
+@MainActor
+private final class PreviewToastService: ToastServiceProtocol {
+    private let subject = PassthroughSubject<ToastEvent, Never>()
+    var toastPublisher: AnyPublisher<ToastEvent, Never> { subject.eraseToAnyPublisher() }
+    func showToast(message: String, type: ToastType) { subject.send(ToastEvent(message: message, type: type)) }
 }

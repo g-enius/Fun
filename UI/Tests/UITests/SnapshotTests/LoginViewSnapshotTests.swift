@@ -12,13 +12,14 @@ import SnapshotTesting
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
+import FunModelTestSupport
 
 @MainActor
 final class LoginViewSnapshotTests: XCTestCase {
 
     override func setUp() async throws {
         try await super.setUp()
-        ServiceLocator.shared.register(MockLoggerServiceForLogin(), for: .logger)
+        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
     }
 
     // Set to true to regenerate snapshots, then set back to false
@@ -57,12 +58,3 @@ final class LoginViewSnapshotTests: XCTestCase {
     }
 }
 
-// MARK: - Mock Services for Testing
-
-@MainActor
-private class MockLoggerServiceForLogin: LoggerService {
-    func log(_ message: String) {}
-    func log(_ message: String, level: LogLevel) {}
-    func log(_ message: String, level: LogLevel, category: LogCategory) {}
-    func log(_ message: String, level: LogLevel, category: String) {}
-}

@@ -17,6 +17,9 @@ public final class ProfileCoordinatorImpl: BaseCoordinator, ProfileCoordinator {
     /// Callback to notify parent coordinator of logout
     public var onLogout: (() -> Void)?
 
+    /// Callback to notify parent coordinator when dismissed (non-logout)
+    public var onDismiss: (() -> Void)?
+
     // MARK: - Initialization
 
     override public init(navigationController: UINavigationController) {
@@ -26,12 +29,18 @@ public final class ProfileCoordinatorImpl: BaseCoordinator, ProfileCoordinator {
     // MARK: - ProfileCoordinator
 
     public func dismiss() {
-        navigationController.dismiss(animated: true)
+        navigationController.dismiss(animated: true) { [weak self] in
+            self?.onDismiss?()
+        }
     }
 
     public func logout() {
         navigationController.dismiss(animated: true) { [weak self] in
             self?.onLogout?()
         }
+    }
+
+    public func openURL(_ url: URL) {
+        UIApplication.shared.open(url)
     }
 }

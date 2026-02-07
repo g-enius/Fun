@@ -10,6 +10,7 @@ import Foundation
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
+import FunModelTestSupport
 
 // MARK: - Test Scenarios
 
@@ -117,7 +118,7 @@ struct HomeViewModelTests {
     // MARK: - Coordinator Tests
 
     @Test("didTapFeaturedItem calls coordinator showDetail")
-    func testDidTapFeaturedItemCallsCoordinator() async {
+    func testDidTapFeaturedItemCallsCoordinator() async throws {
         setupServices()
         let mockCoordinator = MockHomeCoordinator()
         let viewModel = HomeViewModel(coordinator: mockCoordinator)
@@ -125,11 +126,8 @@ struct HomeViewModelTests {
         // Wait for data to load
         await viewModel.loadFeaturedItems()
 
-        guard let firstSet = viewModel.featuredItems.first,
-              let item = firstSet.first else {
-            Issue.record("No items available for test")
-            return
-        }
+        let firstSet = try #require(viewModel.featuredItems.first)
+        let item = try #require(firstSet.first)
 
         viewModel.didTapFeaturedItem(item)
 

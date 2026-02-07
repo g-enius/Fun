@@ -13,6 +13,7 @@ import SnapshotTesting
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
+import FunModelTestSupport
 
 @MainActor
 final class DetailViewSnapshotTests: XCTestCase {

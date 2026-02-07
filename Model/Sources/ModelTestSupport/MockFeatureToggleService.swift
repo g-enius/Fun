@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import FunModel
 
 @MainActor
 public final class MockFeatureToggleService: FeatureToggleServiceProtocol {

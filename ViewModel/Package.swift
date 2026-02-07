@@ -25,7 +25,12 @@ let package = Package(
         ),
         .testTarget(
             name: "ViewModelTests",
-            dependencies: ["FunViewModel"]
+            dependencies: [
+                "FunViewModel",
+                .product(name: "FunModel", package: "Model"),
+                .product(name: "FunModelTestSupport", package: "Model"),
+                .product(name: "FunCore", package: "Core"),
+            ]
         ),
     ]
 )

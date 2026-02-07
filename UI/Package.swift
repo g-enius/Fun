@@ -31,6 +31,7 @@ let package = Package(
             dependencies: [
                 "FunUI",
                 .product(name: "FunModel", package: "Model"),
+                .product(name: "FunModelTestSupport", package: "Model"),
                 .product(name: "FunViewModel", package: "ViewModel"),
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
             ]

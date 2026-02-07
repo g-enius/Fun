@@ -10,6 +10,7 @@ import Foundation
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
+import FunModelTestSupport
 
 @Suite("ProfileViewModel Tests", .serialized)
 @MainActor

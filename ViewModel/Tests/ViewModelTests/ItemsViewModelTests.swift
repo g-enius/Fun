@@ -10,6 +10,7 @@ import Foundation
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
+import FunModelTestSupport
 
 @Suite("ItemsViewModel Tests", .serialized)
 @MainActor
@@ -78,15 +79,12 @@ struct ItemsViewModelTests {
     }
 
     @Test("Selecting a category updates selectedCategory")
-    func testSelectCategoryUpdatesState() async {
+    func testSelectCategoryUpdatesState() async throws {
         setupServices()
         let viewModel = ItemsViewModel(coordinator: nil)
 
         let categories = viewModel.categories
-        guard categories.count > 1 else {
-            Issue.record("Not enough categories for test")
-            return
-        }
+        try #require(categories.count > 1)
 
         let categoryToSelect = categories[1]
         viewModel.didSelectCategory(categoryToSelect)
@@ -210,16 +208,12 @@ struct ItemsViewModelTests {
     // MARK: - Coordinator Tests
 
     @Test("didSelectItem calls coordinator showDetail")
-    func testDidSelectItemCallsCoordinator() async {
+    func testDidSelectItemCallsCoordinator() async throws {
         setupServices()
         let mockCoordinator = MockTabCoordinator()
         let viewModel = ItemsViewModel(coordinator: mockCoordinator)
 
-        // Get an actual item from the view model
-        guard let item = viewModel.items.first else {
-            Issue.record("No items available for test")
-            return
-        }
+        let item = try #require(viewModel.items.first)
 
         viewModel.didSelectItem(item)
 

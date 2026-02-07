@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FunModel
 
 @MainActor
 public final class MockHomeCoordinator: HomeCoordinator {

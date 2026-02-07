@@ -36,6 +36,9 @@ public final class HomeCoordinatorImpl: BaseCoordinator, HomeCoordinator {
         let coordinator = DetailCoordinatorImpl(
             navigationController: navigationController
         )
+        coordinator.onDismiss = { [weak self] in
+            self?.detailCoordinator = nil
+        }
         detailCoordinator = coordinator
 
         let viewModel = DetailViewModel(
@@ -49,7 +52,11 @@ public final class HomeCoordinatorImpl: BaseCoordinator, HomeCoordinator {
     public func showProfile() {
         let profileNavController = UINavigationController()
         let coordinator = ProfileCoordinatorImpl(navigationController: profileNavController)
+        coordinator.onDismiss = { [weak self] in
+            self?.profileCoordinator = nil
+        }
         coordinator.onLogout = { [weak self] in
+            self?.profileCoordinator = nil
             self?.onLogout?()
         }
         profileCoordinator = coordinator

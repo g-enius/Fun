@@ -11,4 +11,5 @@ import Foundation
 public protocol ProfileCoordinator: AnyObject {
     func dismiss()
     func logout()
+    func openURL(_ url: URL)
 }

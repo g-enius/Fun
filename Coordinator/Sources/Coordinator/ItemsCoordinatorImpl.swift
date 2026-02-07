@@ -29,6 +29,9 @@ public final class ItemsCoordinatorImpl: BaseCoordinator, ItemsCoordinator {
         let coordinator = DetailCoordinatorImpl(
             navigationController: navigationController
         )
+        coordinator.onDismiss = { [weak self] in
+            self?.detailCoordinator = nil
+        }
         detailCoordinator = coordinator
 
         let viewModel = DetailViewModel(

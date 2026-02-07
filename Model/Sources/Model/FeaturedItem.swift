@@ -12,7 +12,7 @@ public struct FeaturedItem: Identifiable, Equatable, Sendable {
     public let title: String
     public let subtitle: String
     public let iconName: String
-    public let iconColor: String
+    public let iconColor: ItemColor
     public let category: String
     public let timeLabel: String
 
@@ -21,7 +21,7 @@ public struct FeaturedItem: Identifiable, Equatable, Sendable {
         title: String,
         subtitle: String,
         iconName: String,
-        iconColor: String,
+        iconColor: ItemColor,
         category: String = "General",
         timeLabel: String = "2 sec."
     ) {
@@ -39,7 +39,7 @@ public struct FeaturedItem: Identifiable, Equatable, Sendable {
         id: String = UUID().uuidString,
         title: String,
         subtitle: String,
-        color: String
+        color: ItemColor
     ) {
         self.id = id
         self.title = title
@@ -51,7 +51,7 @@ public struct FeaturedItem: Identifiable, Equatable, Sendable {
     }
 
     /// Color accessor for SwiftUI views
-    public var color: String {
+    public var color: ItemColor {
         iconColor
     }
 }
@@ -63,7 +63,7 @@ public extension FeaturedItem {
         title: "Async/Await",
         subtitle: "Modern concurrency",
         iconName: "bolt.fill",
-        iconColor: "green",
+        iconColor: .green,
         category: "Concurrency"
     )
 
@@ -72,7 +72,7 @@ public extension FeaturedItem {
         title: "Combine",
         subtitle: "Reactive programming",
         iconName: "arrow.triangle.merge",
-        iconColor: "orange",
+        iconColor: .orange,
         category: "Reactive"
     )
 
@@ -82,7 +82,7 @@ public extension FeaturedItem {
         title: "SwiftUI",
         subtitle: "Declarative UI",
         iconName: "swift",
-        iconColor: "blue",
+        iconColor: .blue,
         category: "UI Framework"
     )
 
@@ -91,7 +91,7 @@ public extension FeaturedItem {
         title: "Coordinator",
         subtitle: "Navigation pattern",
         iconName: "arrow.triangle.branch",
-        iconColor: "purple",
+        iconColor: .purple,
         category: "Navigation"
     )
 
@@ -101,7 +101,7 @@ public extension FeaturedItem {
         title: "MVVM",
         subtitle: "Architecture pattern",
         iconName: "square.stack.3d.up",
-        iconColor: "indigo",
+        iconColor: .indigo,
         category: "Architecture"
     )
 
@@ -110,7 +110,7 @@ public extension FeaturedItem {
         title: "SPM Modules",
         subtitle: "8 Swift packages",
         iconName: "shippingbox.fill",
-        iconColor: "brown",
+        iconColor: .brown,
         category: "Modularization"
     )
 
@@ -120,7 +120,7 @@ public extension FeaturedItem {
         title: "ServiceLocator",
         subtitle: "@Service wrapper",
         iconName: "cylinder.split.1x2.fill",
-        iconColor: "teal",
+        iconColor: .teal,
         category: "Dependency Injection"
     )
 
@@ -129,7 +129,7 @@ public extension FeaturedItem {
         title: "Protocol-Oriented",
         subtitle: "Interface-based design",
         iconName: "doc.plaintext",
-        iconColor: "mint",
+        iconColor: .mint,
         category: "Design Pattern"
     )
 
@@ -139,7 +139,7 @@ public extension FeaturedItem {
         title: "Feature Toggles",
         subtitle: "Runtime flags",
         iconName: "switch.2",
-        iconColor: "cyan",
+        iconColor: .cyan,
         category: "Configuration"
     )
 
@@ -148,7 +148,7 @@ public extension FeaturedItem {
         title: "OSLog",
         subtitle: "Structured logging",
         iconName: "doc.text.magnifyingglass",
-        iconColor: "gray",
+        iconColor: .gray,
         category: "Logging"
     )
 
@@ -158,7 +158,7 @@ public extension FeaturedItem {
         title: "Swift 6",
         subtitle: "Strict concurrency",
         iconName: "swift",
-        iconColor: "red",
+        iconColor: .red,
         category: "Language"
     )
 
@@ -167,7 +167,7 @@ public extension FeaturedItem {
         title: "Swift Testing",
         subtitle: "Modern test framework",
         iconName: "checkmark.seal.fill",
-        iconColor: "green",
+        iconColor: .green,
         category: "Testing"
     )
 
@@ -177,7 +177,7 @@ public extension FeaturedItem {
         title: "Snapshot Testing",
         subtitle: "Visual regression",
         iconName: "camera.viewfinder",
-        iconColor: "pink",
+        iconColor: .pink,
         category: "Testing"
     )
 
@@ -186,7 +186,7 @@ public extension FeaturedItem {
         title: "Accessibility",
         subtitle: "VoiceOver support",
         iconName: "accessibility",
-        iconColor: "blue",
+        iconColor: .blue,
         category: "A11y"
     )
 

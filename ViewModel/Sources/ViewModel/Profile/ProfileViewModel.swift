@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 import FunCore
 import FunModel
@@ -50,7 +49,7 @@ public class ProfileViewModel: ObservableObject {
         coordinator?.dismiss()
         // Use deep link to switch to Items tab (decoupled navigation)
         if let url = URL(string: "funapp://tab/items") {
-            UIApplication.shared.open(url)
+            coordinator?.openURL(url)
         }
     }
 

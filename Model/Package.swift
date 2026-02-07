@@ -9,6 +9,7 @@ let package = Package(
     ],
     products: [
         .library(name: "FunModel", targets: ["FunModel"]),
+        .library(name: "FunModelTestSupport", targets: ["FunModelTestSupport"]),
     ],
     dependencies: [
         .package(name: "Core", path: "../Core"),
@@ -21,9 +22,14 @@ let package = Package(
             ],
             path: "Sources/Model"
         ),
+        .target(
+            name: "FunModelTestSupport",
+            dependencies: ["FunModel"],
+            path: "Sources/ModelTestSupport"
+        ),
         .testTarget(
             name: "ModelTests",
-            dependencies: ["FunModel"]
+            dependencies: ["FunModel", "FunModelTestSupport"]
         ),
     ]
 )
