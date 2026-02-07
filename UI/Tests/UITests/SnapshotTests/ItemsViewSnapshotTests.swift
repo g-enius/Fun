@@ -19,9 +19,9 @@ final class ItemsViewSnapshotTests: XCTestCase {
 
     override func setUp() async throws {
         try await super.setUp()
-        ServiceLocator.shared.register(MockLoggerServiceForItems(), for: .logger)
-        ServiceLocator.shared.register(MockFavoritesServiceForItems(), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleServiceForItems(), for: .featureToggles)
+        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
+        ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
+        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
     }
 
     // Set to true to regenerate snapshots, then set back to false
@@ -58,45 +58,4 @@ final class ItemsViewSnapshotTests: XCTestCase {
 
         assertSnapshot(of: hostingController, as: .image(on: .iPhone13Pro), record: recording)
     }
-}
-
-// MARK: - Mock Services for Testing
-
-@MainActor
-private class MockLoggerServiceForItems: LoggerService {
-    func log(_ message: String) {}
-    func log(_ message: String, level: LogLevel) {}
-    func log(_ message: String, level: LogLevel, category: LogCategory) {}
-    func log(_ message: String, level: LogLevel, category: String) {}
-}
-
-@MainActor
-private class MockFavoritesServiceForItems: FavoritesServiceProtocol {
-    var favorites: Set<String> = []
-    var favoritesDidChange: AnyPublisher<Set<String>, Never> {
-        Just(favorites).eraseToAnyPublisher()
-    }
-
-    func addFavorite(_ id: String) { favorites.insert(id) }
-    func removeFavorite(_ id: String) { favorites.remove(id) }
-    func isFavorited(_ id: String) -> Bool { favorites.contains(id) }
-    func toggleFavorite(forKey id: String) {
-        if favorites.contains(id) {
-            favorites.remove(id)
-        } else {
-            favorites.insert(id)
-        }
-    }
-    func resetFavorites() { favorites.removeAll() }
-}
-
-@MainActor
-private class MockFeatureToggleServiceForItems: FeatureToggleServiceProtocol {
-    var featuredCarousel: Bool = true
-    var simulateErrors: Bool = false
-    var darkModeEnabled: Bool = false
-
-    var featuredCarouselPublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
-    var simulateErrorsPublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
-    var darkModePublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
 }

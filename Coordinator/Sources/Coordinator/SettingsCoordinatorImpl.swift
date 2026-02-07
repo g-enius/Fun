@@ -25,9 +25,4 @@ public final class SettingsCoordinatorImpl: BaseCoordinator, SettingsCoordinator
         navigationController.setViewControllers([viewController], animated: false)
     }
 
-    // MARK: - SettingsCoordinator
-
-    public func dismiss() {
-        safePop()
-    }
 }

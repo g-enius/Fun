@@ -20,7 +20,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockFeatureToggleServiceForSettings(), for: .featureToggles)
+        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
     }
 
     // Set to true to regenerate snapshots, then set back to false
@@ -69,17 +69,4 @@ final class SettingsViewSnapshotTests: XCTestCase {
 
         assertSnapshot(of: hostingController, as: .image(on: .iPhone13Pro), record: recording)
     }
-}
-
-// MARK: - Mock Services for Testing
-
-@MainActor
-private class MockFeatureToggleServiceForSettings: FeatureToggleServiceProtocol {
-    var featuredCarousel: Bool = true
-    var simulateErrors: Bool = false
-    var darkModeEnabled: Bool = false
-
-    var featuredCarouselPublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
-    var simulateErrorsPublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
-    var darkModePublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
 }

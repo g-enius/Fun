@@ -9,5 +9,4 @@ import Foundation
 
 @MainActor
 public protocol SettingsCoordinator: AnyObject {
-    func dismiss()
 }

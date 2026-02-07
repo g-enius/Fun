@@ -16,15 +16,15 @@ public final class MockFeatureToggleService: FeatureToggleServiceProtocol {
     @Published public var darkModeEnabled: Bool
 
     public var featuredCarouselPublisher: AnyPublisher<Bool, Never> {
-        $featuredCarousel.dropFirst().removeDuplicates().eraseToAnyPublisher()
+        $featuredCarousel.removeDuplicates().eraseToAnyPublisher()
     }
 
     public var simulateErrorsPublisher: AnyPublisher<Bool, Never> {
-        $simulateErrors.dropFirst().removeDuplicates().eraseToAnyPublisher()
+        $simulateErrors.removeDuplicates().eraseToAnyPublisher()
     }
 
     public var darkModePublisher: AnyPublisher<Bool, Never> {
-        $darkModeEnabled.dropFirst().removeDuplicates().eraseToAnyPublisher()
+        $darkModeEnabled.removeDuplicates().eraseToAnyPublisher()
     }
 
     public init(featuredCarousel: Bool = true, simulateErrors: Bool = false, darkModeEnabled: Bool = false) {

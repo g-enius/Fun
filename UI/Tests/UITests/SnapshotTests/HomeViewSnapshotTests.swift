@@ -62,27 +62,3 @@ final class HomeViewSnapshotTests: XCTestCase {
         assertSnapshot(of: hostingController, as: .image(on: .iPhone13Pro), record: recording)
     }
 }
-
-// MARK: - Mock Services for Testing
-
-@MainActor
-private class MockFeatureToggleService: FeatureToggleServiceProtocol {
-    var featuredCarousel: Bool = true
-    var simulateErrors: Bool = false
-    var darkModeEnabled: Bool = false
-
-    var featuredCarouselPublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
-    var simulateErrorsPublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
-    var darkModePublisher: AnyPublisher<Bool, Never> { Empty().eraseToAnyPublisher() }
-}
-
-@MainActor
-private class MockToastService: ToastServiceProtocol {
-    var toastPublisher: AnyPublisher<ToastEvent, Never> {
-        Empty().eraseToAnyPublisher()
-    }
-
-    func showToast(message: String, type: ToastType) {
-        // No-op for snapshot tests
-    }
-}

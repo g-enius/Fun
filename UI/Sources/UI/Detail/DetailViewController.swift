@@ -59,7 +59,6 @@ public final class DetailViewController: UIViewController {
 
     private func observeFavoriteState() {
         viewModel.$isFavorited
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] isFavorited in
                 self?.updateFavoriteButton(isFavorited: isFavorited)
             }

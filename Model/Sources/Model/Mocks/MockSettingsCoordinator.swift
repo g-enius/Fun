@@ -10,11 +10,5 @@ import Foundation
 @MainActor
 public final class MockSettingsCoordinator: SettingsCoordinator {
 
-    public var dismissCalled = false
-
     public init() {}
-
-    public func dismiss() {
-        dismissCalled = true
-    }
 }

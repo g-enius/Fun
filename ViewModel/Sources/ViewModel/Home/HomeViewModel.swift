@@ -45,9 +45,6 @@ public class HomeViewModel: ObservableObject {
     public init(coordinator: HomeCoordinator?) {
         self.coordinator = coordinator
 
-        // Load initial carousel state from feature toggle
-        isCarouselEnabled = featureToggleService.featuredCarousel
-
         observeFeatureToggleChanges()
         observeFavoritesChanges()
 

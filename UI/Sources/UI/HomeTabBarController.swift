@@ -77,7 +77,6 @@ public class HomeTabBarController: UITabBarController {
 
     private func observeToastEvents() {
         toastService.toastPublisher
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] event in
                 self?.showToast(message: event.message, type: event.type)
             }

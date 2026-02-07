@@ -19,8 +19,8 @@ final class ProfileViewSnapshotTests: XCTestCase {
 
     override func setUp() async throws {
         try await super.setUp()
-        ServiceLocator.shared.register(MockLoggerServiceForProfile(), for: .logger)
-        ServiceLocator.shared.register(MockFavoritesServiceForProfile(), for: .favorites)
+        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
+        ServiceLocator.shared.register(MockFavoritesService(initialFavorites: ["asyncawait", "swiftui"]), for: .favorites)
     }
 
     // Set to true to regenerate snapshots, then set back to false
@@ -46,34 +46,4 @@ final class ProfileViewSnapshotTests: XCTestCase {
 
         assertSnapshot(of: hostingController, as: .image(on: .iPhone13Pro), record: recording)
     }
-}
-
-// MARK: - Mock Services for Testing
-
-@MainActor
-private class MockLoggerServiceForProfile: LoggerService {
-    func log(_ message: String) {}
-    func log(_ message: String, level: LogLevel) {}
-    func log(_ message: String, level: LogLevel, category: LogCategory) {}
-    func log(_ message: String, level: LogLevel, category: String) {}
-}
-
-@MainActor
-private class MockFavoritesServiceForProfile: FavoritesServiceProtocol {
-    var favorites: Set<String> = ["asyncawait", "swiftui"]
-    var favoritesDidChange: AnyPublisher<Set<String>, Never> {
-        Just(favorites).eraseToAnyPublisher()
-    }
-
-    func addFavorite(_ id: String) { favorites.insert(id) }
-    func removeFavorite(_ id: String) { favorites.remove(id) }
-    func isFavorited(_ id: String) -> Bool { favorites.contains(id) }
-    func toggleFavorite(forKey id: String) {
-        if favorites.contains(id) {
-            favorites.remove(id)
-        } else {
-            favorites.insert(id)
-        }
-    }
-    func resetFavorites() { favorites.removeAll() }
 }

@@ -18,7 +18,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     var appCoordinator: AppCoordinator?
     private var cancellables = Set<AnyCancellable>()
-    private var darkModeSubscription: AnyCancellable?
 
     @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
@@ -66,16 +65,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     private func subscribeToDarkMode() {
-        darkModeSubscription?.cancel()
-        darkModeSubscription = featureToggleService.darkModePublisher
+        featureToggleService.darkModePublisher
             .sink { [weak self] isDarkMode in
                 let style: UIUserInterfaceStyle = isDarkMode ? .dark : .light
                 self?.window?.overrideUserInterfaceStyle = style
             }
-
-        // Apply current value immediately
-        let isDarkMode = featureToggleService.darkModeEnabled
-        window?.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+            .store(in: &cancellables)
     }
 
     // MARK: - Deep Link Handling

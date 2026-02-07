@@ -23,7 +23,7 @@ A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concur
 
 ```
 Fun/
-├── Application/    # iOS app entry point
+├── Application/    # iOS app target (Xcode project)
 ├── Coordinator/    # Navigation coordinators
 ├── UI/             # SwiftUI views & UIKit controllers
 ├── ViewModel/      # Business logic (MVVM)
@@ -32,10 +32,12 @@ Fun/
 └── Core/           # Utilities, DI container, L10n
 ```
 
+All modules except `Application` are Swift packages. `Application` is the Xcode project that consumes them.
+
 **Dependency Hierarchy:**
 ```
 Application → Coordinator → UI → ViewModel → Model → Core
-    └──────→ Services ────────────────────────┘
+                └──────→ Services ───────────────────┘
 ```
 
 ## Key Patterns
