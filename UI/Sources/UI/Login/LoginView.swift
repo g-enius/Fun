@@ -25,6 +25,7 @@ public struct LoginView: View {
             Image(systemName: "sparkles")
                 .font(.system(size: 80))
                 .foregroundColor(.blue)
+                .accessibilityHidden(true)
 
             // Welcome text
             VStack(spacing: 12) {

@@ -125,6 +125,10 @@ private struct ItemRowView: View {
     let item: FeaturedItem
     @ObservedObject var viewModel: ItemsViewModel
 
+    private var isFavorited: Bool {
+        viewModel.isFavorited(item.id)
+    }
+
     var body: some View {
         Button(action: { viewModel.didSelectItem(item) }) {
             HStack(spacing: 12) {
@@ -149,17 +153,17 @@ private struct ItemRowView: View {
                 Spacer()
 
                 Button(action: { viewModel.toggleFavorite(for: item.id) }) {
-                    Image(systemName: viewModel.isFavorited(item.id) ? "star.fill" : "star")
+                    Image(systemName: isFavorited ? "star.fill" : "star")
                         .font(.system(size: 20))
-                        .foregroundColor(viewModel.isFavorited(item.id) ? .yellow : .gray)
+                        .foregroundColor(isFavorited ? .yellow : .gray)
                         .symbolReplaceTransition()
                 }
                 .buttonStyle(.plain)
-                .symbolBounceEffect(value: viewModel.isFavorited(item.id))
-                .selectionFeedback(trigger: viewModel.isFavorited(item.id))
+                .symbolBounceEffect(value: isFavorited)
+                .selectionFeedback(trigger: isFavorited)
                 .accessibilityIdentifier("favorite_button_\(item.id)")
                 .accessibilityLabel(
-                    viewModel.isFavorited(item.id)
+                    isFavorited
                         ? L10n.Detail.removeFromFavorites
                         : L10n.Detail.addToFavorites
                 )
@@ -172,8 +176,8 @@ private struct ItemRowView: View {
         .swipeActions(edge: .trailing) {
             Button(action: { viewModel.toggleFavorite(for: item.id) }) {
                 Label(
-                    viewModel.isFavorited(item.id) ? L10n.Items.unfavorite : L10n.Items.favorite,
-                    systemImage: viewModel.isFavorited(item.id) ? "star.slash" : "star"
+                    isFavorited ? L10n.Items.unfavorite : L10n.Items.favorite,
+                    systemImage: isFavorited ? "star.slash" : "star"
                 )
             }
             .tint(.yellow)
@@ -215,6 +219,7 @@ private struct SearchBarView: View {
                             .foregroundColor(.gray)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(L10n.Common.cancel)
                 }
             }
             .padding(.horizontal, 12)
@@ -247,6 +252,7 @@ private struct KeepTypingView: View {
             Image(systemName: "keyboard")
                 .font(.system(size: 48))
                 .foregroundColor(.gray)
+                .accessibilityHidden(true)
             Text(L10n.Search.keepTyping)
                 .font(.title2)
                 .fontWeight(.semibold)
@@ -269,6 +275,7 @@ private struct EmptyItemsView: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 48))
                 .foregroundColor(.gray)
+                .accessibilityHidden(true)
             Text(L10n.Search.noResults)
                 .font(.title2)
                 .fontWeight(.semibold)
@@ -291,6 +298,7 @@ private struct ItemsErrorStateView: View {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 48))
                 .foregroundColor(.red)
+                .accessibilityHidden(true)
 
             Text(L10n.Error.failedToLoad)
                 .font(.title2)

@@ -228,6 +228,20 @@ struct HomeViewModelTests {
         #expect(viewModel.isLoading == false)
     }
 
+    // MARK: - Refresh Tests
+
+    @Test("refresh reloads featured items")
+    func testRefreshReloadsItems() async {
+        setupServices()
+        let viewModel = HomeViewModel(coordinator: nil)
+
+        await viewModel.refresh()
+
+        #expect(!viewModel.featuredItems.isEmpty)
+        #expect(viewModel.isLoading == false)
+        #expect(viewModel.hasError == false)
+    }
+
     // MARK: - Retry Tests
 
     @Test("retry calls loadFeaturedItems")

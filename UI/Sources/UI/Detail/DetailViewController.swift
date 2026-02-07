@@ -28,6 +28,13 @@ public final class DetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override public func didMove(toParent parent: UIViewController?) {
+        super.didMove(toParent: parent)
+        if parent == nil {
+            viewModel.handleBackNavigation()
+        }
+    }
+
     override public func viewDidLoad() {
         super.viewDidLoad()
         title = viewModel.itemTitle

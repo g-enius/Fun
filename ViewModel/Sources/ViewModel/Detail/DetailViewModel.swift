@@ -60,6 +60,11 @@ public class DetailViewModel: ObservableObject {
 
     // MARK: - Actions
 
+    /// Called when the view controller is removed from the navigation stack by the system (back button)
+    public func handleBackNavigation() {
+        coordinator?.handleSystemDismiss()
+    }
+
     public func didTapShare() {
         let shareText = L10n.Detail.shareText(itemTitle)
         coordinator?.share(text: shareText)

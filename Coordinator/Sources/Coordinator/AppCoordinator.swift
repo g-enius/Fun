@@ -15,6 +15,10 @@ import FunViewModel
 /// Main app coordinator that manages the root navigation and app flow
 public final class AppCoordinator: BaseCoordinator {
 
+    // MARK: - Services
+
+    @Service(.logger) private var logger: LoggerService
+
     // MARK: - Session Management
 
     private let sessionFactory: SessionFactory
@@ -33,9 +37,6 @@ public final class AppCoordinator: BaseCoordinator {
 
     // Store tab bar view model for tab switching
     private var tabBarViewModel: HomeTabBarViewModel?
-
-    // Store tab bar controller for deep link navigation
-    private weak var tabBarController: UITabBarController?
 
     // Queue deep link if received during login flow
     private var pendingDeepLink: DeepLink?
@@ -150,9 +151,6 @@ public final class AppCoordinator: BaseCoordinator {
             ]
         )
 
-        // Store reference for deep link navigation
-        self.tabBarController = tabBarController
-
         // Set as root (tab bar doesn't push, it's the container)
         navigationController.setViewControllers([tabBarController], animated: false)
     }
@@ -168,9 +166,9 @@ public final class AppCoordinator: BaseCoordinator {
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
             // Small delay to ensure UI is ready
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 try? await Task.sleep(nanoseconds: 100_000_000)
-                executeDeepLink(deepLink)
+                self?.executeDeepLink(deepLink)
             }
         }
     }
@@ -188,7 +186,6 @@ public final class AppCoordinator: BaseCoordinator {
         itemsCoordinator = nil
         settingsCoordinator = nil
         tabBarViewModel = nil
-        tabBarController = nil
     }
 
     // MARK: - Deep Link Handling
@@ -208,16 +205,18 @@ public final class AppCoordinator: BaseCoordinator {
     private func executeDeepLink(_ deepLink: DeepLink) {
         switch deepLink {
         case .tab(let tabIndex):
-            tabBarController?.selectedIndex = tabIndex.rawValue
+            tabBarViewModel?.switchToTab(tabIndex.rawValue)
 
         case .item(let id):
-            tabBarController?.selectedIndex = TabIndex.home.rawValue
+            tabBarViewModel?.switchToTab(TabIndex.home.rawValue)
             if let item = FeaturedItem.all.first(where: { $0.id == id }) {
                 homeCoordinator?.showDetail(for: item)
+            } else {
+                logger.log("Deep link item not found: \(id)", level: .warning, category: .general)
             }
 
         case .profile:
-            tabBarController?.selectedIndex = TabIndex.home.rawValue
+            tabBarViewModel?.switchToTab(TabIndex.home.rawValue)
             homeCoordinator?.showProfile()
         }
     }

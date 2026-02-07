@@ -5,7 +5,6 @@
 //  Mock coordinator for testing HomeViewModel
 //
 
-import Foundation
 import FunModel
 
 @MainActor

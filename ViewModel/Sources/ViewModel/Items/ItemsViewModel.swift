@@ -39,10 +39,7 @@ public class ItemsViewModel: ObservableObject {
 
     // MARK: - Configuration
 
-    public var categories: [String] {
-        let cats = Set(allItems.map { $0.category })
-        return [L10n.Items.categoryAll] + cats.sorted()
-    }
+    public private(set) var categories: [String] = [L10n.Items.categoryAll]
     public let minimumSearchCharacters: Int = 2
 
     // MARK: - Private Properties
@@ -111,6 +108,8 @@ public class ItemsViewModel: ObservableObject {
     public func loadItems() {
         // Use the same items as the carousel for consistency
         allItems = FeaturedItem.allCarouselSets.flatMap { $0 }
+        let cats = Set(allItems.map { $0.category })
+        categories = [L10n.Items.categoryAll] + cats.sorted()
         filterResults()
     }
 
@@ -146,7 +145,8 @@ public class ItemsViewModel: ObservableObject {
                 self.isSearching = false
                 self.hasError = true
                 self.items = []
-                self.toastService.showToast(message: AppError.networkError.errorDescription ?? "Error", type: .error)
+                let errorMessage = AppError.networkError.errorDescription ?? L10n.Error.unknownError
+                self.toastService.showToast(message: errorMessage, type: .error)
                 return
             }
 

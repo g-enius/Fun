@@ -17,7 +17,7 @@ struct DefaultFavoritesServiceTests {
 
     // Helper to clear UserDefaults before each test
     private func clearUserDefaults() {
-        UserDefaults.standard.removeObject(forKey: UserDefaultsKey.favorites)
+        UserDefaults.standard.removeObject(forKey: .favorites)
     }
 
     // MARK: - Initialization Tests
@@ -70,12 +70,15 @@ struct DefaultFavoritesServiceTests {
     func testToggleFavoriteAdds() async {
         clearUserDefaults()
         let service = DefaultFavoritesService()
+        let initialCount = service.favorites.count
 
         #expect(service.isFavorited("item3") == false)
 
         service.toggleFavorite(forKey: "item3")
 
         #expect(service.isFavorited("item3") == true)
+        #expect(service.favorites.count == initialCount + 1)
+        #expect(service.favorites.contains("item3"))
     }
 
     @Test("toggleFavorite removes item when already favorited")
@@ -84,10 +87,13 @@ struct DefaultFavoritesServiceTests {
         let service = DefaultFavoritesService()
 
         #expect(service.isFavorited("item1") == true)
+        let initialCount = service.favorites.count
 
         service.toggleFavorite(forKey: "item1")
 
         #expect(service.isFavorited("item1") == false)
+        #expect(service.favorites.count == initialCount - 1)
+        #expect(!service.favorites.contains("item1"))
     }
 
     // MARK: - Persistence Tests
@@ -172,6 +178,7 @@ struct DefaultFavoritesServiceTests {
         var cancellables = Set<AnyCancellable>()
 
         service.favoritesDidChange
+            .dropFirst() // Skip the initial value from CurrentValueSubject
             .sink { favorites in
                 receivedFavorites = favorites
             }
@@ -192,6 +199,7 @@ struct DefaultFavoritesServiceTests {
         var cancellables = Set<AnyCancellable>()
 
         service.favoritesDidChange
+            .dropFirst() // Skip the initial value from CurrentValueSubject
             .sink { _ in
                 publishCount += 1
             }
@@ -201,5 +209,67 @@ struct DefaultFavoritesServiceTests {
         service.toggleFavorite(forKey: "item1")
 
         #expect(publishCount == 2)
+    }
+
+    // MARK: - Reset Tests
+
+    @Test("resetFavorites restores default favorites")
+    func testResetFavoritesRestoresDefaults() async {
+        clearUserDefaults()
+        let service = DefaultFavoritesService()
+
+        // Add some favorites
+        service.addFavorite("item2")
+        service.addFavorite("item3")
+        #expect(service.favorites.count == 3) // item1 default + item2 + item3
+
+        service.resetFavorites()
+
+        // Should be back to default (just "item1")
+        #expect(service.favorites.count == 1)
+        #expect(service.favorites.contains("item1"))
+        #expect(!service.favorites.contains("item2"))
+        #expect(!service.favorites.contains("item3"))
+    }
+
+    @Test("resetFavorites publishes default set")
+    func testResetFavoritesPublishesDefault() async {
+        clearUserDefaults()
+        let service = DefaultFavoritesService()
+
+        service.addFavorite("item2")
+
+        var receivedFavorites: Set<String>?
+        var cancellables = Set<AnyCancellable>()
+
+        service.favoritesDidChange
+            .dropFirst()
+            .sink { favorites in
+                receivedFavorites = favorites
+            }
+            .store(in: &cancellables)
+
+        service.resetFavorites()
+
+        #expect(receivedFavorites != nil)
+        #expect(receivedFavorites == Set(["item1"]))
+    }
+
+    @Test("resetFavorites clears UserDefaults")
+    func testResetFavoritesClearsUserDefaults() async {
+        clearUserDefaults()
+        let service = DefaultFavoritesService()
+
+        // Add a favorite to persist
+        service.addFavorite("item2")
+        #expect(UserDefaults.standard.data(forKey: .favorites) != nil)
+
+        service.resetFavorites()
+
+        // After reset, the defaults get re-saved (since didSet calls saveFavorites)
+        // But the content should be the default set
+        let service2 = DefaultFavoritesService()
+        #expect(service2.favorites.count == 1)
+        #expect(service2.favorites.contains("item1"))
     }
 }

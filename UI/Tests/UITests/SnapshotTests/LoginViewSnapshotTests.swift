@@ -19,6 +19,7 @@ final class LoginViewSnapshotTests: XCTestCase {
 
     override func setUp() async throws {
         try await super.setUp()
+        ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
     }
 

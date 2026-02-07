@@ -26,16 +26,27 @@ public class SettingsViewModel: ObservableObject {
     // MARK: - Published State
 
     @Published public var isDarkModeEnabled: Bool = false {
-        didSet { featureToggleService.darkModeEnabled = isDarkModeEnabled }
+        didSet {
+            guard isInitialized else { return }
+            featureToggleService.darkModeEnabled = isDarkModeEnabled
+        }
     }
 
     @Published public var featuredCarouselEnabled: Bool = false {
-        didSet { featureToggleService.featuredCarousel = featuredCarouselEnabled }
+        didSet {
+            guard isInitialized else { return }
+            featureToggleService.featuredCarousel = featuredCarouselEnabled
+        }
     }
 
     @Published public var simulateErrorsEnabled: Bool = false {
-        didSet { featureToggleService.simulateErrors = simulateErrorsEnabled }
+        didSet {
+            guard isInitialized else { return }
+            featureToggleService.simulateErrors = simulateErrorsEnabled
+        }
     }
+
+    private var isInitialized = false
 
     // MARK: - Initialization
 
@@ -44,6 +55,7 @@ public class SettingsViewModel: ObservableObject {
         self.isDarkModeEnabled = featureToggleService.darkModeEnabled
         self.featuredCarouselEnabled = featureToggleService.featuredCarousel
         self.simulateErrorsEnabled = featureToggleService.simulateErrors
+        self.isInitialized = true
     }
 
     // MARK: - Actions

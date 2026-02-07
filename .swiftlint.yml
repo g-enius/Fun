@@ -3,8 +3,7 @@
 
 # Paths to include
 included:
-  - Application
-  - App
+  - FunApp
   - Coordinator
   - Model
   - Services

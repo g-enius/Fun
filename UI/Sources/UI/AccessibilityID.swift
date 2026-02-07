@@ -5,8 +5,6 @@
 //  Centralized accessibility identifiers for UI testing
 //
 
-import Foundation
-
 public enum AccessibilityID {
 
     public enum Login {
@@ -46,6 +44,7 @@ public enum AccessibilityID {
     public enum Profile {
         public static let dismissButton = "profile_dismiss_button"
         public static let signOutButton = "profile_sign_out_button"
+        public static let searchItemsButton = "profile_search_items_button"
     }
 
     public enum Error {

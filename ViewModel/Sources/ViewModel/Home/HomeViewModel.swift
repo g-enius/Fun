@@ -49,8 +49,8 @@ public class HomeViewModel: ObservableObject {
         observeFavoritesChanges()
 
         // Load data asynchronously on init
-        Task {
-            await loadFeaturedItems()
+        Task { [weak self] in
+            await self?.loadFeaturedItems()
         }
     }
 
@@ -131,7 +131,7 @@ public class HomeViewModel: ObservableObject {
         isLoading = false
         featuredItems = []
 
-        toastService.showToast(message: AppError.networkError.errorDescription ?? "Error", type: .error)
+        toastService.showToast(message: AppError.networkError.errorDescription ?? L10n.Error.unknownError, type: .error)
     }
 
     /// Pull-to-refresh handler
@@ -142,8 +142,8 @@ public class HomeViewModel: ObservableObject {
 
     /// Retry loading after error
     public func retry() {
-        Task {
-            await loadFeaturedItems()
+        Task { [weak self] in
+            await self?.loadFeaturedItems()
         }
     }
 

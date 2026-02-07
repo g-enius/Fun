@@ -8,7 +8,7 @@
 import Foundation
 
 /// Tab indices for the main tab bar
-public enum TabIndex: Int, CaseIterable {
+public enum TabIndex: Int, CaseIterable, Sendable {
     case home = 0
     case items = 1
     case settings = 2

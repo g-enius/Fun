@@ -50,10 +50,7 @@ public struct FeaturedItem: Identifiable, Equatable, Sendable {
         self.timeLabel = "2 sec."
     }
 
-    /// Color accessor for SwiftUI views
-    public var color: ItemColor {
-        iconColor
-    }
+
 }
 
 public extension FeaturedItem {

@@ -13,6 +13,10 @@ public enum L10n {
   public enum Accessibility {
     /// Double tap to view details
     public static let doubleTapToViewDetails = L10n.tr("Localizable", "accessibility.doubleTapToViewDetails", fallback: "Double tap to view details")
+    /// Page %d of %d
+    public static func pageIndicator(_ p1: Int, _ p2: Int) -> String {
+      return L10n.tr("Localizable", "accessibility.pageIndicator", p1, p2, fallback: "Page %d of %d")
+    }
   }
   public enum Common {
     /// Build
@@ -21,31 +25,19 @@ public enum L10n {
     public static let cancel = L10n.tr("Localizable", "common.cancel", fallback: "Cancel")
     /// Close
     public static let close = L10n.tr("Localizable", "common.close", fallback: "Close")
-    /// Done
-    public static let done = L10n.tr("Localizable", "common.done", fallback: "Done")
     /// Localizable.strings
     ///   UI
     /// 
     ///   English localization strings
     public static let loading = L10n.tr("Localizable", "common.loading", fallback: "Loading...")
-    /// Share
-    public static let share = L10n.tr("Localizable", "common.share", fallback: "Share")
     /// Version
     public static let version = L10n.tr("Localizable", "common.version", fallback: "Version")
   }
   public enum Detail {
     /// Add to Favorites
     public static let addToFavorites = L10n.tr("Localizable", "detail.addToFavorites", fallback: "Add to Favorites")
-    /// Description
-    public static let description = L10n.tr("Localizable", "detail.description", fallback: "Description")
     /// How it's used in this demo
     public static let howUsed = L10n.tr("Localizable", "detail.howUsed", fallback: "How it's used in this demo")
-    /// This is a detailed description of %@. It showcases the coordinator pattern for navigation in iOS apps.
-    public static func itemDescription(_ p1: Any) -> String {
-      return L10n.tr("Localizable", "detail.itemDescription", String(describing: p1), fallback: "This is a detailed description of %@. It showcases the coordinator pattern for navigation in iOS apps.")
-    }
-    /// Just now
-    public static let justNow = L10n.tr("Localizable", "detail.justNow", fallback: "Just now")
     /// Push Navigation
     public static let pushNavigation = L10n.tr("Localizable", "detail.pushNavigation", fallback: "Push Navigation")
     /// Remove from Favorites
@@ -64,8 +56,6 @@ public enum L10n {
     public static let networkError = L10n.tr("Localizable", "error.networkError", fallback: "Network connection failed. Please check your internet and try again.")
     /// Retry
     public static let retry = L10n.tr("Localizable", "error.retry", fallback: "Retry")
-    /// Server error occurred. Please try again later.
-    public static let serverError = L10n.tr("Localizable", "error.serverError", fallback: "Server error occurred. Please try again later.")
     /// Something went wrong. Please try again.
     public static let unknownError = L10n.tr("Localizable", "error.unknownError", fallback: "Something went wrong. Please try again.")
   }
@@ -82,8 +72,6 @@ public enum L10n {
     public static let categoryAll = L10n.tr("Localizable", "items.categoryAll", fallback: "All")
     /// Favorite
     public static let favorite = L10n.tr("Localizable", "items.favorite", fallback: "Favorite")
-    /// Loaded Items
-    public static let loadedItems = L10n.tr("Localizable", "items.loadedItems", fallback: "Loaded Items")
     /// Unfavorite
     public static let unfavorite = L10n.tr("Localizable", "items.unfavorite", fallback: "Unfavorite")
   }
@@ -106,8 +94,6 @@ public enum L10n {
     public static let favorites = L10n.tr("Localizable", "profile.favorites", fallback: "Favorites")
     /// Sign Out
     public static let logout = L10n.tr("Localizable", "profile.logout", fallback: "Sign Out")
-    /// Are you sure you want to sign out?
-    public static let logoutConfirmation = L10n.tr("Localizable", "profile.logoutConfirmation", fallback: "Are you sure you want to sign out?")
     /// Search for Items?
     public static let searchItems = L10n.tr("Localizable", "profile.searchItems", fallback: "Search for Items?")
     /// Profile
@@ -134,24 +120,14 @@ public enum L10n {
     }
   }
   public enum Settings {
-    /// About
-    public static let about = L10n.tr("Localizable", "settings.about", fallback: "About")
-    /// Analytics
-    public static let analytics = L10n.tr("Localizable", "settings.analytics", fallback: "Analytics")
     /// Appearance
     public static let appearance = L10n.tr("Localizable", "settings.appearance", fallback: "Appearance")
     /// Dark Mode
     public static let darkMode = L10n.tr("Localizable", "settings.darkMode", fallback: "Dark Mode")
-    /// Debug Mode
-    public static let debugMode = L10n.tr("Localizable", "settings.debugMode", fallback: "Debug Mode")
     /// Featured Carousel
     public static let featuredCarousel = L10n.tr("Localizable", "settings.featuredCarousel", fallback: "Featured Carousel")
     /// Feature Toggles
     public static let featureToggles = L10n.tr("Localizable", "settings.featureToggles", fallback: "Feature Toggles")
-    /// Notifications
-    public static let notifications = L10n.tr("Localizable", "settings.notifications", fallback: "Notifications")
-    /// Privacy Mode
-    public static let privacyMode = L10n.tr("Localizable", "settings.privacyMode", fallback: "Privacy Mode")
     /// Reset Dark Mode
     public static let resetDarkMode = L10n.tr("Localizable", "settings.resetDarkMode", fallback: "Reset Dark Mode")
     /// Reset Feature Toggles
@@ -166,8 +142,6 @@ public enum L10n {
     public static let home = L10n.tr("Localizable", "tabs.home", fallback: "Home")
     /// Items
     public static let items = L10n.tr("Localizable", "tabs.items", fallback: "Items")
-    /// Search
-    public static let search = L10n.tr("Localizable", "tabs.search", fallback: "Search")
     /// Settings
     public static let settings = L10n.tr("Localizable", "tabs.settings", fallback: "Settings")
   }

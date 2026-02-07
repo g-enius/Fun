@@ -60,6 +60,7 @@ public struct ProfileView: View {
                     .cornerRadius(10)
                 }
                 .accessibilityLabel(L10n.Profile.searchItems)
+                .accessibilityIdentifier(AccessibilityID.Profile.searchItemsButton)
                 .padding(.horizontal)
 
                 HStack(spacing: 40) {

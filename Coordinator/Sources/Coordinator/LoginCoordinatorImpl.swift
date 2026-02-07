@@ -18,12 +18,6 @@ public final class LoginCoordinatorImpl: BaseCoordinator, LoginCoordinator {
     /// Callback to notify parent coordinator of successful login
     public var onLoginSuccess: (() -> Void)?
 
-    // MARK: - Initialization
-
-    override public init(navigationController: UINavigationController) {
-        super.init(navigationController: navigationController)
-    }
-
     override public func start() {
         let viewModel = LoginViewModel(coordinator: self)
         let viewController = LoginViewController(viewModel: viewModel)

@@ -9,7 +9,7 @@ import Foundation
 import OSLog
 
 /// Log levels matching OSLog types
-public enum LogLevel {
+public enum LogLevel: Sendable {
     case debug
     case info
     case warning
@@ -28,7 +28,7 @@ public enum LogLevel {
 }
 
 /// Log categories for type-safe logging
-public enum LogCategory: String {
+public enum LogCategory: String, Sendable {
     case general
     case network
     case ui

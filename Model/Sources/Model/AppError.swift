@@ -9,7 +9,7 @@ import Foundation
 
 import FunCore
 
-public enum AppError: LocalizedError, Equatable {
+public enum AppError: LocalizedError, Equatable, Sendable {
     case networkError
 
     public var errorDescription: String? {

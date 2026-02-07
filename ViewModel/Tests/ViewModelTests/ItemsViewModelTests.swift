@@ -188,8 +188,8 @@ struct ItemsViewModelTests {
 
     @Test("ViewModel updates favoriteIds when service changes")
     func testViewModelObservesFavoritesChanges() async {
+        setupServices(initialFavorites: [])
         let mockFavorites = MockFavoritesService(initialFavorites: [])
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(mockFavorites, for: .favorites)
 
         let viewModel = ItemsViewModel(coordinator: nil)
@@ -218,7 +218,7 @@ struct ItemsViewModelTests {
         viewModel.didSelectItem(item)
 
         #expect(mockCoordinator.showDetailCalled == true)
-        #expect(mockCoordinator.showDetailFeaturedItem?.id == item.id)
+        #expect(mockCoordinator.showDetailItem?.id == item.id)
     }
 
     // MARK: - Filter Behavior Tests

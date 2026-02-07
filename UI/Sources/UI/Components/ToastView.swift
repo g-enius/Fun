@@ -16,6 +16,7 @@ public struct ToastView: View {
     let onDismiss: () -> Void
 
     @State private var isVisible = false
+    @State private var isDismissed = false
 
     public init(message: String, type: ToastType, onDismiss: @escaping () -> Void) {
         self.message = message
@@ -70,6 +71,9 @@ public struct ToastView: View {
     }
 
     private func dismiss() {
+        guard !isDismissed else { return }
+        isDismissed = true
+
         withAnimation(.easeOut(duration: 0.25)) {
             isVisible = false
         }

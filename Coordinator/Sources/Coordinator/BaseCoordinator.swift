@@ -99,7 +99,13 @@ open class BaseCoordinator: Coordinator {
     public func dismiss(usePop: Bool = true, animated: Bool = true, completion: (@MainActor () -> Void)? = nil) {
         if usePop {
             safePop(animated: animated)
-            completion?()
+            if animated, let transitionCoordinator = navigationController.transitionCoordinator {
+                transitionCoordinator.animate(alongsideTransition: nil) { _ in
+                    completion?()
+                }
+            } else {
+                completion?()
+            }
         } else {
             safeDismiss(animated: animated, completion: completion)
         }
@@ -125,7 +131,7 @@ open class BaseCoordinator: Coordinator {
             popoverController.permittedArrowDirections = []
         }
 
-        navigationController.present(activityViewController, animated: true)
+        safePresent(activityViewController)
     }
 
     // MARK: - Action Queue
@@ -134,14 +140,19 @@ open class BaseCoordinator: Coordinator {
         pendingActions.append(action)
 
         if pendingActions.count == 1 {
-            navigationController.transitionCoordinator?.animate(
-                alongsideTransition: nil,
-                completion: { [weak self] _ in
-                    Task { @MainActor in
-                        self?.executeQueuedActions()
+            if let coordinator = navigationController.transitionCoordinator {
+                coordinator.animate(
+                    alongsideTransition: nil,
+                    completion: { [weak self] _ in
+                        Task { @MainActor in
+                            self?.executeQueuedActions()
+                        }
                     }
-                }
-            )
+                )
+            } else {
+                // Transition already completed; execute immediately
+                executeQueuedActions()
+            }
         }
     }
 

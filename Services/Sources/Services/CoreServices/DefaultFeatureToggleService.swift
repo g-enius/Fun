@@ -40,17 +40,12 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
     // MARK: - Initialization
 
     public init() {
-        // Load from UserDefaults (with defaults for first launch)
         let defaults = UserDefaults.standard
-        if defaults.object(forKey: .featureCarousel) == nil {
-            defaults.set(true, forKey: .featureCarousel)
-        }
-        if defaults.object(forKey: .simulateErrors) == nil {
-            defaults.set(false, forKey: .simulateErrors)
-        }
-        if defaults.object(forKey: .darkModeEnabled) == nil {
-            defaults.set(false, forKey: .darkModeEnabled)
-        }
+        defaults.register(defaults: [
+            UserDefaultsKey.featureCarousel.rawValue: true,
+            UserDefaultsKey.simulateErrors.rawValue: false,
+            UserDefaultsKey.darkModeEnabled.rawValue: false
+        ])
 
         featuredCarousel = defaults.bool(forKey: .featureCarousel)
         simulateErrors = defaults.bool(forKey: .simulateErrors)

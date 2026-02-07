@@ -20,6 +20,7 @@ final class HomeViewSnapshotTests: XCTestCase {
 
     override func setUp() async throws {
         try await super.setUp()
+        ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
         ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)

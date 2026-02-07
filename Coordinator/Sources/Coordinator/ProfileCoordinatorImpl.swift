@@ -20,21 +20,23 @@ public final class ProfileCoordinatorImpl: BaseCoordinator, ProfileCoordinator {
     /// Callback to notify parent coordinator when dismissed (non-logout)
     public var onDismiss: (() -> Void)?
 
-    // MARK: - Initialization
+    // MARK: - State
 
-    override public init(navigationController: UINavigationController) {
-        super.init(navigationController: navigationController)
-    }
+    private var isDismissed = false
 
     // MARK: - ProfileCoordinator
 
     public func dismiss() {
+        guard !isDismissed else { return }
+        isDismissed = true
         navigationController.dismiss(animated: true) { [weak self] in
             self?.onDismiss?()
         }
     }
 
     public func logout() {
+        guard !isDismissed else { return }
+        isDismissed = true
         navigationController.dismiss(animated: true) { [weak self] in
             self?.onLogout?()
         }

@@ -86,10 +86,13 @@ private final class PreviewLoggerService: LoggerService {
 @MainActor
 private final class PreviewFavoritesService: FavoritesServiceProtocol {
     var favorites: Set<String>
-    private let subject = PassthroughSubject<Set<String>, Never>()
+    private let subject: CurrentValueSubject<Set<String>, Never>
     var favoritesDidChange: AnyPublisher<Set<String>, Never> { subject.eraseToAnyPublisher() }
 
-    init(initialFavorites: Set<String> = []) { self.favorites = initialFavorites }
+    init(initialFavorites: Set<String> = []) {
+        self.favorites = initialFavorites
+        self.subject = CurrentValueSubject(initialFavorites)
+    }
     func isFavorited(_ itemId: String) -> Bool { favorites.contains(itemId) }
     func toggleFavorite(forKey itemId: String) {
         if favorites.contains(itemId) { favorites.remove(itemId) } else { favorites.insert(itemId) }

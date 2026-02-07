@@ -19,8 +19,11 @@ struct LoginViewModelTests {
     // MARK: - Setup
 
     private func setupServices() {
-        let locator = ServiceLocator.shared
-        locator.register(MockLoggerService() as LoggerService, for: .logger)
+        ServiceLocator.shared.reset()
+        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
+        ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
+        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
+        ServiceLocator.shared.register(MockToastService(), for: .toast)
     }
 
     // MARK: - Initial State Tests
@@ -61,7 +64,7 @@ struct LoginViewModelTests {
     }
 
     @Test("Login prevents multiple simultaneous logins")
-    func loginPreventsMultipleLogins() async {
+    func loginPreventsMultipleLogins() async throws {
         setupServices()
         let coordinator = MockLoginCoordinator()
         let viewModel = LoginViewModel(coordinator: coordinator)
@@ -75,15 +78,21 @@ struct LoginViewModelTests {
 
         // Should still only have one login in progress
         #expect(viewModel.isLoggingIn == true)
+
+        // Wait for completion and verify coordinator called only once
+        try await Task.sleep(nanoseconds: 600_000_000)
+        #expect(coordinator.didLoginCallCount == 1)
     }
-}
 
-// MARK: - Mock Logger Service
+    @Test("Login with nil coordinator completes without crash")
+    func loginWithNilCoordinatorDoesNotCrash() async throws {
+        setupServices()
+        let viewModel = LoginViewModel(coordinator: nil)
 
-@MainActor
-private final class MockLoggerService: LoggerService {
-    func log(_ message: String) {}
-    func log(_ message: String, level: LogLevel) {}
-    func log(_ message: String, level: LogLevel, category: LogCategory) {}
-    func log(_ message: String, level: LogLevel, category: String) {}
+        viewModel.login()
+        #expect(viewModel.isLoggingIn == true)
+
+        try await Task.sleep(nanoseconds: 600_000_000)
+        #expect(viewModel.isLoggingIn == false)
+    }
 }

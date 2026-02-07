@@ -5,7 +5,6 @@
 //  Mock implementation of SettingsCoordinator for testing
 //
 
-import Foundation
 import FunModel
 
 @MainActor

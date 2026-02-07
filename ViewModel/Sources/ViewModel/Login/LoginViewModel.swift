@@ -42,8 +42,8 @@ public class LoginViewModel: ObservableObject {
 
         // Simulate a brief login delay for realism
         Task { [weak self] in
+            defer { self?.isLoggingIn = false }
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-            self?.isLoggingIn = false
             self?.coordinator?.didLogin()
         }
     }

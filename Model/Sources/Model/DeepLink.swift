@@ -9,7 +9,7 @@ import Foundation
 
 /// Represents deep link navigation destinations
 /// URL scheme: funapp://
-public enum DeepLink: Equatable {
+public enum DeepLink: Equatable, Sendable {
     case tab(TabIndex)           // funapp://tab/items
     case item(id: String)        // funapp://item/swiftui
     case profile                 // funapp://profile

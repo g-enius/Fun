@@ -97,6 +97,7 @@ private struct ErrorStateView: View {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 64))
                 .foregroundColor(.red)
+                .accessibilityHidden(true)
 
             Text(L10n.Error.failedToLoad)
                 .font(.title2)
@@ -137,6 +138,7 @@ private struct CarouselDisabledView: View {
             Image(systemName: "rectangle.stack.badge.minus")
                 .font(.system(size: 64))
                 .foregroundColor(.gray)
+                .accessibilityHidden(true)
 
             Text(L10n.Home.carouselDisabled)
                 .font(.title2)
@@ -169,6 +171,8 @@ private struct PageIndicatorView: View {
                     .animation(.easeInOut(duration: 0.2), value: currentIndex)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L10n.Accessibility.pageIndicator(currentIndex + 1, pageCount))
     }
 }
 
@@ -193,7 +197,7 @@ private struct FeaturedCardView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                 .padding()
-                .background(Color.named(item.color))
+                .background(Color.named(item.iconColor))
                 .cornerRadius(12)
                 .contentShape(Rectangle())
             }

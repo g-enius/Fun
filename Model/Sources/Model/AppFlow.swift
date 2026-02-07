@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents the major flows in the application
-public enum AppFlow: Equatable, Sendable {
+public enum AppFlow: Hashable, Sendable {
     /// User is not authenticated, show login screen
     case login
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum UserDefaultsKey: String {
+public enum UserDefaultsKey: String, Sendable {
     // Feature toggles
     case featureCarousel = "feature.carousel"
     case simulateErrors = "feature.simulateErrors"

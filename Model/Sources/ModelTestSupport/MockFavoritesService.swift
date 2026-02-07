@@ -5,7 +5,6 @@
 //  Mock implementation of FavoritesServiceProtocol for testing
 //
 
-import Foundation
 import Combine
 import FunModel
 
@@ -14,7 +13,7 @@ public final class MockFavoritesService: FavoritesServiceProtocol {
 
     public private(set) var favorites: Set<String>
 
-    private let favoritesSubject = PassthroughSubject<Set<String>, Never>()
+    private let favoritesSubject: CurrentValueSubject<Set<String>, Never>
 
     public var favoritesDidChange: AnyPublisher<Set<String>, Never> {
         favoritesSubject.eraseToAnyPublisher()
@@ -22,6 +21,7 @@ public final class MockFavoritesService: FavoritesServiceProtocol {
 
     public init(initialFavorites: Set<String> = []) {
         self.favorites = initialFavorites
+        self.favoritesSubject = CurrentValueSubject(initialFavorites)
     }
 
     public func isFavorited(_ itemId: String) -> Bool {

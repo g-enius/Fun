@@ -29,7 +29,7 @@ public class ServiceLocator {
     public static let shared = ServiceLocator()
 
     /// Registered services
-    private var services: [String: Any] = [:]
+    private var services: [ServiceKey: Any] = [:]
 
     /// Emits the key whenever a service is registered
     private let registrationSubject = PassthroughSubject<ServiceKey, Never>()
@@ -41,15 +41,13 @@ public class ServiceLocator {
 
     /// Register a service
     public func register<T>(_ service: T, for key: ServiceKey) {
-        let keyString = String(describing: key)
-        services[keyString] = service
+        services[key] = service
         registrationSubject.send(key)
     }
 
     /// Resolve a service (crashes if not registered)
     public func resolve<T>(for key: ServiceKey) -> T {
-        let keyString = String(describing: key)
-        guard let service = services[keyString] as? T else {
+        guard let service = services[key] as? T else {
             fatalError("Service not registered for key: \(key). Register in ServiceLocator.shared.")
         }
         return service
@@ -57,14 +55,12 @@ public class ServiceLocator {
 
     /// Check if a service is registered
     public func isRegistered(for key: ServiceKey) -> Bool {
-        let keyString = String(describing: key)
-        return services[keyString] != nil
+        services[key] != nil
     }
 
     /// Unregister a service (useful for testing)
     public func unregister(for key: ServiceKey) {
-        let keyString = String(describing: key)
-        services.removeValue(forKey: keyString)
+        services.removeValue(forKey: key)
     }
 
     /// Clear all services (useful for testing)

@@ -52,6 +52,7 @@ public struct DetailView: View {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
+                            .accessibilityHidden(true)
                         Text(L10n.Detail.pushNavigation)
                             .font(.caption)
                     }

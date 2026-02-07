@@ -39,6 +39,10 @@ public class HomeTabBarViewModel: ObservableObject, ObjectIdentityHashable {
 
     /// Switch to a specific tab programmatically
     public func switchToTab(_ index: Int) {
+        guard (0..<TabIndex.allCases.count).contains(index) else {
+            logger.log("Invalid tab index: \(index)", level: .warning, category: .general)
+            return
+        }
         selectedTabIndex = index
         logger.log("Programmatically switched to tab index: \(index)")
     }

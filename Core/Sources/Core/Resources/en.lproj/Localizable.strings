@@ -10,19 +10,17 @@
 "common.loading" = "Loading...";
 "common.cancel" = "Cancel";
 "common.close" = "Close";
-"common.done" = "Done";
-"common.share" = "Share";
 "common.version" = "Version";
 "common.build" = "Build";
 
 // MARK: - Accessibility
 
 "accessibility.doubleTapToViewDetails" = "Double tap to view details";
+"accessibility.pageIndicator" = "Page %d of %d";
 
 // MARK: - Tabs
 
 "tabs.home" = "Home";
-"tabs.search" = "Search";
 "tabs.items" = "Items";
 "tabs.settings" = "Settings";
 
@@ -43,7 +41,6 @@
 
 // MARK: - Items
 
-"items.loadedItems" = "Loaded Items";
 "items.favorite" = "Favorite";
 "items.unfavorite" = "Unfavorite";
 "items.categoryAll" = "All";
@@ -55,25 +52,17 @@
 "settings.featureToggles" = "Feature Toggles";
 "settings.featuredCarousel" = "Featured Carousel";
 "settings.simulateErrors" = "Simulate Errors";
-"settings.analytics" = "Analytics";
-"settings.debugMode" = "Debug Mode";
 "settings.resetDarkMode" = "Reset Dark Mode";
 "settings.resetFeatureToggles" = "Reset Feature Toggles";
 "settings.systemInfo" = "System Information";
-"settings.notifications" = "Notifications";
-"settings.privacyMode" = "Privacy Mode";
-"settings.about" = "About";
 
 // MARK: - Detail
 
 "detail.howUsed" = "How it's used in this demo";
-"detail.description" = "Description";
-"detail.justNow" = "Just now";
 "detail.addToFavorites" = "Add to Favorites";
 "detail.removeFromFavorites" = "Remove from Favorites";
 "detail.pushNavigation" = "Push Navigation";
 "detail.usingCoordinatorPattern" = "Using Coordinator Pattern";
-"detail.itemDescription" = "This is a detailed description of %@. It showcases the coordinator pattern for navigation in iOS apps.";
 "detail.shareText" = "Check out %@!";
 
 // MARK: - Profile
@@ -84,14 +73,12 @@
 "profile.favorites" = "Favorites";
 "profile.days" = "Days";
 "profile.logout" = "Sign Out";
-"profile.logoutConfirmation" = "Are you sure you want to sign out?";
 
 // MARK: - Errors
 
 "error.failedToLoad" = "Failed to load content";
 "error.retry" = "Retry";
 "error.networkError" = "Network connection failed. Please check your internet and try again.";
-"error.serverError" = "Server error occurred. Please try again later.";
 "error.unknownError" = "Something went wrong. Please try again.";
 
 // MARK: - Login

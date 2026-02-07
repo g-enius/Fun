@@ -31,6 +31,7 @@ public class HomeTabBarController: UITabBarController {
     // MARK: - Toast UI
 
     private var toastHostingController: UIHostingController<ToastView>?
+    private var activeToastId = UUID()
 
     // MARK: - Tasks
 
@@ -63,9 +64,13 @@ public class HomeTabBarController: UITabBarController {
         viewModel.selectedTabIndex = selectedIndex
 
         // Observe view model for programmatic tab changes
+        // Note: guard let self must be inside the loop body, not outside,
+        // to avoid a retain cycle across suspension points.
         tabObservationTask = Task { @MainActor [weak self] in
-            guard let self else { return }
-            for await index in viewModel.$selectedTabIndex.values where self.selectedIndex != index {
+            guard let viewModel = self?.viewModel else { return }
+            for await index in viewModel.$selectedTabIndex.values {
+                guard let self else { break }
+                guard self.selectedIndex != index else { continue }
                 self.selectedIndex = index
             }
         }
@@ -87,7 +92,12 @@ public class HomeTabBarController: UITabBarController {
         // Remove existing toast if any
         dismissToast()
 
+        let toastId = UUID()
+        activeToastId = toastId
+
         let toastView = ToastView(message: message, type: type) { [weak self] in
+            // Only dismiss if this toast is still the active one
+            guard self?.activeToastId == toastId else { return }
             self?.dismissToast()
         }
 

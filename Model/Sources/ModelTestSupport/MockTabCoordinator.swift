@@ -5,13 +5,12 @@
 //  Mock coordinator for testing ViewModels
 //
 
-import Foundation
 import FunModel
 
 @MainActor
 public final class MockTabCoordinator: HomeCoordinator, ItemsCoordinator {
     public var showDetailCalled = false
-    public var showDetailFeaturedItem: FeaturedItem?
+    public var showDetailItem: FeaturedItem?
     public var showProfileCalled = false
 
     public init() {}
@@ -19,7 +18,7 @@ public final class MockTabCoordinator: HomeCoordinator, ItemsCoordinator {
     // HomeCoordinator & ItemsCoordinator (FeaturedItem)
     public func showDetail(for item: FeaturedItem) {
         showDetailCalled = true
-        showDetailFeaturedItem = item
+        showDetailItem = item
     }
 
     // HomeCoordinator

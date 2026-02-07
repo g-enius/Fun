@@ -20,9 +20,11 @@ final class ItemsViewSnapshotTests: XCTestCase {
 
     override func setUp() async throws {
         try await super.setUp()
+        ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
         ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
+        ServiceLocator.shared.register(MockToastService(), for: .toast)
     }
 
     // Set to true to regenerate snapshots, then set back to false

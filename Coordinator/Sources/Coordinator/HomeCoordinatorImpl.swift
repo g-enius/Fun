@@ -64,6 +64,42 @@ public final class HomeCoordinatorImpl: BaseCoordinator, HomeCoordinator {
         let viewModel = ProfileViewModel(coordinator: coordinator)
         let viewController = ProfileViewController(viewModel: viewModel)
         profileNavController.setViewControllers([viewController], animated: false)
+
+        let dismissHandler = PresentationDismissHandler { [weak self] in
+            self?.profileCoordinator = nil
+        }
+        profileNavController.presentationController?.delegate = dismissHandler
+        // Store handler to prevent deallocation
+        objc_setAssociatedObject(
+            profileNavController,
+            &AssociatedKeys.dismissHandler,
+            dismissHandler,
+            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+        )
+
         safePresent(profileNavController)
+    }
+}
+
+// MARK: - Associated Object Key
+
+private enum AssociatedKeys {
+    nonisolated(unsafe) static var dismissHandler: UInt8 = 0
+}
+
+// MARK: - Presentation Dismiss Handler
+
+/// Bridges UIAdaptivePresentationControllerDelegate to a closure (requires NSObject inheritance).
+private final class PresentationDismissHandler: NSObject, UIAdaptivePresentationControllerDelegate {
+    private let onDismiss: @MainActor () -> Void
+
+    init(onDismiss: @escaping @MainActor () -> Void) {
+        self.onDismiss = onDismiss
+    }
+
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        Task { @MainActor in
+            onDismiss()
+        }
     }
 }
