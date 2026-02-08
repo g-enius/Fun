@@ -18,8 +18,8 @@ import FunModelTestSupport
 @MainActor
 final class DetailViewSnapshotTests: XCTestCase {
 
-    override func setUp() async throws {
-        try await super.setUp()
+    override func setUp() {
+        super.setUp()
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
