@@ -17,8 +17,7 @@ import FunModelTestSupport
 @MainActor
 final class LoginViewSnapshotTests: XCTestCase {
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
     }
