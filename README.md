@@ -108,6 +108,7 @@ Deep links received during login are queued and executed after authentication.
 - **Error Handling**: Centralized `AppError` enum with toast notifications
 - **Modern Search**: Debounced input, loading states
 - **Pull-to-Refresh**: Native SwiftUI `.refreshable`
+- **Dark Mode & Dynamic Type**: System-adaptive colors, semantic font styles, System/Light/Dark appearance picker
 - **iOS 17+ APIs**: Symbol effects, sensory feedback (backwards compatible)
 
 ## UIKit + SwiftUI Hybrid
