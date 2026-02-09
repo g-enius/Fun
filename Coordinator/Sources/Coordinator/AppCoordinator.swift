@@ -165,7 +165,8 @@ public final class AppCoordinator: BaseCoordinator {
         // Execute pending deep link after main flow is ready
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
-            // Small delay to ensure UI is ready
+            // Defensive delay to ensure tab bar UI is fully initialized.
+            // In a production app, this would use coordinator lifecycle callbacks.
             Task { @MainActor [weak self] in
                 try? await Task.sleep(nanoseconds: 100_000_000)
                 self?.executeDeepLink(deepLink)
@@ -175,6 +176,7 @@ public final class AppCoordinator: BaseCoordinator {
 
     private func transitionToLoginFlow() {
         currentFlow = .login
+        pendingDeepLink = nil
         activateSession(for: .login)
         showLoginFlow()
     }

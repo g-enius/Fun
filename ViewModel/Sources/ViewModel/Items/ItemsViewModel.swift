@@ -153,13 +153,13 @@ public class ItemsViewModel: ObservableObject {
             // Clear any previous error state
             self.hasError = false
 
-            // Perform filtering
-            self.filterResults()
+            // Perform filtering with randomized order to simulate API results
+            self.filterResults(randomize: true)
             self.isSearching = false
         }
     }
 
-    private func filterResults() {
+    private func filterResults(randomize: Bool = false) {
         var results = allItems
 
         // Filter by category (if not "All")
@@ -174,6 +174,11 @@ public class ItemsViewModel: ObservableObject {
                 item.title.lowercased().contains(trimmedSearch) ||
                 item.subtitle.lowercased().contains(trimmedSearch)
             }
+        }
+
+        // Randomize order to simulate different API responses on each search
+        if randomize {
+            results.shuffle()
         }
 
         items = results

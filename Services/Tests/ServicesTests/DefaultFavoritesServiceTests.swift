@@ -11,7 +11,7 @@ import Combine
 @testable import FunServices
 @testable import FunModel
 
-@Suite("DefaultFavoritesService Tests")
+@Suite("DefaultFavoritesService Tests", .serialized)
 @MainActor
 struct DefaultFavoritesServiceTests {
 

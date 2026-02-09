@@ -113,12 +113,14 @@ public class HomeViewModel: ObservableObject {
         hasError = false
         logger.log("Loading featured items...")
 
-        // Simulate network delay (500ms - 1.5s)
-        let delay = UInt64.random(in: 500_000_000...1_500_000_000)
+        // Simulate network delay (1-2s); try? ignores cancellation so
+        // SwiftUI's .refreshable always completes the load even if the
+        // user releases the drag early.
+        let delay = UInt64.random(in: 1_000_000_000...2_000_000_000)
         try? await Task.sleep(nanoseconds: delay)
 
-        // Use static FeaturedItem data showcasing technologies used in this demo
-        featuredItems = FeaturedItem.allCarouselSets
+        // Shuffle carousel sets and items within each set to simulate fresh API data
+        featuredItems = FeaturedItem.allCarouselSets.shuffled().map { $0.shuffled() }
         isLoading = false
         hasLoadedInitialData = true
 
@@ -129,7 +131,7 @@ public class HomeViewModel: ObservableObject {
         logger.log("Simulating network error...")
 
         // Simulate network delay
-        let delay = UInt64.random(in: 500_000_000...1_000_000_000)
+        let delay = UInt64.random(in: 1_000_000_000...2_000_000_000)
         try? await Task.sleep(nanoseconds: delay)
 
         hasError = true

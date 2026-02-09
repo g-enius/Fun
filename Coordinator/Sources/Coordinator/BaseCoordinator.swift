@@ -55,14 +55,14 @@ open class BaseCoordinator: Coordinator {
 
         // Prevent duplicate pushes
         if navigationController.topViewController?.isKind(of: type(of: viewController)) == true {
-            logger.log("Attempted to push duplicate screen")
+            logger.log("Attempted to push duplicate screen: \(type(of: viewController))")
             return
         }
 
         // Debounce rapid taps
         let now = CFAbsoluteTimeGetCurrent()
         guard now - lastPushTime >= Self.pushDebounceInterval else {
-            logger.log("Push debounced — too rapid")
+            logger.log("Push debounced — too rapid: \(type(of: viewController))")
             return
         }
         lastPushTime = now
