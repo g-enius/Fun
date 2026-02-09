@@ -23,6 +23,7 @@ public final class HomeCoordinatorImpl: BaseCoordinator {
     // Store to prevent deallocation, ViewModels hold weak refs
     private var detailCoordinator: DetailCoordinatorImpl?
     private var profileCoordinator: ProfileCoordinatorImpl?
+    private var dismissHandler: PresentationDismissHandler?
 
     override public func start() {
         let viewModel = HomeViewModel(coordinator: self)
@@ -70,24 +71,13 @@ extension HomeCoordinatorImpl: HomeCoordinator {
 
         let dismissHandler = PresentationDismissHandler { [weak self] in
             self?.profileCoordinator = nil
+            self?.dismissHandler = nil
         }
         profileNavController.presentationController?.delegate = dismissHandler
-        // Store handler to prevent deallocation
-        objc_setAssociatedObject(
-            profileNavController,
-            &AssociatedKeys.dismissHandler,
-            dismissHandler,
-            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
-        )
+        self.dismissHandler = dismissHandler
 
         safePresent(profileNavController)
     }
-}
-
-// MARK: - Associated Object Key
-
-private enum AssociatedKeys {
-    nonisolated(unsafe) static var dismissHandler: UInt8 = 0
 }
 
 // MARK: - Presentation Dismiss Handler
