@@ -75,13 +75,12 @@ All services defined as protocols in `Model`, implementations in `Services`.
 ```
 AppCoordinator
 ├── LoginCoordinator
-└── (after login)
-    ├── HomeCoordinator
-    │   ├── DetailCoordinator
-    │   └── ProfileCoordinator (modal)
-    ├── ItemsCoordinator
-    │   └── DetailCoordinator
-    └── SettingsCoordinator
+├── HomeCoordinator
+│   ├── DetailCoordinator
+│   └── ProfileCoordinator (modal)
+├── ItemsCoordinator
+│   └── DetailCoordinator
+└── SettingsCoordinator
 ```
 
 `AppCoordinator` manages login/main flow transitions with session lifecycle.
