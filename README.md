@@ -70,7 +70,20 @@ protocol Session: AnyObject {
 ### Protocol-Oriented Design
 All services defined as protocols in `Model`, implementations in `Services`.
 
-### App Flow Management
+### Coordinator Hierarchy
+
+```
+AppCoordinator
+├── LoginCoordinator
+└── (after login)
+    ├── HomeCoordinator
+    │   ├── DetailCoordinator
+    │   └── ProfileCoordinator (modal)
+    ├── ItemsCoordinator
+    │   └── DetailCoordinator
+    └── SettingsCoordinator
+```
+
 `AppCoordinator` manages login/main flow transitions with session lifecycle.
 
 ### Deep Linking

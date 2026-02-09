@@ -63,7 +63,9 @@ public class HomeTabBarController: UITabBarController {
         // Sync initial tab selection
         viewModel.selectedTabIndex = selectedIndex
 
-        // Observe view model for programmatic tab changes
+        // Observe view model for programmatic tab changes using AsyncSequence.
+        // Combine alternative: viewModel.$selectedTabIndex.sink { ... }.store(in: &cancellables)
+        // AsyncSequence is used here to demonstrate both observation patterns in the codebase.
         // Note: guard let self must be inside the loop body, not outside,
         // to avoid a retain cycle across suspension points.
         tabObservationTask = Task { @MainActor [weak self] in
