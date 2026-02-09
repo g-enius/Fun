@@ -23,7 +23,6 @@ public final class HomeCoordinatorImpl: BaseCoordinator {
     // Store to prevent deallocation, ViewModels hold weak refs
     private var detailCoordinator: DetailCoordinatorImpl?
     private var profileCoordinator: ProfileCoordinatorImpl?
-    private var dismissHandler: PresentationDismissHandler?
 
     override public func start() {
         let viewModel = HomeViewModel(coordinator: self)
@@ -37,10 +36,12 @@ public final class HomeCoordinatorImpl: BaseCoordinator {
 extension HomeCoordinatorImpl: HomeCoordinator {
 
     public func showDetail(for item: FeaturedItem) {
+        guard detailCoordinator == nil else { return }
+
         let coordinator = DetailCoordinatorImpl(
             navigationController: navigationController
         )
-        coordinator.onDismiss = { [weak self] in
+        coordinator.onPop = { [weak self] in
             self?.detailCoordinator = nil
         }
         detailCoordinator = coordinator
@@ -54,6 +55,8 @@ extension HomeCoordinatorImpl: HomeCoordinator {
     }
 
     public func showProfile() {
+        guard profileCoordinator == nil else { return }
+
         let profileNavController = UINavigationController()
         let coordinator = ProfileCoordinatorImpl(navigationController: profileNavController)
         coordinator.onDismiss = { [weak self] in
@@ -69,30 +72,6 @@ extension HomeCoordinatorImpl: HomeCoordinator {
         let viewController = ProfileViewController(viewModel: viewModel)
         profileNavController.setViewControllers([viewController], animated: false)
 
-        let dismissHandler = PresentationDismissHandler { [weak self] in
-            self?.profileCoordinator = nil
-            self?.dismissHandler = nil
-        }
-        profileNavController.presentationController?.delegate = dismissHandler
-        self.dismissHandler = dismissHandler
-
         safePresent(profileNavController)
-    }
-}
-
-// MARK: - Presentation Dismiss Handler
-
-/// Bridges UIAdaptivePresentationControllerDelegate to a closure (requires NSObject inheritance).
-private final class PresentationDismissHandler: NSObject, UIAdaptivePresentationControllerDelegate {
-    private let onDismiss: @MainActor () -> Void
-
-    init(onDismiss: @escaping @MainActor () -> Void) {
-        self.onDismiss = onDismiss
-    }
-
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        Task { @MainActor in
-            onDismiss()
-        }
     }
 }

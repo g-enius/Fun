@@ -132,7 +132,7 @@ struct DetailViewModelTests {
 
     // MARK: - Back Navigation Tests
 
-    @Test("handleBackNavigation calls coordinator handleSystemDismiss")
+    @Test("handleBackNavigation calls coordinator didPop")
     func testHandleBackNavigationCallsCoordinator() async {
         setupServices()
         let coordinator = MockDetailCoordinator()
@@ -140,8 +140,7 @@ struct DetailViewModelTests {
 
         viewModel.handleBackNavigation()
 
-        #expect(coordinator.handleSystemDismissCalled == true)
-        #expect(coordinator.dismissCalled == false) // Should NOT call dismiss()
+        #expect(coordinator.didPopCalled == true)
     }
 
     @Test("handleBackNavigation with nil coordinator does not crash")

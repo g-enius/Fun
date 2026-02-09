@@ -29,10 +29,12 @@ public final class ItemsCoordinatorImpl: BaseCoordinator {
 extension ItemsCoordinatorImpl: ItemsCoordinator {
 
     public func showDetail(for item: FeaturedItem) {
+        guard detailCoordinator == nil else { return }
+
         let coordinator = DetailCoordinatorImpl(
             navigationController: navigationController
         )
-        coordinator.onDismiss = { [weak self] in
+        coordinator.onPop = { [weak self] in
             self?.detailCoordinator = nil
         }
         detailCoordinator = coordinator

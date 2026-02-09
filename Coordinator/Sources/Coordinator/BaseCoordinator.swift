@@ -7,9 +7,6 @@
 
 import UIKit
 
-import FunCore
-import FunModel
-
 // MARK: - Coordinator Protocol
 
 @MainActor
@@ -25,15 +22,13 @@ open class BaseCoordinator: Coordinator {
 
     public let navigationController: UINavigationController
 
-    @Service(.logger) private var logger: LoggerService
-
     private var isTransitioning: Bool {
         navigationController.transitionCoordinator != nil
     }
 
-    private var pendingActions: [@MainActor () -> Void] = []
-    private var lastPushTime: CFAbsoluteTime = 0
-    private static let pushDebounceInterval: CFAbsoluteTime = 0.3
+    /// Single pending action retried after the current transition completes.
+    /// Handles deep links arriving mid-transition without full queue complexity.
+    private var pendingAction: (@MainActor () -> Void)?
 
     public init(navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -47,32 +42,18 @@ open class BaseCoordinator: Coordinator {
 
     public func safePush(_ viewController: UIViewController, animated: Bool = true) {
         guard !isTransitioning else {
-            queueAction { [weak self] in
+            scheduleRetry { [weak self] in
                 self?.safePush(viewController, animated: animated)
             }
             return
         }
-
-        // Prevent duplicate pushes
-        if navigationController.topViewController?.isKind(of: type(of: viewController)) == true {
-            logger.log("Attempted to push duplicate screen: \(type(of: viewController))")
-            return
-        }
-
-        // Debounce rapid taps
-        let now = CFAbsoluteTimeGetCurrent()
-        guard now - lastPushTime >= Self.pushDebounceInterval else {
-            logger.log("Push debounced — too rapid: \(type(of: viewController))")
-            return
-        }
-        lastPushTime = now
 
         navigationController.pushViewController(viewController, animated: animated)
     }
 
     public func safePop(animated: Bool = true, completion: (@MainActor () -> Void)? = nil) {
         guard !isTransitioning else {
-            queueAction { [weak self] in
+            scheduleRetry { [weak self] in
                 self?.safePop(animated: animated, completion: completion)
             }
             return
@@ -91,14 +72,9 @@ open class BaseCoordinator: Coordinator {
     }
 
     public func safePresent(_ viewController: UIViewController, animated: Bool = true, completion: (@MainActor () -> Void)? = nil) {
-        // Walk up to the topmost presented VC
+        // Walk up to the topmost presented VC so we present from the right level
         var presenter: UIViewController = navigationController
         while let presented = presenter.presentedViewController {
-            // Prevent presenting the same type again
-            if type(of: presented) == type(of: viewController) {
-                logger.log("Already presenting \(type(of: viewController))")
-                return
-            }
             presenter = presented
         }
         presenter.present(viewController, animated: animated, completion: completion)
@@ -135,31 +111,29 @@ open class BaseCoordinator: Coordinator {
         safePresent(activityViewController)
     }
 
-    // MARK: - Action Queue
+    // MARK: - Transition Retry
 
-    private func queueAction(_ action: @escaping @MainActor () -> Void) {
-        pendingActions.append(action)
+    /// Schedules a single action to execute after the current transition completes.
+    /// If a new action arrives before the previous one executes, it replaces it
+    /// (latest navigation intent wins).
+    private func scheduleRetry(_ action: @escaping @MainActor () -> Void) {
+        pendingAction = action
 
-        if pendingActions.count == 1 {
-            if let coordinator = navigationController.transitionCoordinator {
-                coordinator.animate(
-                    alongsideTransition: nil,
-                    completion: { [weak self] _ in
-                        Task { @MainActor in
-                            self?.executeQueuedActions()
-                        }
-                    }
-                )
-            } else {
-                // Transition already completed; execute immediately
-                executeQueuedActions()
-            }
+        if let coordinator = navigationController.transitionCoordinator {
+            coordinator.animate(
+                alongsideTransition: nil,
+                completion: { [weak self] _ in
+                    self?.executePendingAction()
+                }
+            )
+        } else {
+            executePendingAction()
         }
     }
 
-    private func executeQueuedActions() {
-        let actions = pendingActions
-        pendingActions.removeAll()
-        actions.forEach { $0() }
+    private func executePendingAction() {
+        let action = pendingAction
+        pendingAction = nil
+        action?()
     }
 }

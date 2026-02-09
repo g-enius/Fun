@@ -12,6 +12,7 @@ import FunModel
 public final class MockProfileCoordinator: ProfileCoordinator {
 
     public var dismissCalled = false
+    public var didDismissCalled = false
     public var logoutCalled = false
     public var openURLCalled = false
     public var lastOpenedURL: URL?
@@ -20,6 +21,10 @@ public final class MockProfileCoordinator: ProfileCoordinator {
 
     public func dismiss() {
         dismissCalled = true
+    }
+
+    public func didDismiss() {
+        didDismissCalled = true
     }
 
     public func logout() {

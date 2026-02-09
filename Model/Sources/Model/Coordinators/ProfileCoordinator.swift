@@ -12,4 +12,6 @@ public protocol ProfileCoordinator: AnyObject {
     func dismiss()
     func logout()
     func openURL(_ url: URL)
+    /// Called when the modal was dismissed interactively (swipe down gesture)
+    func didDismiss()
 }

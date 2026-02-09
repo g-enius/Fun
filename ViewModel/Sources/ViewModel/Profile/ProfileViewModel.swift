@@ -61,4 +61,9 @@ public class ProfileViewModel: ObservableObject {
         logger.log("User tapped logout from Profile", level: .info, category: .general)
         coordinator?.logout()
     }
+
+    /// Called when the modal was dismissed by swipe-down gesture
+    public func handleInteractiveDismiss() {
+        coordinator?.didDismiss()
+    }
 }

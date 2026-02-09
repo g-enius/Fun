@@ -28,6 +28,8 @@ public final class DetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // Detect interactive pop gesture (swipe back) or back button tap.
+    // When parent becomes nil, this VC was removed from the navigation stack.
     override public func didMove(toParent parent: UIViewController?) {
         super.didMove(toParent: parent)
         if parent == nil {

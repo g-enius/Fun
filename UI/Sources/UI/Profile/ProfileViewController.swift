@@ -35,9 +35,21 @@ public final class ProfileViewController: UIViewController {
         )
         navigationItem.rightBarButtonItem?.accessibilityIdentifier = AccessibilityID.Profile.dismissButton
         embedSwiftUIView(ProfileView(viewModel: viewModel))
+
+        // Detect interactive dismiss (swipe-down gesture on the modal sheet)
+        navigationController?.presentationController?.delegate = self
     }
 
     @objc private func dismissTapped() {
         viewModel.didTapDismiss()
+    }
+}
+
+// MARK: - UIAdaptivePresentationControllerDelegate
+
+extension ProfileViewController: UIAdaptivePresentationControllerDelegate {
+
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        viewModel.handleInteractiveDismiss()
     }
 }

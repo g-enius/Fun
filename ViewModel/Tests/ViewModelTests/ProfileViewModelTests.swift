@@ -78,6 +78,19 @@ struct ProfileViewModelTests {
         #expect(coordinator.logoutCalled == true)
     }
 
+    // MARK: - Interactive Dismiss Tests
+
+    @Test("Interactive dismiss calls coordinator didDismiss")
+    func testInteractiveDismissCallsCoordinator() async {
+        setupServices()
+        let coordinator = MockProfileCoordinator()
+        let viewModel = ProfileViewModel(coordinator: coordinator)
+
+        viewModel.handleInteractiveDismiss()
+
+        #expect(coordinator.didDismissCalled == true)
+    }
+
     // MARK: - Search Items Tests
 
     @Test("didTapSearchItems calls coordinator dismiss and openURL")

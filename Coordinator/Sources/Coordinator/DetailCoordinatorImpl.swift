@@ -11,28 +11,16 @@ import FunModel
 
 public final class DetailCoordinatorImpl: BaseCoordinator {
 
-    /// Callback to notify parent coordinator when detail is dismissed
-    public var onDismiss: (() -> Void)?
-
-    private var isDismissed = false
+    /// Callback to notify parent coordinator when detail is popped from navigation stack
+    public var onPop: (() -> Void)?
 }
 
 // MARK: - DetailCoordinator
 
 extension DetailCoordinatorImpl: DetailCoordinator {
 
-    public func dismiss() {
-        guard !isDismissed else { return }
-        isDismissed = true
-        safePop { [weak self] in
-            self?.onDismiss?()
-        }
-    }
-
-    public func handleSystemDismiss() {
-        guard !isDismissed else { return }
-        isDismissed = true
-        onDismiss?()
+    public func didPop() {
+        onPop?()
     }
 
     // share(text:) is inherited from BaseCoordinator

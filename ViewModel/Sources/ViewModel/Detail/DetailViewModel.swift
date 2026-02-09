@@ -62,7 +62,7 @@ public class DetailViewModel: ObservableObject {
 
     /// Called when the view controller is removed from the navigation stack by the system (back button)
     public func handleBackNavigation() {
-        coordinator?.handleSystemDismiss()
+        coordinator?.didPop()
     }
 
     public func didTapShare() {

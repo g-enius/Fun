@@ -19,10 +19,6 @@ public final class ProfileCoordinatorImpl: BaseCoordinator {
 
     /// Callback to notify parent coordinator when dismissed (non-logout)
     public var onDismiss: (() -> Void)?
-
-    // MARK: - State
-
-    private var isDismissed = false
 }
 
 // MARK: - ProfileCoordinator
@@ -30,19 +26,15 @@ public final class ProfileCoordinatorImpl: BaseCoordinator {
 extension ProfileCoordinatorImpl: ProfileCoordinator {
 
     public func dismiss() {
-        guard !isDismissed else { return }
-        isDismissed = true
-        navigationController.dismiss(animated: true) { [weak self] in
-            self?.onDismiss?()
-        }
+        safeDismiss { [weak self] in self?.onDismiss?() }
     }
 
     public func logout() {
-        guard !isDismissed else { return }
-        isDismissed = true
-        navigationController.dismiss(animated: true) { [weak self] in
-            self?.onLogout?()
-        }
+        safeDismiss { [weak self] in self?.onLogout?() }
+    }
+
+    public func didDismiss() {
+        onDismiss?()
     }
 
     public func openURL(_ url: URL) {
