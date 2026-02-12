@@ -33,6 +33,10 @@ public class HomeTabBarViewModel: ObservableObject {
 
     /// Called when tab selection changes
     public func tabDidChange(to index: Int) {
+        guard (0..<TabIndex.allCases.count).contains(index) else {
+            logger.log("Invalid tab index: \(index)", level: .warning, category: .general)
+            return
+        }
         selectedTabIndex = index
         logger.log("Tab switched to index: \(index)")
     }

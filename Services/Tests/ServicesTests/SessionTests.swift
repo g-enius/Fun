@@ -11,7 +11,7 @@ import Foundation
 @testable import FunCore
 @testable import FunModel
 
-@Suite("Session-Scoped DI Tests")
+@Suite("Session-Scoped DI Tests", .serialized)
 @MainActor
 struct SessionTests {
 
@@ -21,7 +21,7 @@ struct SessionTests {
 
     // MARK: - LoginSession
 
-    @Suite("LoginSession")
+    @Suite("LoginSession", .serialized)
     @MainActor
     struct LoginSessionTests {
 
@@ -62,7 +62,7 @@ struct SessionTests {
 
     // MARK: - AuthenticatedSession
 
-    @Suite("AuthenticatedSession")
+    @Suite("AuthenticatedSession", .serialized)
     @MainActor
     struct AuthenticatedSessionTests {
 
@@ -105,7 +105,7 @@ struct SessionTests {
 
     // MARK: - Session Transitions
 
-    @Suite("Session Transitions")
+    @Suite("Session Transitions", .serialized)
     @MainActor
     struct SessionTransitionTests {
 

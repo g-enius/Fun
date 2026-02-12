@@ -13,7 +13,7 @@ import Foundation
 import FunModelTestSupport
 
 @MainActor
-@Suite("LoginViewModel Tests")
+@Suite("LoginViewModel Tests", .serialized)
 struct LoginViewModelTests {
 
     // MARK: - Setup
@@ -29,7 +29,7 @@ struct LoginViewModelTests {
     // MARK: - Initial State Tests
 
     @Test("Initial state has isLoggingIn false")
-    func initialStateIsNotLoggingIn() async {
+    func testInitialStateIsNotLoggingIn() async {
         setupServices()
         let viewModel = LoginViewModel(coordinator: nil)
 
@@ -39,7 +39,7 @@ struct LoginViewModelTests {
     // MARK: - Login Tests
 
     @Test("Login sets isLoggingIn to true")
-    func loginSetsIsLoggingIn() async {
+    func testLoginSetsIsLoggingIn() async {
         setupServices()
         let viewModel = LoginViewModel(coordinator: nil)
 
@@ -49,7 +49,7 @@ struct LoginViewModelTests {
     }
 
     @Test("Login calls coordinator didLogin after delay")
-    func loginCallsCoordinator() async {
+    func testLoginCallsCoordinator() async {
         setupServices()
         let coordinator = MockLoginCoordinator()
         let viewModel = LoginViewModel(coordinator: coordinator)
@@ -64,7 +64,7 @@ struct LoginViewModelTests {
     }
 
     @Test("Login prevents multiple simultaneous logins")
-    func loginPreventsMultipleLogins() async throws {
+    func testLoginPreventsMultipleLogins() async throws {
         setupServices()
         let coordinator = MockLoginCoordinator()
         let viewModel = LoginViewModel(coordinator: coordinator)
@@ -85,7 +85,7 @@ struct LoginViewModelTests {
     }
 
     @Test("Login with nil coordinator completes without crash")
-    func loginWithNilCoordinatorDoesNotCrash() async throws {
+    func testLoginWithNilCoordinatorDoesNotCrash() async throws {
         setupServices()
         let viewModel = LoginViewModel(coordinator: nil)
 
