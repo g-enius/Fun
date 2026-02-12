@@ -14,9 +14,9 @@ func waitForCondition(
     timeout: TimeInterval = 3.0,
     _ condition: @MainActor () -> Bool
 ) async {
-    let start = CFAbsoluteTimeGetCurrent()
+    let start = Date()
     while !condition() {
-        if CFAbsoluteTimeGetCurrent() - start > timeout {
+        if Date().timeIntervalSince(start) > timeout {
             Issue.record("waitForCondition timed out after \(timeout)s")
             return
         }
