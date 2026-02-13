@@ -18,7 +18,7 @@ struct ProfileViewModelTests {
 
     // MARK: - Setup
 
-    private func setupServices() {
+    init() {
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
@@ -30,7 +30,6 @@ struct ProfileViewModelTests {
 
     @Test("Initial state matches demo profile")
     func testInitialState() async {
-        setupServices()
         let viewModel = ProfileViewModel(coordinator: nil)
 
         #expect(viewModel.userName == UserProfile.demo.name)
@@ -43,7 +42,6 @@ struct ProfileViewModelTests {
 
     @Test("Custom profile values are used")
     func testCustomProfileValues() async {
-        setupServices()
         let profile = UserProfile(name: "Test", email: "test@test.com", bio: "Bio", viewsCount: 1, favoritesCount: 2, daysCount: 3)
         let viewModel = ProfileViewModel(coordinator: nil, profile: profile)
 
@@ -56,7 +54,6 @@ struct ProfileViewModelTests {
 
     @Test("Dismiss calls coordinator dismiss")
     func testDismissCallsCoordinator() async {
-        setupServices()
         let coordinator = MockProfileCoordinator()
         let viewModel = ProfileViewModel(coordinator: coordinator)
 
@@ -69,7 +66,6 @@ struct ProfileViewModelTests {
 
     @Test("Logout calls coordinator logout")
     func testLogoutCallsCoordinator() async {
-        setupServices()
         let coordinator = MockProfileCoordinator()
         let viewModel = ProfileViewModel(coordinator: coordinator)
 
@@ -82,7 +78,6 @@ struct ProfileViewModelTests {
 
     @Test("Interactive dismiss calls coordinator didDismiss")
     func testInteractiveDismissCallsCoordinator() async {
-        setupServices()
         let coordinator = MockProfileCoordinator()
         let viewModel = ProfileViewModel(coordinator: coordinator)
 
@@ -95,7 +90,6 @@ struct ProfileViewModelTests {
 
     @Test("didTapSearchItems calls coordinator dismiss and openURL")
     func testDidTapSearchItemsCallsCoordinator() async {
-        setupServices()
         let coordinator = MockProfileCoordinator()
         let viewModel = ProfileViewModel(coordinator: coordinator)
 

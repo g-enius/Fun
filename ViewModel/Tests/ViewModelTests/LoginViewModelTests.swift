@@ -18,7 +18,7 @@ struct LoginViewModelTests {
 
     // MARK: - Setup
 
-    private func setupServices() {
+    init() {
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
@@ -30,7 +30,6 @@ struct LoginViewModelTests {
 
     @Test("Initial state has isLoggingIn false")
     func testInitialStateIsNotLoggingIn() async {
-        setupServices()
         let viewModel = LoginViewModel(coordinator: nil)
 
         #expect(viewModel.isLoggingIn == false)
@@ -40,7 +39,6 @@ struct LoginViewModelTests {
 
     @Test("Login sets isLoggingIn to true")
     func testLoginSetsIsLoggingIn() async {
-        setupServices()
         let viewModel = LoginViewModel(coordinator: nil)
 
         viewModel.login()
@@ -50,7 +48,6 @@ struct LoginViewModelTests {
 
     @Test("Login calls coordinator didLogin after delay")
     func testLoginCallsCoordinator() async {
-        setupServices()
         let coordinator = MockLoginCoordinator()
         let viewModel = LoginViewModel(coordinator: coordinator)
 
@@ -65,7 +62,6 @@ struct LoginViewModelTests {
 
     @Test("Login prevents multiple simultaneous logins")
     func testLoginPreventsMultipleLogins() async throws {
-        setupServices()
         let coordinator = MockLoginCoordinator()
         let viewModel = LoginViewModel(coordinator: coordinator)
 
@@ -86,7 +82,6 @@ struct LoginViewModelTests {
 
     @Test("Login with nil coordinator completes without crash")
     func testLoginWithNilCoordinatorDoesNotCrash() async throws {
-        setupServices()
         let viewModel = LoginViewModel(coordinator: nil)
 
         viewModel.login()

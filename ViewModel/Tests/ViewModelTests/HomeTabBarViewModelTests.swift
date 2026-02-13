@@ -18,7 +18,7 @@ struct HomeTabBarViewModelTests {
 
     // MARK: - Setup
 
-    private func setupServices() {
+    init() {
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
@@ -30,7 +30,6 @@ struct HomeTabBarViewModelTests {
 
     @Test("Initial selectedTabIndex is 0")
     func testInitialTabIndex() async {
-        setupServices()
         let viewModel = HomeTabBarViewModel()
 
         #expect(viewModel.selectedTabIndex == 0)
@@ -40,7 +39,6 @@ struct HomeTabBarViewModelTests {
 
     @Test("tabDidChange updates selectedTabIndex")
     func testTabDidChangeUpdatesIndex() async {
-        setupServices()
         let viewModel = HomeTabBarViewModel()
 
         viewModel.tabDidChange(to: 1)
@@ -55,7 +53,6 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab updates selectedTabIndex")
     func testSwitchToTabUpdatesIndex() async {
-        setupServices()
         let viewModel = HomeTabBarViewModel()
 
         viewModel.switchToTab(1)
@@ -67,7 +64,6 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab and tabDidChange produce same result")
     func testSwitchAndDidChangeEquivalent() async {
-        setupServices()
         let vm1 = HomeTabBarViewModel()
         let vm2 = HomeTabBarViewModel()
 
@@ -81,7 +77,6 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab ignores negative index")
     func testSwitchToTabIgnoresNegativeIndex() async {
-        setupServices()
         let viewModel = HomeTabBarViewModel()
 
         viewModel.switchToTab(1)
@@ -93,7 +88,6 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab ignores out-of-bounds index")
     func testSwitchToTabIgnoresOutOfBoundsIndex() async {
-        setupServices()
         let viewModel = HomeTabBarViewModel()
 
         viewModel.switchToTab(1)
@@ -105,7 +99,6 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab accepts all valid tab indices")
     func testSwitchToTabAcceptsAllValidIndices() async {
-        setupServices()
         let viewModel = HomeTabBarViewModel()
 
         for tabIndex in TabIndex.allCases {
