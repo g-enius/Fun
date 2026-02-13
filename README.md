@@ -1,8 +1,8 @@
 # Fun - iOS Demo App
 
-[![CI](https://github.com/g-enius/Fun/actions/workflows/ci.yml/badge.svg)](https://github.com/g-enius/Fun/actions/workflows/ci.yml)
+[![CI](https://github.com/g-enius/Fun-iOS/actions/workflows/ci.yml/badge.svg)](https://github.com/g-enius/Fun-iOS/actions/workflows/ci.yml)
 
-A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
+A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development. Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
 ## Demo
 
@@ -140,8 +140,8 @@ Deep links received during login are queued and executed after authentication.
 
 ### Installation
 ```bash
-git clone https://github.com/g-enius/Fun.git
-cd Fun
+git clone https://github.com/g-enius/Fun-iOS.git
+cd Fun-iOS
 open Fun.xcworkspace
 ```
 
