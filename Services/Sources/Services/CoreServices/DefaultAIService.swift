@@ -49,8 +49,9 @@ public final class DefaultAIService: AIServiceProtocol {
             let session = LanguageModelSession(
                 instructions: "Summarize the following text concisely in 2-3 sentences."
             )
+            let prompt = "Summarize this technical description in English:\n\n\(text)"
             let response = try await session.respond(
-                to: text,
+                to: prompt,
                 generating: AISummary.self
             )
             return response.content.summary
