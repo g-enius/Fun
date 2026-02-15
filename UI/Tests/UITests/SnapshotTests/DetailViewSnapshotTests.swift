@@ -22,6 +22,8 @@ final class DetailViewSnapshotTests: XCTestCase {
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
+        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
+        ServiceLocator.shared.register(MockAIService(isAvailable: false), for: .ai)
         ServiceLocator.shared.register(MockToastService(), for: .toast)
     }
 
