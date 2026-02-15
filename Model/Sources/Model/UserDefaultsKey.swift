@@ -11,6 +11,7 @@ public enum UserDefaultsKey: String, Sendable {
     // Feature toggles
     case featureCarousel = "feature.carousel"
     case simulateErrors = "feature.simulateErrors"
+    case aiSummary = "feature.aiSummary"
 
     // App settings
     case appearanceMode = "app.appearanceMode"

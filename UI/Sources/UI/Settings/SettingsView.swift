@@ -36,6 +36,9 @@ public struct SettingsView: View {
                 Toggle(L10n.Settings.simulateErrors, isOn: $viewModel.simulateErrorsEnabled)
                     .accessibilityHint("Simulates network errors for testing purposes")
                     .accessibilityIdentifier(AccessibilityID.Settings.simulateErrorsToggle)
+                Toggle(L10n.Settings.aiSummary, isOn: $viewModel.aiSummaryEnabled)
+                    .accessibilityHint("Enables AI-powered summary generation on detail screens")
+                    .accessibilityIdentifier(AccessibilityID.Settings.aiSummaryToggle)
             }
 
             Section {

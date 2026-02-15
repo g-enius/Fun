@@ -19,6 +19,7 @@ struct DefaultFeatureToggleServiceTests {
     private func clearUserDefaults() {
         UserDefaults.standard.removeObject(forKey: UserDefaultsKey.featureCarousel.rawValue)
         UserDefaults.standard.removeObject(forKey: UserDefaultsKey.simulateErrors.rawValue)
+        UserDefaults.standard.removeObject(forKey: UserDefaultsKey.aiSummary.rawValue)
         UserDefaults.standard.removeObject(forKey: UserDefaultsKey.appearanceMode.rawValue)
     }
 
@@ -165,6 +166,46 @@ struct DefaultFeatureToggleServiceTests {
         #expect(receivedValue == .dark)
     }
 
+    // MARK: - AI Summary Tests
+
+    @Test("AI Summary defaults to true")
+    func testAISummaryDefaultsToTrue() async {
+        clearUserDefaults()
+        let service = DefaultFeatureToggleService()
+
+        #expect(service.aiSummary == true)
+    }
+
+    @Test("AI Summary persists to UserDefaults")
+    func testAISummaryPersistence() async {
+        clearUserDefaults()
+        let service = DefaultFeatureToggleService()
+
+        service.aiSummary = false
+        #expect(UserDefaults.standard.bool(forKey: UserDefaultsKey.aiSummary.rawValue) == false)
+
+        service.aiSummary = true
+        #expect(UserDefaults.standard.bool(forKey: UserDefaultsKey.aiSummary.rawValue) == true)
+    }
+
+    @Test("AI Summary emits via publisher")
+    func testAISummaryEmitsViaPublisher() async {
+        clearUserDefaults()
+        let service = DefaultFeatureToggleService()
+        var receivedValue: Bool?
+        var cancellables = Set<AnyCancellable>()
+
+        service.aiSummaryPublisher
+            .sink { receivedValue = $0 }
+            .store(in: &cancellables)
+
+        service.aiSummary = false
+
+        await Task.yield()
+
+        #expect(receivedValue == false)
+    }
+
     // MARK: - State Restoration for All Properties
 
     @Test("All properties restore from UserDefaults")
@@ -173,12 +214,14 @@ struct DefaultFeatureToggleServiceTests {
 
         UserDefaults.standard.set(false, forKey: UserDefaultsKey.featureCarousel.rawValue)
         UserDefaults.standard.set(true, forKey: UserDefaultsKey.simulateErrors.rawValue)
+        UserDefaults.standard.set(false, forKey: UserDefaultsKey.aiSummary.rawValue)
         UserDefaults.standard.set("dark", forKey: UserDefaultsKey.appearanceMode.rawValue)
 
         let service = DefaultFeatureToggleService()
 
         #expect(service.featuredCarousel == false)
         #expect(service.simulateErrors == true)
+        #expect(service.aiSummary == false)
         #expect(service.appearanceMode == .dark)
     }
 }

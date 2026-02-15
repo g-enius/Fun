@@ -37,6 +37,10 @@ public class SettingsViewModel: ObservableObject {
         didSet { featureToggleService.simulateErrors = simulateErrorsEnabled }
     }
 
+    @Published public var aiSummaryEnabled: Bool = true {
+        didSet { featureToggleService.aiSummary = aiSummaryEnabled }
+    }
+
     // MARK: - Initialization
 
     public init(coordinator: SettingsCoordinator?) {
@@ -44,6 +48,7 @@ public class SettingsViewModel: ObservableObject {
         _appearanceMode = Published(initialValue: featureToggleService.appearanceMode)
         _featuredCarouselEnabled = Published(initialValue: featureToggleService.featuredCarousel)
         _simulateErrorsEnabled = Published(initialValue: featureToggleService.simulateErrors)
+        _aiSummaryEnabled = Published(initialValue: featureToggleService.aiSummary)
     }
 
     // MARK: - Actions
@@ -56,6 +61,7 @@ public class SettingsViewModel: ObservableObject {
     public func resetFeatureToggles() {
         featuredCarouselEnabled = true
         simulateErrorsEnabled = false
+        aiSummaryEnabled = true
         logger.log("Feature toggles reset")
     }
 }

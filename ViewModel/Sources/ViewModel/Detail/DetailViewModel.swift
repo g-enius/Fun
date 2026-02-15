@@ -22,6 +22,8 @@ public class DetailViewModel: ObservableObject {
 
     @Service(.logger) private var logger: LoggerService
     @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
+    @Service(.ai) private var aiService: AIServiceProtocol
+    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
     // MARK: - Published State
 
@@ -29,6 +31,13 @@ public class DetailViewModel: ObservableObject {
     @Published public var category: String
     @Published public var itemDescription: String
     @Published public var isFavorited: Bool = false
+    @Published public var summary: String = ""
+    @Published public var isSummarizing: Bool = false
+    @Published public var summaryError: String = ""
+
+    public var showAISummary: Bool {
+        featureToggleService.aiSummary && aiService.isAvailable
+    }
 
     // MARK: - Private Properties
 
@@ -73,5 +82,17 @@ public class DetailViewModel: ObservableObject {
     public func didTapToggleFavorite() {
         favoritesService.toggleFavorite(itemId)
         logger.log("Favorite toggled for \(itemTitle)")
+    }
+
+    public func generateSummary() async {
+        isSummarizing = true
+        summaryError = ""
+        do {
+            summary = try await aiService.summarize(itemDescription)
+        } catch {
+            summaryError = L10n.Detail.summaryFailed
+            logger.log("AI summary failed: \(error.localizedDescription)")
+        }
+        isSummarizing = false
     }
 }

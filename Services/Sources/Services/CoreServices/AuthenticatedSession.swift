@@ -22,6 +22,7 @@ public final class AuthenticatedSession: Session {
         locator.register(DefaultFavoritesService(), for: .favorites)
         locator.register(DefaultToastService(), for: .toast)
         locator.register(DefaultFeatureToggleService(), for: .featureToggles)
+        locator.register(DefaultAIService(), for: .ai)
     }
 
     public func teardown() {

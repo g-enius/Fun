@@ -28,6 +28,7 @@ public enum AccessibilityID {
         public static let appearancePicker = "settings_appearance_picker"
         public static let carouselToggle = "settings_carousel_toggle"
         public static let simulateErrorsToggle = "settings_simulate_errors_toggle"
+        public static let aiSummaryToggle = "settings_ai_summary_toggle"
         public static let resetAppearanceButton = "settings_reset_appearance"
         public static let resetTogglesButton = "settings_reset_toggles"
     }
@@ -39,6 +40,7 @@ public enum AccessibilityID {
     public enum Detail {
         public static let shareButton = "detail_share_button"
         public static let favoriteButton = "detail_favorite_button"
+        public static let aiSummaryButton = "detail_ai_summary_button"
     }
 
     public enum Profile {

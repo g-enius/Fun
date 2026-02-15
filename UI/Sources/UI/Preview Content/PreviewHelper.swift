@@ -32,6 +32,7 @@ public enum PreviewHelper {
         let toggles = PreviewFeatureToggleService()
         locator.register(toggles as FeatureToggleServiceProtocol, for: .featureToggles)
         locator.register(PreviewToastService() as ToastServiceProtocol, for: .toast)
+        locator.register(PreviewAIService() as AIServiceProtocol, for: .ai)
 
         isConfigured = true
     }
@@ -107,10 +108,20 @@ private final class PreviewFavoritesService: FavoritesServiceProtocol {
 private final class PreviewFeatureToggleService: FeatureToggleServiceProtocol {
     @Published var featuredCarousel: Bool = true
     @Published var simulateErrors: Bool = false
+    @Published var aiSummary: Bool = true
     @Published var appearanceMode: AppearanceMode = .system
     var featuredCarouselPublisher: AnyPublisher<Bool, Never> { $featuredCarousel.eraseToAnyPublisher() }
     var simulateErrorsPublisher: AnyPublisher<Bool, Never> { $simulateErrors.eraseToAnyPublisher() }
+    var aiSummaryPublisher: AnyPublisher<Bool, Never> { $aiSummary.eraseToAnyPublisher() }
     var appearanceModePublisher: AnyPublisher<AppearanceMode, Never> { $appearanceMode.eraseToAnyPublisher() }
+}
+
+@MainActor
+private final class PreviewAIService: AIServiceProtocol {
+    var isAvailable: Bool { true }
+    func summarize(_ text: String) async throws -> String {
+        "This is a preview summary of the technology feature."
+    }
 }
 
 @MainActor

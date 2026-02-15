@@ -45,6 +45,43 @@ public struct DetailView: View {
 
                 DescriptionContentView(text: viewModel.itemDescription)
 
+                // AI Summary
+                if viewModel.showAISummary {
+                    Divider()
+
+                    if viewModel.isSummarizing {
+                        ProgressView(L10n.Common.loading)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                    } else if !viewModel.summary.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(L10n.Detail.aiSummary)
+                                .font(.headline)
+                            Text(viewModel.summary)
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                                .lineSpacing(4)
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Button {
+                                Task {
+                                    await viewModel.generateSummary()
+                                }
+                            } label: {
+                                Label(L10n.Detail.generateSummary, systemImage: "sparkles")
+                            }
+                            .accessibilityIdentifier(AccessibilityID.Detail.aiSummaryButton)
+
+                            if !viewModel.summaryError.isEmpty {
+                                Text(viewModel.summaryError)
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                            }
+                        }
+                    }
+                }
+
             }
             .padding()
         }

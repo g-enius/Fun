@@ -36,6 +36,10 @@ public enum L10n {
   public enum Detail {
     /// Add to Favorites
     public static let addToFavorites = L10n.tr("Localizable", "detail.addToFavorites", fallback: "Add to Favorites")
+    /// AI Summary
+    public static let aiSummary = L10n.tr("Localizable", "detail.aiSummary", fallback: "AI Summary")
+    /// Generate Summary
+    public static let generateSummary = L10n.tr("Localizable", "detail.generateSummary", fallback: "Generate Summary")
     /// How it's used in this demo
     public static let howUsed = L10n.tr("Localizable", "detail.howUsed", fallback: "How it's used in this demo")
     /// Remove from Favorites
@@ -44,6 +48,8 @@ public enum L10n {
     public static func shareText(_ p1: Any) -> String {
       return L10n.tr("Localizable", "detail.shareText", String(describing: p1), fallback: "Check out %@!")
     }
+    /// Failed to generate summary
+    public static let summaryFailed = L10n.tr("Localizable", "detail.summaryFailed", fallback: "Failed to generate summary")
   }
   public enum Error {
     /// Failed to load content
@@ -116,6 +122,8 @@ public enum L10n {
     }
   }
   public enum Settings {
+    /// AI Summary
+    public static let aiSummary = L10n.tr("Localizable", "settings.aiSummary", fallback: "AI Summary")
     /// Appearance
     public static let appearance = L10n.tr("Localizable", "settings.appearance", fallback: "Appearance")
     /// Dark

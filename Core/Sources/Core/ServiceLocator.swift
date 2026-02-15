@@ -17,6 +17,7 @@ public enum ServiceKey {
     case favorites
     case toast
     case featureToggles
+    case ai
 }
 
 // MARK: - Service Locator

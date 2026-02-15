@@ -46,6 +46,7 @@ struct SettingsViewModelTests {
         #expect(viewModel.appearanceMode == .system)
         #expect(viewModel.featuredCarouselEnabled == true)
         #expect(viewModel.simulateErrorsEnabled == false)
+        #expect(viewModel.aiSummaryEnabled == true)
     }
 
     // MARK: - Appearance Mode Tests
@@ -108,14 +109,38 @@ struct SettingsViewModelTests {
     @Test("Reset feature toggles restores defaults")
     func testResetFeatureTogglesRestoresDefaults() async {
         let mockService = setupServices(featuredCarousel: false, simulateErrors: true)
+        mockService.aiSummary = false
         let viewModel = SettingsViewModel(coordinator: nil)
 
         viewModel.resetFeatureToggles()
 
         #expect(viewModel.featuredCarouselEnabled == true)
         #expect(viewModel.simulateErrorsEnabled == false)
+        #expect(viewModel.aiSummaryEnabled == true)
         #expect(mockService.featuredCarousel == true)
         #expect(mockService.simulateErrors == false)
+        #expect(mockService.aiSummary == true)
+    }
+
+    // MARK: - AI Summary Toggle Tests
+
+    @Test("AI Summary enabled initializes from service")
+    func testAISummaryEnabledInitFromService() async {
+        let mockService = setupServices()
+        mockService.aiSummary = false
+        let viewModel = SettingsViewModel(coordinator: nil)
+
+        #expect(viewModel.aiSummaryEnabled == false)
+    }
+
+    @Test("Toggling AI Summary updates service")
+    func testTogglingAISummaryUpdatesService() async {
+        let mockService = setupServices()
+        let viewModel = SettingsViewModel(coordinator: nil)
+
+        viewModel.aiSummaryEnabled = false
+
+        #expect(mockService.aiSummary == false)
     }
 
 }

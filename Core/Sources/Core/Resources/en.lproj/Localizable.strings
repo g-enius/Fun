@@ -54,6 +54,7 @@
 "settings.featureToggles" = "Feature Toggles";
 "settings.featuredCarousel" = "Featured Carousel";
 "settings.simulateErrors" = "Simulate Errors";
+"settings.aiSummary" = "AI Summary";
 "settings.resetAppearance" = "Reset Appearance";
 "settings.resetFeatureToggles" = "Reset Feature Toggles";
 "settings.systemInfo" = "System Information";
@@ -64,6 +65,9 @@
 "detail.addToFavorites" = "Add to Favorites";
 "detail.removeFromFavorites" = "Remove from Favorites";
 "detail.shareText" = "Check out %@!";
+"detail.generateSummary" = "Generate Summary";
+"detail.aiSummary" = "AI Summary";
+"detail.summaryFailed" = "Failed to generate summary";
 
 // MARK: - Profile
 
