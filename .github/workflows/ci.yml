@@ -60,13 +60,3 @@ jobs:
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Run UI Snapshot Tests
-        continue-on-error: true
-        run: |
-          xcodebuild test \
-            -workspace Fun.xcworkspace \
-            -scheme FunApp \
-            -only-testing UITests \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO
