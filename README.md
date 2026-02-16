@@ -31,7 +31,7 @@ A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concur
 ## Module Structure
 
 ```
-Fun/
+Fun-iOS/
 ├── FunApp/         # iOS app target (Xcode project)
 ├── Coordinator/    # Navigation coordinators
 ├── UI/             # SwiftUI views & UIKit controllers
