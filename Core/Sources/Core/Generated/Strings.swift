@@ -96,8 +96,8 @@ public enum L10n {
     public static let favorites = L10n.tr("Localizable", "profile.favorites", fallback: "Favorites")
     /// Sign Out
     public static let logout = L10n.tr("Localizable", "profile.logout", fallback: "Sign Out")
-    /// Search for Items?
-    public static let searchItems = L10n.tr("Localizable", "profile.searchItems", fallback: "Search for Items?")
+    /// Go to Items
+    public static let searchItems = L10n.tr("Localizable", "profile.searchItems", fallback: "Go to Items")
     /// Profile
     public static let title = L10n.tr("Localizable", "profile.title", fallback: "Profile")
     /// Views

@@ -72,7 +72,7 @@
 // MARK: - Profile
 
 "profile.title" = "Profile";
-"profile.searchItems" = "Search for Items?";
+"profile.searchItems" = "Go to Items";
 "profile.views" = "Views";
 "profile.favorites" = "Favorites";
 "profile.days" = "Days";
