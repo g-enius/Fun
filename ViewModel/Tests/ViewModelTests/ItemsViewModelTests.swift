@@ -113,9 +113,6 @@ struct ItemsViewModelTests {
         // Go back to All
         viewModel.didSelectCategory("All")
 
-        // Wait for filtering
-        await waitForCondition { viewModel.items.count == allItemsCount }
-
         #expect(viewModel.items.count == allItemsCount)
     }
 
@@ -245,9 +242,6 @@ struct ItemsViewModelTests {
 
         viewModel.didSelectCategory(testCategory)
 
-        // Wait for filtering
-        await waitForCondition { viewModel.items.count < allItemsCount }
-
         let filteredCount = viewModel.items.count
 
         // Category filter should show <= all items
@@ -266,9 +260,6 @@ struct ItemsViewModelTests {
         }
 
         viewModel.didSelectCategory(testCategory)
-
-        // Wait for filtering
-        await waitForCondition { viewModel.items.allSatisfy { $0.category == testCategory } }
 
         for item in viewModel.items {
             #expect(item.category == testCategory)

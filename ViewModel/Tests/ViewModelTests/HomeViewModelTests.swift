@@ -258,8 +258,7 @@ struct HomeViewModelTests {
         // Retry
         viewModel.retry()
 
-        // Wait for async task
-        await waitForCondition { !viewModel.featuredItems.isEmpty }
+        await Task.yield()
 
         #expect(!viewModel.featuredItems.isEmpty)
         #expect(viewModel.hasError == false)
