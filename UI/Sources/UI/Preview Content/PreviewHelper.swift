@@ -127,6 +127,7 @@ private final class PreviewAIService: AIServiceProtocol {
 
 @MainActor
 private final class PreviewNetworkService: NetworkService {
+    func login() async throws {}
     func fetchFeaturedItems() async throws -> [[FeaturedItem]] { FeaturedItem.allCarouselSets }
     func fetchAllItems() async throws -> [FeaturedItem] { FeaturedItem.all }
 }

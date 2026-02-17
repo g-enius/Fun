@@ -21,6 +21,7 @@ public class LoginViewModel: ObservableObject {
     // MARK: - Services
 
     @Service(.logger) private var logger: LoggerService
+    @Service(.network) private var networkService: NetworkService
 
     // MARK: - Published State
 
@@ -48,12 +49,12 @@ public class LoginViewModel: ObservableObject {
         isLoggingIn = true
         logger.log("User tapped login", level: .info, category: .general)
 
-        // Simulate a brief login delay for realism
         loginTask?.cancel()
         loginTask = Task { [weak self] in
-            defer { self?.isLoggingIn = false }
-            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-            self?.coordinator?.didLogin()
+            guard let self else { return }
+            defer { self.isLoggingIn = false }
+            try? await self.networkService.login()
+            self.coordinator?.didLogin()
         }
     }
 }

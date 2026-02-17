@@ -13,6 +13,12 @@ import Foundation
 @Suite("NetworkServiceImpl Tests")
 struct NetworkServiceImplTests {
 
+    @Test("login completes without error")
+    func testLoginCompletes() async throws {
+        let service = NetworkServiceImpl()
+        try await service.login()
+    }
+
     @Test("fetchFeaturedItems returns 7 carousel sets")
     func testFetchFeaturedItemsCount() async throws {
         let service = NetworkServiceImpl()

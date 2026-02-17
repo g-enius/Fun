@@ -47,48 +47,47 @@ struct LoginViewModelTests {
         #expect(viewModel.isLoggingIn == true)
     }
 
-    @Test("Login calls coordinator didLogin after delay")
+    @Test("Login calls coordinator didLogin after network request")
     func testLoginCallsCoordinator() async {
         let coordinator = MockLoginCoordinator()
         let viewModel = LoginViewModel(coordinator: coordinator)
 
         viewModel.login()
 
-        // Wait for the simulated login delay
-        await waitForCondition { coordinator.didLoginCalled }
+        // Mock network service returns instantly, so yield to let the Task complete
+        await Task.yield()
 
         #expect(coordinator.didLoginCalled == true)
         #expect(viewModel.isLoggingIn == false)
     }
 
     @Test("Login prevents multiple simultaneous logins")
-    func testLoginPreventsMultipleLogins() async throws {
+    func testLoginPreventsMultipleLogins() async {
         let coordinator = MockLoginCoordinator()
         let viewModel = LoginViewModel(coordinator: coordinator)
 
-        // Start first login
         viewModel.login()
         #expect(viewModel.isLoggingIn == true)
 
         // Try to start second login while first is in progress
         viewModel.login()
-
-        // Should still only have one login in progress
         #expect(viewModel.isLoggingIn == true)
 
-        // Wait for completion and verify coordinator called only once
-        await waitForCondition { coordinator.didLoginCallCount == 1 }
+        // Yield to let the Task complete
+        await Task.yield()
+
         #expect(coordinator.didLoginCallCount == 1)
     }
 
     @Test("Login with nil coordinator completes without crash")
-    func testLoginWithNilCoordinatorDoesNotCrash() async throws {
+    func testLoginWithNilCoordinatorDoesNotCrash() async {
         let viewModel = LoginViewModel(coordinator: nil)
 
         viewModel.login()
         #expect(viewModel.isLoggingIn == true)
 
-        await waitForCondition { viewModel.isLoggingIn == false }
+        await Task.yield()
+
         #expect(viewModel.isLoggingIn == false)
     }
 }
