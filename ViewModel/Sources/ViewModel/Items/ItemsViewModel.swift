@@ -157,8 +157,9 @@ public class ItemsViewModel: ObservableObject {
 
                 self.hasError = false
                 self.items = results
-                let category = self.selectedCategory
-                self.logger.log("Search returned \(results.count) results for: '\(trimmedSearch)' in category: '\(category)'")
+                self.logger.log(
+                    "Search returned \(results.count) results for: '\(trimmedSearch)'"
+                )
             } catch {
                 guard !Task.isCancelled else { return }
 
