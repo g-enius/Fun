@@ -11,4 +11,5 @@ public protocol NetworkService: Sendable {
     func login() async throws
     func fetchFeaturedItems() async throws -> [[FeaturedItem]]
     func fetchAllItems() async throws -> [FeaturedItem]
+    func searchItems(query: String, category: String) async throws -> [FeaturedItem]
 }

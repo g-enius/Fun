@@ -130,6 +130,7 @@ private final class PreviewNetworkService: NetworkService {
     func login() async throws {}
     func fetchFeaturedItems() async throws -> [[FeaturedItem]] { FeaturedItem.allCarouselSets }
     func fetchAllItems() async throws -> [FeaturedItem] { FeaturedItem.all }
+    func searchItems(query: String, category: String) async throws -> [FeaturedItem] { FeaturedItem.all }
 }
 
 @MainActor

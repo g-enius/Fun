@@ -266,6 +266,77 @@ struct ItemsViewModelTests {
         }
     }
 
+    // MARK: - Network Search Tests
+
+    @Test("Search calls networkService.searchItems with query and category")
+    func testSearchCallsNetworkService() async throws {
+        setupServices()
+        let mockNetwork = MockNetworkService(
+            stubbedSearchItems: [.swiftUI]
+        )
+        ServiceLocator.shared.register(mockNetwork, for: .network)
+        let viewModel = ItemsViewModel(coordinator: nil)
+        await viewModel.loadItems()
+
+        viewModel.searchText = "swift"
+        // Trigger search directly by calling the debounced path
+        viewModel.didSelectCategory(viewModel.selectedCategory)
+
+        // Wait for the search task to complete
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(mockNetwork.searchItemsCallCount == 1)
+        #expect(mockNetwork.lastSearchQuery == "swift")
+        #expect(mockNetwork.lastSearchCategory == "All")
+        #expect(viewModel.items == [.swiftUI])
+        #expect(viewModel.isSearching == false)
+    }
+
+    @Test("Search error sets hasError and shows toast")
+    func testSearchErrorSetsHasError() async throws {
+        setupServices()
+        let mockNetwork = MockNetworkService(shouldThrowError: true)
+        ServiceLocator.shared.register(mockNetwork, for: .network)
+        let viewModel = ItemsViewModel(coordinator: nil)
+
+        viewModel.searchText = "swift"
+        viewModel.didSelectCategory(viewModel.selectedCategory)
+
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(viewModel.hasError == true)
+        #expect(viewModel.items.isEmpty)
+        #expect(viewModel.isSearching == false)
+
+        let mockToast: ToastServiceProtocol = ServiceLocator.shared.resolve(for: .toast)
+        let toast = mockToast as! MockToastService
+        #expect(toast.showToastCalled == true)
+    }
+
+    @Test("Clear search resets to filtered allItems")
+    func testClearSearchResetsToAllItems() async throws {
+        setupServices()
+        let mockNetwork = MockNetworkService(
+            stubbedSearchItems: [.swiftUI]
+        )
+        ServiceLocator.shared.register(mockNetwork, for: .network)
+        let viewModel = ItemsViewModel(coordinator: nil)
+        await viewModel.loadItems()
+
+        let allItemsCount = viewModel.items.count
+
+        // Perform a search
+        viewModel.searchText = "swift"
+        viewModel.didSelectCategory(viewModel.selectedCategory)
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(viewModel.items.count == 1)
+
+        // Clear search
+        viewModel.clearSearch()
+        #expect(viewModel.items.count == allItemsCount)
+        #expect(viewModel.hasError == false)
+    }
+
     // MARK: - Error State Tests
 
     @Test("Initial hasError is false")

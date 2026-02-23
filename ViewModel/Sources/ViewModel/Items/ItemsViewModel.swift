@@ -126,7 +126,7 @@ public class ItemsViewModel: ObservableObject {
         }
     }
 
-    /// Perform async search with simulated network delay
+    /// Perform async search via network service
     private func performSearch() {
         // Cancel any existing search task
         searchTask?.cancel()
@@ -145,36 +145,34 @@ public class ItemsViewModel: ObservableObject {
         searchTask = Task { [weak self] in
             guard let self else { return }
 
-            // Show loading state
             self.isSearching = true
 
-            // Simulate network delay (300-800ms)
-            let delay = UInt64.random(in: 300_000_000...800_000_000)
-            try? await Task.sleep(nanoseconds: delay)
+            do {
+                let results = try await self.networkService.searchItems(
+                    query: trimmedSearch,
+                    category: self.selectedCategory
+                )
 
-            // Check if task was cancelled
-            guard !Task.isCancelled else { return }
+                guard !Task.isCancelled else { return }
 
-            // Check if error simulation is enabled
-            if self.featureToggleService.simulateErrors {
-                self.isSearching = false
+                self.hasError = false
+                self.items = results
+                let category = self.selectedCategory
+                self.logger.log("Search returned \(results.count) results for: '\(trimmedSearch)' in category: '\(category)'")
+            } catch {
+                guard !Task.isCancelled else { return }
+
                 self.hasError = true
                 self.items = []
                 let errorMessage = AppError.networkError.errorDescription ?? L10n.Error.unknownError
                 self.toastService.showToast(message: errorMessage, type: .error)
-                return
             }
 
-            // Clear any previous error state
-            self.hasError = false
-
-            // Perform filtering with randomized order to simulate API results
-            self.filterResults(randomize: true)
             self.isSearching = false
         }
     }
 
-    private func filterResults(randomize: Bool = false) {
+    private func filterResults() {
         var results = allItems
 
         // Filter by category (if not "All")
@@ -182,22 +180,8 @@ public class ItemsViewModel: ObservableObject {
             results = results.filter { $0.category == selectedCategory }
         }
 
-        // Filter by search text (case-insensitive)
-        let trimmedSearch = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if !trimmedSearch.isEmpty {
-            results = results.filter { item in
-                item.title.lowercased().contains(trimmedSearch) ||
-                item.subtitle.lowercased().contains(trimmedSearch)
-            }
-        }
-
-        // Randomize order to simulate different API responses on each search
-        if randomize {
-            results.shuffle()
-        }
-
         items = results
-        logger.log("Filtered to \(results.count) results for: '\(searchText)' in category: '\(selectedCategory)'")
+        logger.log("Filtered to \(results.count) results in category: '\(selectedCategory)'")
     }
 
     // MARK: - Search Actions

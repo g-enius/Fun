@@ -27,4 +27,25 @@ public actor NetworkServiceImpl: NetworkService {
         try await Task.sleep(nanoseconds: delay)
         return FeaturedItem.all
     }
+
+    public func searchItems(query: String, category: String) async throws -> [FeaturedItem] {
+        let delay = UInt64.random(in: 300_000_000...800_000_000)
+        try await Task.sleep(nanoseconds: delay)
+
+        var results = FeaturedItem.all
+
+        if !category.isEmpty && category != "All" {
+            results = results.filter { $0.category == category }
+        }
+
+        let lowercasedQuery = query.lowercased()
+        if !lowercasedQuery.isEmpty {
+            results = results.filter { item in
+                item.title.lowercased().contains(lowercasedQuery) ||
+                item.subtitle.lowercased().contains(lowercasedQuery)
+            }
+        }
+
+        return results.shuffled()
+    }
 }
