@@ -11,7 +11,7 @@ import FunCore
 import FunViewModel
 
 public struct DetailView: View {
-    @ObservedObject var viewModel: DetailViewModel
+    @ObservedObject private var viewModel: DetailViewModel
 
     public init(viewModel: DetailViewModel) {
         self.viewModel = viewModel

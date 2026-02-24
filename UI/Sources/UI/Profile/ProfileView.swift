@@ -11,7 +11,7 @@ import FunCore
 import FunViewModel
 
 public struct ProfileView: View {
-    @ObservedObject var viewModel: ProfileViewModel
+    @ObservedObject private var viewModel: ProfileViewModel
 
     public init(viewModel: ProfileViewModel) {
         self.viewModel = viewModel
