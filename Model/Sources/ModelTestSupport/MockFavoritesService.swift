@@ -5,7 +5,7 @@
 //  Mock implementation of FavoritesServiceProtocol for testing
 //
 
-import Combine
+import FunCore
 import FunModel
 
 @MainActor
@@ -13,15 +13,14 @@ public final class MockFavoritesService: FavoritesServiceProtocol {
 
     public private(set) var favorites: Set<String>
 
-    private let favoritesSubject: CurrentValueSubject<Set<String>, Never>
+    private let favoritesBroadcaster = StreamBroadcaster<Set<String>>()
 
-    public var favoritesDidChange: AnyPublisher<Set<String>, Never> {
-        favoritesSubject.eraseToAnyPublisher()
+    public var favoritesChanges: AsyncStream<Set<String>> {
+        favoritesBroadcaster.makeStream()
     }
 
     public init(initialFavorites: Set<String> = []) {
         self.favorites = initialFavorites
-        self.favoritesSubject = CurrentValueSubject(initialFavorites)
     }
 
     public func isFavorited(_ itemId: String) -> Bool {
@@ -34,21 +33,21 @@ public final class MockFavoritesService: FavoritesServiceProtocol {
         } else {
             favorites.insert(itemId)
         }
-        favoritesSubject.send(favorites)
+        favoritesBroadcaster.yield(favorites)
     }
 
     public func addFavorite(_ itemId: String) {
         favorites.insert(itemId)
-        favoritesSubject.send(favorites)
+        favoritesBroadcaster.yield(favorites)
     }
 
     public func removeFavorite(_ itemId: String) {
         favorites.remove(itemId)
-        favoritesSubject.send(favorites)
+        favoritesBroadcaster.yield(favorites)
     }
 
     public func resetFavorites() {
         favorites.removeAll()
-        favoritesSubject.send(favorites)
+        favoritesBroadcaster.yield(favorites)
     }
 }
