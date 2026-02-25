@@ -19,18 +19,20 @@ public struct DetailView: View {
 
     public var body: some View {
         detailContent
+            .navigationTitle(viewModel.itemTitle)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    ShareLink(item: viewModel.shareText)
-                        .accessibilityIdentifier(AccessibilityID.Detail.shareButton)
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { viewModel.didTapToggleFavorite() }) {
                         Image(systemName: viewModel.isFavorited ? "star.fill" : "star")
                             .foregroundColor(viewModel.isFavorited ? .yellow : .blue)
                     }
                     .accessibilityIdentifier(AccessibilityID.Detail.favoriteButton)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ShareLink(item: viewModel.shareText)
+                        .accessibilityIdentifier(AccessibilityID.Detail.shareButton)
                 }
             }
     }
