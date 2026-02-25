@@ -7,38 +7,40 @@
 
 import Combine
 import Foundation
+import Observation
 
 import FunCore
 import FunModel
 
 @MainActor
-public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
+@Observable
+public class ItemsViewModel: ServiceLocatorProvider {
 
     // MARK: - Navigation Closures
 
-    public var onShowDetail: ((FeaturedItem) -> Void)?
+    @ObservationIgnored public var onShowDetail: ((FeaturedItem) -> Void)?
 
     // MARK: - DI
 
-    public let serviceLocator: ServiceLocator
-    @Service(.logger) private var logger: LoggerService
-    @Service(.network) private var networkService: NetworkServiceProtocol
-    @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
-    @Service(.toast) private var toastService: ToastServiceProtocol
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    @ObservationIgnored public let serviceLocator: ServiceLocator
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.network) private var networkService: NetworkServiceProtocol
+    @ObservationIgnored @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
+    @ObservationIgnored @Service(.toast) private var toastService: ToastServiceProtocol
+    @ObservationIgnored @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
-    // MARK: - Published State
+    // MARK: - State
 
-    @Published public var items: [FeaturedItem] = []
-    @Published public private(set) var favoriteIds: Set<String> = []
+    public var items: [FeaturedItem] = []
+    public private(set) var favoriteIds: Set<String> = []
 
     // Search & Filter State
-    @Published public var searchText: String = ""
-    @Published public var selectedCategory: String = L10n.Items.categoryAll
-    @Published public var isSearching: Bool = false
-    @Published public var needsMoreCharacters: Bool = false
-    @Published public var hasError: Bool = false
-    @Published public private(set) var isLoading: Bool = false
+    public var searchText: String = ""
+    public var selectedCategory: String = L10n.Items.categoryAll
+    public var isSearching: Bool = false
+    public var needsMoreCharacters: Bool = false
+    public var hasError: Bool = false
+    public private(set) var isLoading: Bool = false
 
     // MARK: - Configuration
 
@@ -47,10 +49,10 @@ public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Private Properties
 
-    private var cancellables = Set<AnyCancellable>()
-    private var allItems: [FeaturedItem] = []
-    private var loadTask: Task<Void, Never>?
-    private var searchTask: Task<Void, Never>?
+    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var allItems: [FeaturedItem] = []
+    @ObservationIgnored private var loadTask: Task<Void, Never>?
+    @ObservationIgnored private var searchTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -78,8 +80,18 @@ public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
 
     private func setupSearchBinding() {
         // Debounce search text with minimum character requirement
-        $searchText
-            .dropFirst() // Skip initial value
+        // Note: withObservationTracking doesn't provide a publisher, so we keep
+        // this Combine pipeline for debounced search. The searchText property is
+        // still @Observable for SwiftUI binding; we observe it via a Task.
+        observeSearchTextChanges()
+    }
+
+    private func observeSearchTextChanges() {
+        // Use a recurring observation loop to bridge @Observable → Combine-style debounce
+        // This replaces $searchText which is unavailable without @Published
+        let subject = PassthroughSubject<String, Never>()
+
+        subject
             .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] text in
@@ -104,6 +116,20 @@ public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
                 }
             }
             .store(in: &cancellables)
+
+        // Bridge @Observable searchText changes into the subject
+        func observe() {
+            withObservationTracking {
+                _ = self.searchText
+            } onChange: { [weak self] in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    subject.send(self.searchText)
+                    observe()
+                }
+            }
+        }
+        observe()
     }
 
     private func observeFavoritesChanges() {

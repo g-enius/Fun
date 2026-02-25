@@ -15,15 +15,15 @@ import FunUI
 import FunViewModel
 
 struct MainTabView: View {
-    @ObservedObject var coordinator: AppCoordinator
+    let coordinator: AppCoordinator
 
     var body: some View {
-        TabView(selection: $coordinator.selectedTab) {
+        TabView(selection: Bindable(coordinator).selectedTab) {
             homeTab
             itemsTab
             settingsTab
         }
-        .sheet(isPresented: $coordinator.isProfilePresented) {
+        .sheet(isPresented: Bindable(coordinator).isProfilePresented) {
             NavigationStack {
                 ProfileTabContent(coordinator: coordinator)
             }
@@ -42,7 +42,7 @@ struct MainTabView: View {
     // MARK: - Tabs
 
     private var homeTab: some View {
-        NavigationStack(path: $coordinator.homePath) {
+        NavigationStack(path: Bindable(coordinator).homePath) {
             HomeTabContent(coordinator: coordinator)
                 .navigationDestination(for: FeaturedItem.self) { item in
                     coordinator.destinationView(for: item)
@@ -57,7 +57,7 @@ struct MainTabView: View {
     }
 
     private var itemsTab: some View {
-        NavigationStack(path: $coordinator.itemsPath) {
+        NavigationStack(path: Bindable(coordinator).itemsPath) {
             ItemsTabContent(coordinator: coordinator)
                 .navigationDestination(for: FeaturedItem.self) { item in
                     coordinator.destinationView(for: item)
@@ -72,7 +72,7 @@ struct MainTabView: View {
     }
 
     private var settingsTab: some View {
-        NavigationStack(path: $coordinator.settingsPath) {
+        NavigationStack(path: Bindable(coordinator).settingsPath) {
             SettingsTabContent(coordinator: coordinator)
         }
         .tabItem {
@@ -88,11 +88,11 @@ struct MainTabView: View {
 /// Wrapper that creates HomeViewModel with navigation closures wired to coordinator
 struct HomeTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: HomeViewModel
+    @State private var viewModel: HomeViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: HomeViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = State(wrappedValue: HomeViewModel(serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
@@ -111,11 +111,11 @@ struct HomeTabContent: View {
 /// Wrapper that creates ItemsViewModel with navigation closures wired to coordinator
 struct ItemsTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: ItemsViewModel
+    @State private var viewModel: ItemsViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ItemsViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = State(wrappedValue: ItemsViewModel(serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
@@ -146,11 +146,11 @@ struct SettingsTabContent: View {
 /// Wrapper that creates DetailViewModel for a pushed item
 struct DetailTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: DetailViewModel
+    @State private var viewModel: DetailViewModel
 
     init(item: FeaturedItem, coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: DetailViewModel(item: item, serviceLocator: coordinator.serviceLocator))
+        _viewModel = State(wrappedValue: DetailViewModel(item: item, serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
@@ -161,11 +161,11 @@ struct DetailTabContent: View {
 /// Wrapper that creates ProfileViewModel with navigation closures
 struct ProfileTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: ProfileViewModel
+    @State private var viewModel: ProfileViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ProfileViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = State(wrappedValue: ProfileViewModel(serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
@@ -189,11 +189,11 @@ struct ProfileTabContent: View {
 /// Wrapper that creates LoginViewModel with login success closure
 struct LoginTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: LoginViewModel
+    @State private var viewModel: LoginViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: LoginViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = State(wrappedValue: LoginViewModel(serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {

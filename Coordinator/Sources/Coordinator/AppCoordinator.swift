@@ -6,51 +6,53 @@
 //
 
 import Combine
+import Observation
 import SwiftUI
 
 import FunCore
 import FunModel
 
 @MainActor
-public final class AppCoordinator: ObservableObject, ServiceLocatorProvider {
+@Observable
+public final class AppCoordinator: ServiceLocatorProvider {
 
     // MARK: - DI
 
-    public let serviceLocator: ServiceLocator
-    @Service(.logger) private var logger: LoggerService
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
-    @Service(.toast) private var toastService: ToastServiceProtocol
+    @ObservationIgnored public let serviceLocator: ServiceLocator
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    @ObservationIgnored @Service(.toast) private var toastService: ToastServiceProtocol
 
     // MARK: - Session Management
 
-    private let sessionFactory: SessionFactory
-    private var currentSession: Session?
+    @ObservationIgnored private let sessionFactory: SessionFactory
+    @ObservationIgnored private var currentSession: Session?
 
     // MARK: - App Flow State
 
-    @Published public var currentFlow: AppFlow = .login
+    public var currentFlow: AppFlow = .login
 
     // MARK: - Navigation State
 
-    @Published public var selectedTab: TabIndex = .home
-    @Published public var homePath = NavigationPath()
-    @Published public var itemsPath = NavigationPath()
-    @Published public var settingsPath = NavigationPath()
-    @Published public var isProfilePresented = false
+    public var selectedTab: TabIndex = .home
+    public var homePath = NavigationPath()
+    public var itemsPath = NavigationPath()
+    public var settingsPath = NavigationPath()
+    public var isProfilePresented = false
 
     // MARK: - Deep Link
 
-    private var pendingDeepLink: DeepLink?
+    @ObservationIgnored private var pendingDeepLink: DeepLink?
 
     // MARK: - Toast
 
-    @Published public var activeToast: ToastEvent?
-    private var toastCancellable: AnyCancellable?
+    public var activeToast: ToastEvent?
+    @ObservationIgnored private var toastCancellable: AnyCancellable?
 
     // MARK: - Dark Mode
 
-    @Published public var appearanceMode: AppearanceMode = .system
-    private var darkModeCancellable: AnyCancellable?
+    public var appearanceMode: AppearanceMode = .system
+    @ObservationIgnored private var darkModeCancellable: AnyCancellable?
 
     // MARK: - Init
 
@@ -128,9 +130,13 @@ public final class AppCoordinator: ObservableObject, ServiceLocatorProvider {
         observeToastEvents()
         subscribeToDarkMode()
 
+        // Execute pending deep link after main flow is ready
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
-            executeDeepLink(deepLink)
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: 100_000_000)
+                self?.executeDeepLink(deepLink)
+            }
         }
     }
 
