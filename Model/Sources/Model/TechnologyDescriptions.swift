@@ -22,6 +22,7 @@ public enum TechnologyItem: String, CaseIterable, Sendable {
     case swiftTesting = "swifttesting"
     case snapshotTesting = "snapshot"
     case accessibility = "accessibility"
+    case deploymentTarget = "deploymenttarget"
 }
 
 public enum TechnologyDescriptions {
@@ -50,7 +51,8 @@ public enum TechnologyDescriptions {
         .swift6: swift6Description,
         .swiftTesting: swiftTestingDescription,
         .snapshotTesting: snapshotDescription,
-        .accessibility: accessibilityDescription
+        .accessibility: accessibilityDescription,
+        .deploymentTarget: deploymentTargetDescription
     ]
 
     // MARK: - Descriptions
@@ -315,5 +317,22 @@ public enum TechnologyDescriptions {
         ```
 
         All interactive elements are accessible.
+        """
+
+    private static let deploymentTargetDescription = """
+        This branch requires iOS 17.0 as the minimum deployment target.
+
+        iOS 17 unlocks:
+        • @Observable macro (Observation framework) — per-property tracking
+        • @Bindable for two-way bindings with @Observable classes
+        • Full NavigationStack + NavigationPath API maturity
+        • Symbol effects and sensory feedback
+
+        Three branches demonstrate progressive iOS version requirements:
+        • main: iOS 15+ (UIKit navigation + Combine)
+        • swiftui-navigation: iOS 16+ (SwiftUI NavigationStack + Combine)
+        • async-sequence-migration: iOS 17+ (AsyncStream + @Observable, zero Combine)
+
+        Choose the branch that matches your app's deployment target.
         """
 }
