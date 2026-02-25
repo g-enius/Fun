@@ -22,6 +22,19 @@ public struct ProfileView: View {
     }
 
     public var body: some View {
+        profileContent
+            .navigationTitle(L10n.Profile.title)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { viewModel.didTapDismiss() }) {
+                        Text("Done")
+                    }
+                    .accessibilityIdentifier(AccessibilityID.Profile.dismissButton)
+                }
+            }
+    }
+
+    private var profileContent: some View {
         ScrollView {
             VStack(spacing: 24) {
                 Circle()
