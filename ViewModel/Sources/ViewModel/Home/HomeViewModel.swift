@@ -119,9 +119,14 @@ public class HomeViewModel: ObservableObject {
         hasError = false
         logger.log("Loading featured items...")
 
-        // try? ignores cancellation so SwiftUI's .refreshable always
-        // completes the load even if the user releases the drag early.
-        featuredItems = (try? await networkService.fetchFeaturedItems()) ?? []
+        do {
+            featuredItems = try await networkService.fetchFeaturedItems()
+        } catch is CancellationError {
+            // Keep existing items when task is cancelled (e.g. by .refreshable)
+            logger.log("Featured items load cancelled, keeping existing data")
+        } catch {
+            featuredItems = []
+        }
         isLoading = false
         hasLoadedInitialData = true
 
