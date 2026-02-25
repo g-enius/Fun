@@ -14,7 +14,8 @@ import FunModel
 @main
 struct FunApp: App {
     @StateObject private var coordinator = AppCoordinator(
-        sessionFactory: AppSessionFactory()
+        sessionFactory: AppSessionFactory(),
+        serviceLocator: ServiceLocator()
     )
 
     var body: some Scene {

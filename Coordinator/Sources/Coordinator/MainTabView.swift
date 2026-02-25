@@ -2,9 +2,7 @@
 //  MainTabView.swift
 //  Coordinator
 //
-//  Main tab view with NavigationStack per tab, profile sheet, and toast overlay.
-//  Lives in Coordinator (not FunUI) because it depends on AppCoordinator.
-//  Moving to FunUI would create a circular dependency: Coordinator → UI → Coordinator.
+//  Main tab view with NavigationStack per tab, profile sheet, and toast overlay
 //
 
 import SwiftUI
@@ -25,7 +23,7 @@ struct MainTabView: View {
         }
         .sheet(isPresented: $coordinator.isProfilePresented) {
             NavigationStack {
-                ProfileContent(coordinator: coordinator)
+                ProfileTabContent(coordinator: coordinator)
             }
         }
         .overlay(alignment: .top) {
@@ -45,9 +43,8 @@ struct MainTabView: View {
         NavigationStack(path: $coordinator.homePath) {
             HomeTabContent(coordinator: coordinator)
                 .navigationDestination(for: FeaturedItem.self) { item in
-                    coordinator.destinationView(for: item)
+                    DetailTabContent(item: item, coordinator: coordinator)
                 }
-                // Chain more .navigationDestination(for:) to handle additional pushable types.
         }
         .tabItem {
             Label(L10n.Tabs.home, systemImage: "house")
@@ -60,9 +57,8 @@ struct MainTabView: View {
         NavigationStack(path: $coordinator.itemsPath) {
             ItemsTabContent(coordinator: coordinator)
                 .navigationDestination(for: FeaturedItem.self) { item in
-                    coordinator.destinationView(for: item)
+                    DetailTabContent(item: item, coordinator: coordinator)
                 }
-                // Chain more .navigationDestination(for:) to handle additional pushable types.
         }
         .tabItem {
             Label(L10n.Tabs.items, systemImage: "list.bullet")
@@ -92,17 +88,17 @@ struct HomeTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: HomeViewModel(session: coordinator.session))
+        _viewModel = StateObject(wrappedValue: HomeViewModel(serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
         HomeView(viewModel: viewModel)
             .task {
                 viewModel.onShowDetail = { [weak coordinator] item in
-                    coordinator?.showDetail(item, in: .home)
+                    coordinator?.homePath.append(item)
                 }
                 viewModel.onShowProfile = { [weak coordinator] in
-                    coordinator?.showProfile()
+                    coordinator?.isProfilePresented = true
                 }
             }
     }
@@ -115,14 +111,14 @@ struct ItemsTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ItemsViewModel(session: coordinator.session))
+        _viewModel = StateObject(wrappedValue: ItemsViewModel(serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
         ItemsView(viewModel: viewModel)
             .task {
                 viewModel.onShowDetail = { [weak coordinator] item in
-                    coordinator?.showDetail(item, in: .items)
+                    coordinator?.itemsPath.append(item)
                 }
             }
     }
@@ -135,7 +131,7 @@ struct SettingsTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: SettingsViewModel(session: coordinator.session))
+        _viewModel = StateObject(wrappedValue: SettingsViewModel(serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
@@ -144,13 +140,13 @@ struct SettingsTabContent: View {
 }
 
 /// Wrapper that creates DetailViewModel for a pushed item
-struct DetailContent: View {
+struct DetailTabContent: View {
     let coordinator: AppCoordinator
     @StateObject private var viewModel: DetailViewModel
 
     init(item: FeaturedItem, coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: DetailViewModel(item: item, session: coordinator.session))
+        _viewModel = StateObject(wrappedValue: DetailViewModel(item: item, serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
@@ -159,28 +155,48 @@ struct DetailContent: View {
 }
 
 /// Wrapper that creates ProfileViewModel with navigation closures
-struct ProfileContent: View {
+struct ProfileTabContent: View {
     let coordinator: AppCoordinator
     @StateObject private var viewModel: ProfileViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ProfileViewModel(session: coordinator.session))
+        _viewModel = StateObject(wrappedValue: ProfileViewModel(serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
         ProfileView(viewModel: viewModel)
             .task {
                 viewModel.onDismiss = { [weak coordinator] in
-                    coordinator?.dismissProfile()
+                    coordinator?.isProfilePresented = false
                 }
                 viewModel.onLogout = { [weak coordinator] in
-                    coordinator?.dismissProfile()
+                    coordinator?.isProfilePresented = false
                     coordinator?.transitionToLoginFlow()
                 }
                 viewModel.onGoToItems = { [weak coordinator] in
-                    coordinator?.dismissProfile()
-                    coordinator?.selectTab(.items)
+                    coordinator?.isProfilePresented = false
+                    coordinator?.selectedTab = .items
+                }
+            }
+    }
+}
+
+/// Wrapper that creates LoginViewModel with login success closure
+struct LoginTabContent: View {
+    let coordinator: AppCoordinator
+    @StateObject private var viewModel: LoginViewModel
+
+    init(coordinator: AppCoordinator) {
+        self.coordinator = coordinator
+        _viewModel = StateObject(wrappedValue: LoginViewModel(serviceLocator: coordinator.serviceLocator))
+    }
+
+    var body: some View {
+        LoginView(viewModel: viewModel)
+            .task {
+                viewModel.onLoginSuccess = { [weak coordinator] in
+                    coordinator?.transitionToMainFlow()
                 }
             }
     }
