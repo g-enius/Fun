@@ -2,7 +2,11 @@
 
 [![CI](https://github.com/g-enius/Fun-iOS/actions/workflows/ci.yml/badge.svg)](https://github.com/g-enius/Fun-iOS/actions/workflows/ci.yml)
 
-A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development. Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
+A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
+
+> **This is the `feature/swiftui-navigation` branch** — pure SwiftUI navigation (iOS 16+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`async-sequence-migration`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence-migration) for the Combine-free iOS 17+ version.
+
+Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
 ## Screenshots
 
@@ -19,12 +23,13 @@ A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concur
 | Category | Technology |
 |----------|------------|
 | Language | Swift 6.0 |
-| UI Framework | SwiftUI + UIKit |
+| UI Framework | SwiftUI (pure — no UIKit navigation) |
 | Reactive & Concurrency | Combine, Swift Concurrency (async/await) |
-| Architecture | MVVM + Coordinator |
+| Architecture | MVVM + Coordinator (single `AppCoordinator`) |
+| Navigation | `NavigationStack` + `NavigationPath` |
 | Dependency Injection | Session-Scoped DI + Property Wrapper |
 | Package Management | Swift Package Manager |
-| Minimum iOS | iOS 15.0 |
+| Minimum iOS | iOS 16.0 |
 | On-Device LLM | Apple Intelligence / Foundation Models (iOS 26+) |
 | Testing | Swift Testing, swift-snapshot-testing |
 
@@ -79,20 +84,9 @@ protocol Session: AnyObject {
 ### Protocol-Oriented Design
 All services defined as protocols in `Model`, implementations in `Services`.
 
-### Coordinator Hierarchy
+### Single Coordinator
 
-```
-AppCoordinator
-├── LoginCoordinator
-├── HomeCoordinator
-│   ├── DetailCoordinator
-│   └── ProfileCoordinator (modal)
-├── ItemsCoordinator
-│   └── DetailCoordinator
-└── SettingsCoordinator
-```
-
-`AppCoordinator` manages login/main flow transitions with session lifecycle.
+A single `AppCoordinator: ObservableObject` replaces the UIKit branch's 8-class coordinator hierarchy. It owns `NavigationPath` per tab and manages login/main flow transitions with session lifecycle. ViewModels receive navigation closures instead of coordinator protocol references.
 
 ### Deep Linking
 
@@ -122,72 +116,23 @@ Deep links received during login are queued and executed after authentication.
 - **Dark Mode & Dynamic Type**: System-adaptive colors, semantic font styles, System/Light/Dark appearance picker
 - **iOS 17+ APIs**: Symbol effects, sensory feedback (backwards compatible)
 
-## UIKit + SwiftUI Hybrid
+## What Changed vs `main`
 
-**UIKit for navigation** (reliable Coordinator pattern), **SwiftUI for content**.
-
-| Use Case | Framework |
-|----------|-----------|
-| Navigation/Presentation | UIKit (`UINavigationController` + Coordinators) |
-| Content & Layout | SwiftUI (all views) |
-| Forms & Settings | SwiftUI |
-
-## SwiftUI Navigation Branch
-
-A parallel branch explores replacing the UIKit navigation layer with **pure SwiftUI navigation** (`NavigationStack` + `NavigationPath`), while keeping everything else identical. See [PR #1](https://github.com/g-enius/Fun-iOS/pull/1) for the full diff.
-
-### Approach
-
-| Aspect | `main` (UIKit Navigation) | `feature/swiftui-navigation` (Pure SwiftUI) |
-|--------|--------------------------|---------------------------------------------|
-| App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
-| Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
-| Navigation stack | `UINavigationController` | `NavigationStack` + `NavigationPath` |
-| Push navigation | `pushViewController(_:animated:)` | `path.append(item)` |
-| Modal presentation | `present(_:animated:)` + `UIAdaptivePresentationControllerDelegate` | `.sheet(isPresented:)` |
-| Back detection | `didMove(toParent:)` override | Automatic (path shrinks on pop) |
-| Coordinator protocol | Per-screen protocol in `Model` + impl in `Coordinator` | Eliminated — closures on ViewModel |
-| ViewModel → Coordinator | `weak var coordinator: HomeCoordinator?` | `var onShowDetail: ((FeaturedItem) -> Void)?` |
-| Share sheet | `UIActivityViewController` via coordinator | SwiftUI `ShareLink` |
-| Toast overlay | Child `UIHostingController` with Auto Layout | `.overlay(alignment: .top)` |
-| Dark mode | `window?.overrideUserInterfaceStyle` in SceneDelegate | `.preferredColorScheme()` on root view |
-| Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
-| Minimum iOS | 15.0 | 16.0 (requires `NavigationStack`) |
-
-### What Changed
+This branch replaces UIKit navigation with pure SwiftUI. See [PR #1](https://github.com/g-enius/Fun-iOS/pull/1) for the full diff, or [`main` README](https://github.com/g-enius/Fun-iOS) for the 3-branch comparison table.
 
 | Metric | Value |
 |--------|-------|
-| Files added | 3 (`FunApp.swift`, `AppRootView.swift`, `MainTabView.swift`) |
 | Files deleted | 30 (coordinators, protocols, mocks, UIViewControllers) |
-| Files modified | 36 |
-| Lines added | 637 |
-| Lines removed | 1,789 |
-| **Net reduction** | **-1,152 lines** |
+| Net reduction | **-1,152 lines** |
+| Navigation | `UINavigationController` → `NavigationStack` + `NavigationPath` |
+| App entry | `AppDelegate` + `SceneDelegate` → SwiftUI `@main App` |
+| Coordinator | 8-class hierarchy → single `AppCoordinator: ObservableObject` |
+| ViewModel → nav | `weak var coordinator: Protocol?` → closures (`onShowDetail`, etc.) |
+| Deep links | `scene(_:openURLContexts:)` → `.onOpenURL { }` |
 
-### What Was Eliminated
+### Next step: Combine removal
 
-- 6 coordinator protocol definitions + 6 coordinator implementations
-- 5 mock coordinators (test doubles)
-- 7 `UIViewController` subclasses (thin wrappers hosting SwiftUI views)
-- `BaseCoordinator` abstract class
-- `HomeTabBarController` (144 lines) + `HomeTabBarViewModel` (53 lines) + tests
-- `UIViewController+SwiftUI` hosting extension
-- `AppDelegate` + `SceneDelegate`
-
-### Trade-offs
-
-| | UIKit Navigation (main) | SwiftUI Navigation (branch) |
-|-|------------------------|----------------------------|
-| Maturity | Battle-tested, predictable | Newer, occasional edge cases |
-| Type safety | Runtime (push any VC) | Compile-time (`Hashable` destinations) |
-| Coordinator pattern | Full protocol-based hierarchy | Simplified to closure wiring |
-| Code volume | More boilerplate (protocols, impls, mocks) | ~1,150 fewer lines |
-| iOS support | iOS 15+ | iOS 16+ |
-| Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
-| Testing | Mock coordinators for navigation assertions | Test closures directly |
-
-Both approaches produce **visually identical** apps — same screens, same behavior, same features.
+The [`async-sequence-migration`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence-migration) branch builds on this one, replacing Combine with `AsyncStream` + `@Observable` (iOS 17+). See [PR #2](https://github.com/g-enius/Fun-iOS/pull/2).
 
 ## Testing
 
@@ -200,7 +145,7 @@ Both approaches produce **visually identical** apps — same screens, same behav
 
 ### Requirements
 - Xcode 16.0+
-- iOS 15.0+
+- iOS 16.0+
 - Swift 6.0
 
 ### Installation
