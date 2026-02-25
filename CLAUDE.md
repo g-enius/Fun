@@ -46,42 +46,43 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 
 ## Anti-Patterns (Red Flags)
 - `import UIKit` anywhere — this branch is pure SwiftUI, zero UIKit
+- `import Combine` anywhere — this branch uses AsyncSequence, zero Combine
 - Coordinator references in ViewModels (except weak optional closures) — retain cycle risk
 - `print()` anywhere — use LoggerService
 - `UserDefaults.standard` outside Services — use FeatureToggleService
 - Adding `fatalError()` for missing services — ServiceLocator.resolve() already crashes with `fatalError` if a service isn't registered; don't add redundant guards
 - Navigation logic in Views — all navigation (push, pop, tab switch, modal present/dismiss) must go through named AppCoordinator methods (`showDetail`, `selectTab`, `showProfile`, etc.), never inline property manipulation like `coordinator.homePath.append(item)` or `coordinator.isProfilePresented = true`
 - Protocol definitions in Services — domain protocols go in Model, reusable abstractions in Core
-- Wrong ownership annotations — tab content wrappers must use `@StateObject` to own ViewModels (not `@ObservedObject`). `@ObservedObject` on a ViewModel means it gets recreated on every re-render. Conversely, the coordinator must be `let` or `@ObservedObject` (not `@StateObject`) since the wrapper doesn't own it.
+- Wrong ownership annotations — tab content wrappers must use `@State` to own ViewModels (not bare `var`). `@State` ensures the ViewModel survives re-renders. The coordinator must be `let` (not `@Bindable` or `@State`) since the wrapper doesn't own it.
 
-## Architecture (this branch: feature/navigation-stack)
+## Architecture (this branch: feature/observation)
 - **Entry point**: SwiftUI `@main App` struct (`FunApp.swift`) — no AppDelegate or SceneDelegate
-- **Navigation**: Single `AppCoordinator: ObservableObject, SessionProvider` with per-tab `NavigationPath`
+- **Navigation**: Single `@Observable AppCoordinator` with per-tab `NavigationPath`
 - **Views**: Pure SwiftUI views, no UIHostingController or UIViewControllers
-- **Reactive**: Combine (`@Published`, `@StateObject`, `@ObservedObject`, `.sink`)
+- **Reactive**: AsyncSequence + `StreamBroadcaster` (zero Combine). Services yield events via `StreamBroadcaster.yield()`, consumers iterate with `for await event in stream`
+- **Observation**: `@Observable` (not ObservableObject), `@ObservationIgnored` for non-observed state, `@State` (not @StateObject) in app entry
 - **ViewModel → Coordinator**: Optional closures wired in tab content wrappers via `.task { viewModel.onShowDetail = { ... } }`
 - **Tab bar**: SwiftUI `TabView(selection: $coordinator.selectedTab)`
 - **Push nav**: `coordinator.showDetail(item, in: .home)` — named methods on AppCoordinator
 - **Modals**: `.sheet(isPresented: $coordinator.isProfilePresented)`
-- **DI**: Session-scoped ServiceLocator — no `.shared` singleton. Each `Session` creates and owns its own `ServiceLocator`. On session transition, the old ServiceLocator is released with the session (no stale services). `@Service` property wrapper resolves via `static subscript(_enclosingInstance:)` from the enclosing type's `serviceLocator` (requires `ServiceLocatorProvider` conformance). Coordinators and ViewModels receive the current session via constructor injection.
+- **DI**: Session-scoped ServiceLocator — no `.shared` singleton. Each `Session` creates and owns its own `ServiceLocator`. On session transition, the old ServiceLocator is released with the session (no stale services). `@Service` property wrapper resolves via `static subscript(_enclosingInstance:)` from the enclosing type's `serviceLocator` (requires `SessionProvider` conformance + `@ObservationIgnored` on `@Service` properties since `@Observable` can't observe them). Coordinators and ViewModels receive the current session via constructor injection.
 - **Coordinator-owned views**: `AppRootView`, `MainTabView`, and tab content wrappers live in `Coordinator` (not `FunUI`) because they depend on `AppCoordinator`. Moving them to `FunUI` would create a circular dependency (`Coordinator → UI → Coordinator`). Pure reusable views (`HomeView`, `DetailView`, etc.) stay in `FunUI`.
-- **Ownership wrappers**: Tab content wrappers (`HomeTabContent`, `ItemsTabContent`, etc.) use `@StateObject` to **own** their ViewModel and `@ObservedObject` (or `let`) for the coordinator passed from the parent. `@StateObject` ensures the ViewModel survives re-renders; `@ObservedObject` means the wrapper doesn't own the coordinator. Pure views in `FunUI` take `@ObservedObject var viewModel` since the wrapper owns it.
+- **Ownership wrappers**: Tab content wrappers (`HomeTabContent`, `ItemsTabContent`, etc.) use `@State` to **own** their ViewModel and `let` for the coordinator passed from the parent. `@State` ensures the ViewModel survives re-renders; `let` means the wrapper doesn't own the coordinator. Pure views in `FunUI` take the ViewModel as a parameter since the wrapper owns it.
 
 ## Rule Index
 Consult these files for detailed guidance (not auto-loaded — read on demand):
 - `ai-rules/general.md` — Architecture deep-dive, MVVM-C patterns, DI, sessions, testing
-- `ai-rules/swift-style.md` — Swift 6 concurrency, naming, Combine patterns, SwiftLint rules
+- `ai-rules/swift-style.md` — Swift 6 concurrency, naming, AsyncSequence patterns, SwiftLint rules
 - `ai-rules/ci-cd.md` — GitHub Actions CI workflow patterns
 
 ## Code Style
 - Swift 6 strict concurrency, iOS 17+
-- Pure SwiftUI (NavigationStack), MVVM-C with Combine
-- Single AppCoordinator: ObservableObject with @Published NavigationPath per tab
-- ViewModels use closures for navigation, wired in tab content wrappers
+- Pure SwiftUI (NavigationStack), MVVM-C with AsyncSequence + @Observable
+- Zero Combine — AsyncStream + StreamBroadcaster for reactive service events, @Observable for ViewModel state
+- Navigation closures on ViewModels, wired by single AppCoordinator
 - Navigation logic ONLY in Coordinators, never in Views
 - Protocol placement: Core = reusable abstractions, Model = domain-specific
-- Session-scoped ServiceLocator with `@Service` property wrapper — ViewModels conform to `SessionProvider`, store `let session: Session`
-- Combine over NotificationCenter for reactive state
+- Session-scoped ServiceLocator with `@Service` property wrapper — ViewModels conform to `SessionProvider`, store `let session: Session` (use `@ObservationIgnored` on `@Service` properties)
 
 ## Testing
 - Swift Testing framework (`import Testing`, `@Test`, `#expect`, `@Suite`)

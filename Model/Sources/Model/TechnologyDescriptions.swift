@@ -312,13 +312,13 @@ public enum TechnologyDescriptions {
         """
 
     private static let deploymentTargetDescription = """
-        This branch requires iOS 16.0 as the minimum deployment target.
+        This branch requires iOS 17.0 as the minimum deployment target.
 
-        iOS 16 unlocks:
+        iOS 17 unlocks:
+        • @Observable macro (replacing ObservableObject + @Published)
+        • AsyncSequence-based reactive patterns (zero Combine)
+        • StreamBroadcaster for service event broadcasting
         • NavigationStack + NavigationPath for programmatic navigation
-        • .navigationDestination(for:) type-safe routing
-        • SwiftUI TabView improvements
-        • ShareLink and other modern SwiftUI APIs
 
         Three branches demonstrate progressive iOS version requirements:
         • main: iOS 15+ (UIKit navigation + Combine)
