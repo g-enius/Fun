@@ -7,7 +7,6 @@
 
 import Testing
 import Foundation
-import Combine
 @testable import FunServices
 @testable import FunModel
 
@@ -47,23 +46,27 @@ struct DefaultFeatureToggleServiceTests {
         #expect(UserDefaults.standard.bool(forKey: UserDefaultsKey.featureCarousel.rawValue) == true)
     }
 
-    // MARK: - Combine Publisher Tests
+    // MARK: - Stream Tests
 
-    @Test("Setting featured carousel emits via publisher")
-    func testFeaturedCarouselEmitsViaPublisher() async {
+    @Test("Setting featured carousel emits via stream")
+    func testFeaturedCarouselEmitsViaStream() async {
         clearUserDefaults()
         let service = DefaultFeatureToggleService()
         var receivedValue: Bool?
-        var cancellables = Set<AnyCancellable>()
 
-        service.featuredCarouselPublisher
-            .sink { receivedValue = $0 }
-            .store(in: &cancellables)
+        let task = Task {
+            for await value in service.featuredCarouselChanges {
+                receivedValue = value
+                break
+            }
+        }
+
+        await Task.yield()
 
         service.featuredCarousel = false
 
-        // Yield to allow publisher propagation
         await Task.yield()
+        task.cancel()
 
         #expect(receivedValue == false)
     }
@@ -130,20 +133,25 @@ struct DefaultFeatureToggleServiceTests {
         #expect(UserDefaults.standard.string(forKey: UserDefaultsKey.appearanceMode.rawValue) == "system")
     }
 
-    @Test("AppearanceMode emits via publisher")
-    func testAppearanceModeEmitsViaPublisher() async {
+    @Test("AppearanceMode emits via stream")
+    func testAppearanceModeEmitsViaStream() async {
         clearUserDefaults()
         let service = DefaultFeatureToggleService()
         var receivedValue: AppearanceMode?
-        var cancellables = Set<AnyCancellable>()
 
-        service.appearanceModePublisher
-            .sink { receivedValue = $0 }
-            .store(in: &cancellables)
+        let task = Task {
+            for await value in service.appearanceModeChanges {
+                receivedValue = value
+                break
+            }
+        }
+
+        try? await Task.sleep(for: .milliseconds(50))
 
         service.appearanceMode = .dark
 
-        await Task.yield()
+        try? await Task.sleep(for: .milliseconds(50))
+        task.cancel()
 
         #expect(receivedValue == .dark)
     }

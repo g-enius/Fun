@@ -12,7 +12,7 @@ import FunModel
 
 @main
 struct FunApp: App {
-    @StateObject private var coordinator = AppCoordinator(
+    @State private var coordinator = AppCoordinator(
         sessionFactory: AppSessionFactory()
     )
 

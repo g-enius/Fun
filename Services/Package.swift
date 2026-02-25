@@ -4,8 +4,8 @@ import PackageDescription
 let package = Package(
     name: "Services",
     platforms: [
-        .iOS(.v16),
-        .macCatalyst(.v16),
+        .iOS(.v17),
+        .macCatalyst(.v17),
     ],
     products: [
         .library(name: "FunServices", targets: ["FunServices"]),
