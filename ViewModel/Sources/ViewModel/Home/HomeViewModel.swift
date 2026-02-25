@@ -7,41 +7,43 @@
 
 import Combine
 import Foundation
+import Observation
 
 import FunCore
 import FunModel
 
 @MainActor
-public class HomeViewModel: ObservableObject, SessionProvider {
+@Observable
+public class HomeViewModel: SessionProvider {
 
     // MARK: - Navigation Closures
 
-    public var onShowDetail: ((FeaturedItem) -> Void)?
-    public var onShowProfile: (() -> Void)?
+    @ObservationIgnored public var onShowDetail: ((FeaturedItem) -> Void)?
+    @ObservationIgnored public var onShowProfile: (() -> Void)?
 
     // MARK: - DI
 
     public let session: Session
-    @Service(.logger) private var logger: LoggerService
-    @Service(.network) private var networkService: NetworkServiceProtocol
-    @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
-    @Service(.toast) private var toastService: ToastServiceProtocol
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.network) private var networkService: NetworkServiceProtocol
+    @ObservationIgnored @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
+    @ObservationIgnored @Service(.toast) private var toastService: ToastServiceProtocol
+    @ObservationIgnored @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
-    // MARK: - Published State
+    // MARK: - State
 
-    @Published public var featuredItems: [[FeaturedItem]] = []
-    @Published public var currentCarouselIndex: Int = 0
-    @Published public var isLoading: Bool = false
-    @Published public var isCarouselEnabled: Bool = true
-    @Published public private(set) var favoriteIds: Set<String> = []
-    @Published public var hasError: Bool = false
+    public var featuredItems: [[FeaturedItem]] = []
+    public var currentCarouselIndex: Int = 0
+    public var isLoading: Bool = false
+    public var isCarouselEnabled: Bool = true
+    public private(set) var favoriteIds: Set<String> = []
+    public var hasError: Bool = false
 
     // MARK: - Private Properties
 
-    private var cancellables = Set<AnyCancellable>()
-    private var loadTask: Task<Void, Never>?
-    private var hasLoadedInitialData: Bool = false
+    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var loadTask: Task<Void, Never>?
+    @ObservationIgnored private var hasLoadedInitialData: Bool = false
 
     // MARK: - Initialization
 

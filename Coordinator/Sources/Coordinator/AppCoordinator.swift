@@ -6,50 +6,52 @@
 //
 
 import Combine
+import Observation
 import SwiftUI
 
 import FunCore
 import FunModel
 
 @MainActor
-public final class AppCoordinator: ObservableObject, SessionProvider {
+@Observable
+public final class AppCoordinator: SessionProvider {
 
     // MARK: - DI
 
     public private(set) var session: Session
-    @Service(.logger) private var logger: LoggerService
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
-    @Service(.toast) private var toastService: ToastServiceProtocol
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    @ObservationIgnored @Service(.toast) private var toastService: ToastServiceProtocol
 
     // MARK: - Session Management
 
-    private let sessionFactory: SessionFactory
+    @ObservationIgnored private let sessionFactory: SessionFactory
 
     // MARK: - App Flow State
 
-    @Published public var currentFlow: AppFlow = .login
+    public var currentFlow: AppFlow = .login
 
     // MARK: - Navigation State
 
-    @Published public var selectedTab: TabIndex = .home
-    @Published public var homePath = NavigationPath()
-    @Published public var itemsPath = NavigationPath()
-    @Published public var settingsPath = NavigationPath()
-    @Published public var isProfilePresented = false
+    public var selectedTab: TabIndex = .home
+    public var homePath = NavigationPath()
+    public var itemsPath = NavigationPath()
+    public var settingsPath = NavigationPath()
+    public var isProfilePresented = false
 
     // MARK: - Deep Link
 
-    private var pendingDeepLink: DeepLink?
+    @ObservationIgnored private var pendingDeepLink: DeepLink?
 
     // MARK: - Toast
 
-    @Published public var activeToast: ToastEvent?
-    private var cancellables = Set<AnyCancellable>()
+    public var activeToast: ToastEvent?
+    @ObservationIgnored private var toastCancellable: AnyCancellable?
 
     // MARK: - Dark Mode
 
-    @Published public var appearanceMode: AppearanceMode = .system
-    private var darkModeCancellable: AnyCancellable?
+    public var appearanceMode: AppearanceMode = .system
+    @ObservationIgnored private var darkModeCancellable: AnyCancellable?
 
     // MARK: - Init
 
@@ -78,6 +80,50 @@ public final class AppCoordinator: ObservableObject, SessionProvider {
         activateCurrentSession()
     }
 
+    // MARK: - Navigation
+
+    public func showDetail(_ item: FeaturedItem, in tab: TabIndex) {
+        switch tab {
+        case .home: homePath.append(item)
+        case .items: itemsPath.append(item)
+        default: break
+        }
+    }
+
+    public func showProfile() {
+        isProfilePresented = true
+    }
+
+    public func dismissProfile() {
+        isProfilePresented = false
+    }
+
+    public func selectTab(_ tab: TabIndex) {
+        selectedTab = tab
+    }
+
+    public func popToRoot() {
+        homePath = NavigationPath()
+        itemsPath = NavigationPath()
+        settingsPath = NavigationPath()
+    }
+
+    // MARK: - Routing
+
+    // Centralised routing table — called from both homeTab and itemsTab
+    // .navigationDestination closures, so destination logic lives in one place.
+    // As destination types grow, expand with a switch:
+    //
+    //   switch item.category {
+    //   case .article: ArticleDetailView(item: item)
+    //   case .video:   VideoPlayerView(item: item)
+    //   default:       DetailContent(item: item)
+    //   }
+    @ViewBuilder
+    func destinationView(for item: FeaturedItem) -> some View {
+        DetailContent(item: item, coordinator: self)
+    }
+
     // MARK: - Flow Transitions
 
     public func transitionToMainFlow() {
@@ -102,11 +148,9 @@ public final class AppCoordinator: ObservableObject, SessionProvider {
         activateSession(for: .login)
 
         // Reset navigation state
-        homePath = NavigationPath()
-        itemsPath = NavigationPath()
-        settingsPath = NavigationPath()
-        selectedTab = .home
-        isProfilePresented = false
+        popToRoot()
+        selectTab(.home)
+        dismissProfile()
         activeToast = nil
     }
 
@@ -123,30 +167,30 @@ public final class AppCoordinator: ObservableObject, SessionProvider {
     private func executeDeepLink(_ deepLink: DeepLink) {
         switch deepLink {
         case .tab(let tabIndex):
-            selectedTab = tabIndex
+            selectTab(tabIndex)
 
         case .item(let id):
-            selectedTab = .home
+            selectTab(.home)
             if let item = FeaturedItem.all.first(where: { $0.id == id }) {
-                homePath.append(item)
+                showDetail(item, in: .home)
             } else {
                 logger.log("Deep link item not found: \(id)", level: .warning, category: .general)
             }
 
         case .profile:
-            selectedTab = .home
-            isProfilePresented = true
+            selectTab(.home)
+            showProfile()
         }
     }
 
     // MARK: - Toast
 
     private func observeToastEvents() {
-        toastService.toastPublisher
+        toastCancellable?.cancel()
+        toastCancellable = toastService.toastPublisher
             .sink { [weak self] event in
                 self?.activeToast = event
             }
-            .store(in: &cancellables)
     }
 
     public func dismissToast() {

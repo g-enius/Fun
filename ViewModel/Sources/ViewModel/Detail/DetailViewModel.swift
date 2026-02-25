@@ -7,30 +7,32 @@
 
 import Combine
 import Foundation
+import Observation
 
 import FunCore
 import FunModel
 
 @MainActor
-public class DetailViewModel: ObservableObject, SessionProvider {
+@Observable
+public class DetailViewModel: SessionProvider {
 
     // MARK: - DI
 
     public let session: Session
-    @Service(.logger) private var logger: LoggerService
-    @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
-    @Service(.ai) private var aiService: AIServiceProtocol
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
+    @ObservationIgnored @Service(.ai) private var aiService: AIServiceProtocol
+    @ObservationIgnored @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
-    // MARK: - Published State
+    // MARK: - State
 
-    @Published public var itemTitle: String
-    @Published public var category: String
-    @Published public var itemDescription: String
-    @Published public var isFavorited: Bool = false
-    @Published public var summary: String = ""
-    @Published public var isSummarizing: Bool = false
-    @Published public var summaryError: String = ""
+    public var itemTitle: String
+    public var category: String
+    public var itemDescription: String
+    public var isFavorited: Bool = false
+    public var summary: String = ""
+    public var isSummarizing: Bool = false
+    public var summaryError: String = ""
 
     public var showAISummary: Bool {
         featureToggleService.aiSummary && aiService.isAvailable
@@ -43,8 +45,8 @@ public class DetailViewModel: ObservableObject, SessionProvider {
 
     // MARK: - Private Properties
 
-    private var cancellables = Set<AnyCancellable>()
-    private var itemId: String
+    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var itemId: String
 
     // MARK: - Initialization
 
