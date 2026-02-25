@@ -134,7 +134,7 @@ Deep links received during login are queued and executed after authentication.
 
 ## SwiftUI Navigation Branch
 
-A parallel branch explores replacing the UIKit navigation layer with **pure SwiftUI navigation** (`NavigationStack` + `NavigationPath`), while keeping everything else identical. See the [full comparison PR](https://github.com/g-enius/Fun-iOS/pull/PLACEHOLDER) for a detailed diff.
+A parallel branch explores replacing the UIKit navigation layer with **pure SwiftUI navigation** (`NavigationStack` + `NavigationPath`), while keeping everything else identical. See [PR #1](https://github.com/g-enius/Fun-iOS/pull/1) for the full diff.
 
 ### Approach
 
