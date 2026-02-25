@@ -9,12 +9,12 @@
 
 ## Code Style
 - Swift 6 strict concurrency, iOS 17+
-- SwiftUI + UIKit hybrid, MVVM-C with Combine
-- Weak coordinator references in ViewModels (enforced via SwiftLint)
+- Pure SwiftUI (NavigationStack), MVVM-C with AsyncSequence + @Observable
+- Zero Combine — AsyncStream + StreamBroadcaster for reactive service events, @Observable for ViewModel state
+- Navigation closures on ViewModels, wired by single AppCoordinator
 - Navigation logic ONLY in Coordinators, never in Views
 - Protocol placement: Core = reusable abstractions, Model = domain-specific
 - ServiceLocator with @Service property wrapper (assertionFailure, not fatalError)
-- Combine over NotificationCenter for reactive state
 
 ## Testing
 - Swift Testing framework (`import Testing`, `@Test`, `#expect`, `@Suite`)

@@ -73,57 +73,58 @@ public enum TechnologyDescriptions {
         """
 
     private static let combineDescription = """
-        Combine framework powers the reactive data flow throughout the app:
+        This branch replaced Combine entirely with Swift Concurrency:
 
-        • @Published properties for automatic UI updates
-        • Debounced search input (400ms) in Items screen
-        • Feature toggle change notifications
-        • Favorites state synchronization across views
-        • Scene lifecycle observation
+        • AsyncStream for service event delivery
+        • StreamBroadcaster for multi-consumer streams
+        • Task-based observation with for-await loops
+        • @Observable macro for ViewModel state
+        • didSet + Task.sleep for debounced search
 
-        Example from ItemsViewModel:
+        Example from HomeViewModel:
         ```swift
-        $searchText
-            .debounce(for: .milliseconds(400), scheduler: RunLoop.main)
-            .sink { self.performSearch() }
-            .store(in: &cancellables)
+        let stream = favoritesService.favoritesChanges
+        Task { [weak self] in
+            for await favorites in stream {
+                guard let self else { break }
+                self.favoriteIds = favorites
+            }
+        }
         ```
         """
 
     private static let swiftUIDescription = """
-        SwiftUI provides the declarative UI layer:
+        SwiftUI provides the entire UI and navigation layer:
 
-        • All tab views built with SwiftUI (HomeView, ItemsView, etc.)
-        • Embedded in UIKit via UIHostingController
-        • @ObservedObject for ViewModel binding
+        • All views built with SwiftUI (HomeView, ItemsView, etc.)
+        • NavigationStack + NavigationPath for programmatic navigation
+        • @Bindable for two-way ViewModel binding
+        • @State for ViewModel ownership
         • Modern modifiers: .refreshable, .swipeActions, .searchable
 
-        UIKit + SwiftUI Interop:
+        Navigation:
         ```swift
-        func embedSwiftUIView<Content: View>(_ content: Content) {
-            let hosting = UIHostingController(rootView: content)
-            addChild(hosting)
-            view.addSubview(hosting.view)
+        NavigationStack(path: $coordinator.homePath) {
+            HomeView(viewModel: viewModel)
+                .navigationDestination(for: FeaturedItem.self) { item in
+                    DetailView(viewModel: DetailViewModel(item: item))
+                }
         }
         ```
         """
 
     private static let coordinatorDescription = """
-        Coordinator pattern manages all navigation flow:
+        A single AppCoordinator manages all navigation:
 
-        • BaseCoordinator with safe navigation methods
-        • Prevents duplicate pushes and handles transitions
-        • Child coordinator management for modal flows
-        • Clean separation of navigation from ViewModels
+        • @Observable class owning NavigationPath per tab
+        • Programmatic push via path.append()
+        • Modal presentation via @Bindable booleans
+        • ViewModels receive navigation closures, not coordinator refs
 
-        Structure:
-        AppCoordinator
-        ├── HomeCoordinatorImpl
-        │   ├── DetailCoordinatorImpl
-        │   └── ProfileCoordinatorImpl
-        ├── ItemsCoordinatorImpl
-        │   └── DetailCoordinatorImpl
-        └── SettingsCoordinatorImpl
+        Flow:
+        View → ViewModel.onShowDetail?(item)
+             → AppCoordinator.homePath.append(item)
+             → NavigationStack picks up via .navigationDestination
         """
 
     private static let mvvmDescription = """
@@ -134,9 +135,9 @@ public enum TechnologyDescriptions {
         • Model: Data structures and protocols
 
         Each screen follows this pattern:
-        HomeView (@ObservedObject viewModel)
+        HomeView (@Bindable viewModel)
             ↓ binds to
-        HomeViewModel (@Published state)
+        HomeViewModel (@Observable, per-property tracking)
             ↓ uses
         Services (Network, Favorites, etc.)
 
@@ -150,7 +151,7 @@ public enum TechnologyDescriptions {
         • Model - Data models, protocols
         • Services - Concrete implementations
         • ViewModel - Business logic
-        • UI - SwiftUI views, UIKit controllers
+        • UI - SwiftUI views
         • Coordinator - Navigation logic
 
         Dependency graph:
@@ -169,7 +170,7 @@ public enum TechnologyDescriptions {
     private static let serviceLocatorDescription = """
         Custom dependency injection using ServiceLocator pattern:
 
-        Registration (in SceneDelegate):
+        Registration (in Session.activate):
         ```swift
         ServiceLocator.shared.register(
             NetworkServiceImpl(),
@@ -212,14 +213,15 @@ public enum TechnologyDescriptions {
         Runtime feature flags with reactive updates:
 
         • Persisted via UserDefaults
-        • Combine publisher for cross-component sync
+        • AsyncStream for cross-component sync
         • Toggle carousel visibility in Settings
 
         Usage:
         ```swift
-        featureToggleService.featuredCarouselPublisher
-            .sink { newValue in self.isCarouselEnabled = newValue }
-            .store(in: &cancellables)
+        let stream = featureToggleService.featuredCarouselChanges
+        Task { for await newValue in stream {
+            self.isCarouselEnabled = newValue
+        }}
         ```
 
         Try it: Go to Settings → Toggle "Featured Carousel"
@@ -252,7 +254,7 @@ public enum TechnologyDescriptions {
         Example:
         ```swift
         @MainActor
-        public class HomeViewModel: ObservableObject {
+        @Observable public class HomeViewModel {
             // All UI-related code is main-thread safe
         }
 
