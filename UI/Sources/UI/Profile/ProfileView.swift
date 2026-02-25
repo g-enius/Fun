@@ -27,8 +27,12 @@ public struct ProfileView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { viewModel.didTapDismiss() }
-                        .accessibilityIdentifier(AccessibilityID.Profile.dismissButton)
+                    Button(action: { viewModel.didTapDismiss() }) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title2)
+                    }
+                    .accessibilityLabel("Done")
+                    .accessibilityIdentifier(AccessibilityID.Profile.dismissButton)
                 }
             }
     }
