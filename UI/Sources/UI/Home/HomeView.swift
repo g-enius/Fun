@@ -21,7 +21,7 @@ public struct HomeView: View {
     public var body: some View {
         content
             .navigationTitle(L10n.Tabs.home)
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { viewModel.didTapProfile() }) {
