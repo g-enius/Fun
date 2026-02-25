@@ -23,6 +23,7 @@ public enum TechnologyItem: String, CaseIterable, Sendable {
     case snapshotTesting = "snapshot"
     case accessibility = "accessibility"
     case deploymentTarget = "deploymenttarget"
+    case concurrencyPatterns = "concurrencypatterns"
 }
 
 public enum TechnologyDescriptions {
@@ -52,7 +53,8 @@ public enum TechnologyDescriptions {
         .swiftTesting: swiftTestingDescription,
         .snapshotTesting: snapshotDescription,
         .accessibility: accessibilityDescription,
-        .deploymentTarget: deploymentTargetDescription
+        .deploymentTarget: deploymentTargetDescription,
+        .concurrencyPatterns: concurrencyPatternsDescription
     ]
 
     // MARK: - Descriptions
@@ -334,5 +336,63 @@ public enum TechnologyDescriptions {
         • async-sequence-migration: iOS 17+ (AsyncStream + @Observable, zero Combine)
 
         Choose the branch that matches your app's deployment target.
+        """
+
+    private static let concurrencyPatternsDescription = """
+        Three approaches to the same problem: fetch 3 pages of items concurrently \
+        and combine results.
+
+        1. Callbacks (DispatchGroup + concurrent barrier queue):
+        ```swift
+        let group = DispatchGroup()
+        let queue = DispatchQueue(label: "fetch", attributes: .concurrent)
+        var allItems: [[Item]] = Array(repeating: [], count: 3)
+
+        for page in 0..<3 {
+            group.enter()
+            queue.async {
+                let items = fetchPage(page)
+                queue.async(flags: .barrier) {
+                    allItems[page] = items
+                    group.leave()
+                }
+            }
+        }
+        group.notify(queue: .main) { completion(allItems.flatMap { $0 }) }
+        ```
+        Note: A serial queue would execute fetches one at a time. The concurrent \
+        queue runs all 3 in parallel, and the barrier flag ensures thread-safe writes.
+
+        2. AsyncStream (makeStream + continuation):
+        ```swift
+        let (stream, continuation) = AsyncStream.makeStream(of: [Item].self)
+        for page in 0..<3 {
+            Task {
+                let items = await fetchPage(page)
+                continuation.yield(items)
+            }
+        }
+        var allItems: [[Item]] = []
+        for await items in stream {
+            allItems.append(items)
+            if allItems.count == 3 { break }
+        }
+        continuation.finish()
+        ```
+        Zero Combine — this branch uses AsyncStream for all reactive patterns.
+
+        3. async/await (TaskGroup):
+        ```swift
+        let items = await withTaskGroup(of: (Int, [Item]).self) { group in
+            for page in 0..<3 {
+                group.addTask { (page, await fetchPage(page)) }
+            }
+            var results: [(Int, [Item])] = []
+            for await result in group { results.append(result) }
+            return results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
+        }
+        ```
+
+        All three produce identical results. async/await is the cleanest syntax.
         """
 }
