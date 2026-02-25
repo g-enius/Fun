@@ -23,7 +23,6 @@ public enum TechnologyItem: String, CaseIterable, Sendable {
     case snapshotTesting = "snapshot"
     case accessibility = "accessibility"
     case deploymentTarget = "deploymenttarget"
-    case concurrencyPatterns = "concurrencypatterns"
 }
 
 public enum TechnologyDescriptions {
@@ -53,8 +52,7 @@ public enum TechnologyDescriptions {
         .swiftTesting: swiftTestingDescription,
         .snapshotTesting: snapshotDescription,
         .accessibility: accessibilityDescription,
-        .deploymentTarget: deploymentTargetDescription,
-        .concurrencyPatterns: concurrencyPatternsDescription
+        .deploymentTarget: deploymentTargetDescription
     ]
 
     // MARK: - Descriptions
@@ -95,36 +93,36 @@ public enum TechnologyDescriptions {
         """
 
     private static let swiftUIDescription = """
-        SwiftUI provides the declarative UI layer:
+        SwiftUI provides the entire UI and navigation layer:
 
-        • All tab views built with SwiftUI (HomeView, ItemsView, etc.)
-        • Embedded in UIKit via UIHostingController
+        • All views built with SwiftUI (HomeView, ItemsView, etc.)
+        • NavigationStack + NavigationPath for programmatic navigation
         • @ObservedObject for ViewModel binding
         • Modern modifiers: .refreshable, .swipeActions, .searchable
 
-        UIKit + SwiftUI Interop:
+        Navigation:
         ```swift
-        func embedSwiftUIView<Content: View>(_ content: Content) {
-            let hosting = UIHostingController(rootView: content)
-            addChild(hosting)
-            view.addSubview(hosting.view)
+        NavigationStack(path: $coordinator.homePath) {
+            HomeView(viewModel: viewModel)
+                .navigationDestination(for: FeaturedItem.self) { item in
+                    DetailView(viewModel: DetailViewModel(item: item))
+                }
         }
         ```
         """
 
     private static let coordinatorDescription = """
-        Coordinator pattern manages all navigation flow:
+        A single AppCoordinator manages all navigation:
 
-        • BaseCoordinator with safe navigation methods
-        • Prevents duplicate pushes and handles transitions
-        • 3 tab coordinators handle all screens in their stack directly
-        • ViewModels use closures (onPop, onShare, onDismiss) instead of coordinator protocols
+        • ObservableObject owning NavigationPath per tab
+        • Programmatic push via path.append()
+        • Modal presentation via @Published booleans
+        • ViewModels receive navigation closures, not coordinator refs
 
-        Structure:
-        AppCoordinator
-        ├── HomeCoordinator (detail + profile screens)
-        ├── ItemsCoordinator (detail screens)
-        └── SettingsCoordinator
+        Flow:
+        View → ViewModel.onShowDetail?(item)
+             → AppCoordinator.homePath.append(item)
+             → NavigationStack picks up via .navigationDestination
         """
 
     private static let mvvmDescription = """
@@ -151,7 +149,7 @@ public enum TechnologyDescriptions {
         • Model - Data models, protocols
         • Services - Concrete implementations
         • ViewModel - Business logic
-        • UI - SwiftUI views, UIKit controllers
+        • UI - SwiftUI views
         • Coordinator - Navigation logic
 
         Dependency graph:
@@ -170,7 +168,7 @@ public enum TechnologyDescriptions {
     private static let serviceLocatorDescription = """
         Custom dependency injection using ServiceLocator pattern:
 
-        Registration (in SceneDelegate):
+        Registration (in Session.activate):
         ```swift
         ServiceLocator.shared.register(
             NetworkServiceImpl(),
@@ -317,79 +315,19 @@ public enum TechnologyDescriptions {
         """
 
     private static let deploymentTargetDescription = """
-        This branch requires iOS 15.0 as the minimum deployment target.
+        This branch requires iOS 16.0 as the minimum deployment target.
 
-        iOS 15 provides:
-        • async/await and structured concurrency
-        • AsyncStream for event-driven sequences
-        • SwiftUI improvements (refreshable, swipeActions, searchable)
-        • UIKit-based navigation with UINavigationController
+        iOS 16 unlocks:
+        • NavigationStack + NavigationPath for programmatic navigation
+        • .navigationDestination(for:) type-safe routing
+        • SwiftUI TabView improvements
+        • ShareLink and other modern SwiftUI APIs
 
         Three branches demonstrate progressive iOS version requirements:
         • main: iOS 15+ (UIKit navigation + Combine)
-        • navigation-stack: iOS 16+ (SwiftUI NavigationStack + Combine)
-        • async-sequence: iOS 17+ (AsyncStream + @Observable, zero Combine)
+        • swiftui-navigation: iOS 16+ (SwiftUI NavigationStack + Combine)
+        • async-sequence-migration: iOS 17+ (AsyncStream + @Observable, zero Combine)
 
         Choose the branch that matches your app's deployment target.
-        """
-
-    private static let concurrencyPatternsDescription = """
-        Three approaches to the same problem: fetch 3 pages of items concurrently \
-        and combine results.
-
-        1. Callbacks (DispatchGroup + concurrent barrier queue):
-        ```swift
-        let queue = DispatchQueue(label: "concurrent", attributes: .concurrent)
-        let group = DispatchGroup()
-        var items: [Item] = []
-
-        for _ in 0..<3 {
-            group.enter()
-            dataSource.fetchItems { result in
-                queue.asyncAndWait(flags: .barrier) {
-                    items.append(contentsOf: result)
-                    group.leave()
-                }
-            }
-        }
-        group.notify(queue: .main) { completion(items) }
-        ```
-        The concurrent queue runs all 3 fetches in parallel. asyncAndWait with \
-        barrier ensures thread-safe array mutations.
-
-        2. Combine (Publishers.MergeMany):
-        ```swift
-        let publishers = (0..<3).map { [weak self] _ in
-            Future<[Item], Never> { promise in
-                self?.dataSource.fetchItems { items in
-                    promise(.success(items))
-                }
-            }.eraseToAnyPublisher()
-        }
-        return Publishers.MergeMany(publishers)
-            .flatMap { $0.publisher }
-            .collect()
-            .eraseToAnyPublisher()
-        ```
-        Future wraps callback-based fetches. MergeMany runs them concurrently, \
-        flatMap flattens each page, collect gathers all items.
-
-        3. async/await (TaskGroup):
-        ```swift
-        var items: [Item] = []
-        await withTaskGroup { group in
-            for _ in 0..<3 {
-                group.addTask {
-                    await self.dataSource.fetchItems()
-                }
-            }
-            for await result in group {
-                items.append(contentsOf: result)
-            }
-        }
-        return items
-        ```
-
-        All three produce identical results. async/await is the cleanest syntax.
         """
 }
