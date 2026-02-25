@@ -176,6 +176,50 @@ observation = Task { [weak self] in
 }
 ```
 
+### Migration pitfalls
+
+Things discovered during the Combine → AsyncSequence migration that aren't obvious:
+
+**1. `guard let self` before `for await` creates a retain cycle.** The `guard` captures `self` strongly, and that strong reference persists for the entire duration of the `for await` suspension — the ViewModel can never deallocate.
+
+```swift
+// BAD — retains self forever during suspension
+Task { [weak self] in
+    guard let self else { return }
+    for await value in stream { self.property = value }
+}
+
+// GOOD — guard inside the loop, break if nil
+Task { [weak self] in
+    for await value in stream {
+        guard let self else { break }
+        self.property = value
+    }
+}
+```
+
+**2. AsyncStream doesn't auto-emit the current value.** Unlike `@Published` (which emits immediately on subscribe), `AsyncStream` only delivers future values. Read the current value directly at init time:
+```swift
+// Must initialize manually — stream won't deliver the current state
+favoriteIds = favoritesService.favorites     // read current
+let stream = favoritesService.favoritesChanges  // observe future
+```
+
+**3. `@Observable` transforms stored properties into computed ones.** This means `@Service` (a property wrapper) can't be applied directly — it conflicts with `@Observable`'s generated accessors. Fix: mark service properties with `@ObservationIgnored`:
+```swift
+@ObservationIgnored @Service(.network) private var networkService: NetworkService
+```
+
+**4. `@StateObject` doesn't work with `@Observable`.** `@StateObject` requires `ObservableObject` conformance. Use `@State` instead for ownership, `@Bindable` for two-way binding (replaces `@ObservedObject`).
+
+**5. Capture service references before suspension points.** If a shared singleton (like `ServiceLocator`) can be reset during `await`, your `@Service` property wrapper may resolve to a different (or nil) instance after resuming:
+```swift
+// Capture before the suspension point
+let toast = toastService
+try? await Task.sleep(nanoseconds: delay)
+toast.showToast(message: "Error", type: .error)  // uses captured reference
+```
+
 ## Testing
 
 - **Unit Tests**: ViewModels, services, and session lifecycle
