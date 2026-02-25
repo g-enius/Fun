@@ -19,7 +19,6 @@ public struct DetailView: View {
 
     public var body: some View {
         detailContent
-            .navigationTitle(viewModel.itemTitle)
             .toolbar(.hidden, for: .tabBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -39,6 +38,11 @@ public struct DetailView: View {
     private var detailContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                // Title
+                Text(viewModel.itemTitle)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+
                 // Category badge
                 HStack {
                     Text(viewModel.category)
