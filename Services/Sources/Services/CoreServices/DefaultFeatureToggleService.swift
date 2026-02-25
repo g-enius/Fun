@@ -5,9 +5,9 @@
 //  Default implementation of FeatureToggleServiceProtocol
 //
 
-import Combine
 import Foundation
 
+import FunCore
 import FunModel
 
 @MainActor
@@ -15,32 +15,44 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
 
     // MARK: - Feature Toggles
 
-    @Published public var featuredCarousel: Bool
-    @Published public var simulateErrors: Bool
-    @Published public var aiSummary: Bool
-    @Published public var appearanceMode: AppearanceMode
-
-    // MARK: - Publishers
-
-    public var featuredCarouselPublisher: AnyPublisher<Bool, Never> {
-        $featuredCarousel.removeDuplicates().eraseToAnyPublisher()
+    public var featuredCarousel: Bool {
+        didSet {
+            UserDefaults.standard.set(featuredCarousel, forKey: .featureCarousel)
+            carouselBroadcaster.yield(featuredCarousel)
+        }
     }
 
-    public var simulateErrorsPublisher: AnyPublisher<Bool, Never> {
-        $simulateErrors.removeDuplicates().eraseToAnyPublisher()
+    public var simulateErrors: Bool {
+        didSet {
+            UserDefaults.standard.set(simulateErrors, forKey: .simulateErrors)
+        }
     }
 
-    public var aiSummaryPublisher: AnyPublisher<Bool, Never> {
-        $aiSummary.removeDuplicates().eraseToAnyPublisher()
+    public var aiSummary: Bool {
+        didSet {
+            UserDefaults.standard.set(aiSummary, forKey: .aiSummary)
+        }
     }
 
-    public var appearanceModePublisher: AnyPublisher<AppearanceMode, Never> {
-        $appearanceMode.removeDuplicates().eraseToAnyPublisher()
+    public var appearanceMode: AppearanceMode {
+        didSet {
+            UserDefaults.standard.set(appearanceMode.rawValue, forKey: .appearanceMode)
+            appearanceBroadcaster.yield(appearanceMode)
+        }
     }
 
-    // MARK: - Private
+    // MARK: - Streams
 
-    private var cancellables = Set<AnyCancellable>()
+    private let carouselBroadcaster = StreamBroadcaster<Bool>()
+    private let appearanceBroadcaster = StreamBroadcaster<AppearanceMode>()
+
+    public var featuredCarouselChanges: AsyncStream<Bool> {
+        carouselBroadcaster.makeStream()
+    }
+
+    public var appearanceModeChanges: AsyncStream<AppearanceMode> {
+        appearanceBroadcaster.makeStream()
+    }
 
     // MARK: - Initialization
 
@@ -58,22 +70,5 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
         aiSummary = defaults.bool(forKey: .aiSummary)
         appearanceMode = defaults.string(forKey: .appearanceMode)
             .flatMap(AppearanceMode.init) ?? .system
-
-        // Persist changes back to UserDefaults
-        $featuredCarousel.dropFirst().sink {
-            UserDefaults.standard.set($0, forKey: .featureCarousel)
-        }.store(in: &cancellables)
-
-        $simulateErrors.dropFirst().sink {
-            UserDefaults.standard.set($0, forKey: .simulateErrors)
-        }.store(in: &cancellables)
-
-        $aiSummary.dropFirst().sink {
-            UserDefaults.standard.set($0, forKey: .aiSummary)
-        }.store(in: &cancellables)
-
-        $appearanceMode.dropFirst().sink {
-            UserDefaults.standard.set($0.rawValue, forKey: .appearanceMode)
-        }.store(in: &cancellables)
     }
 }

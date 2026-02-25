@@ -5,16 +5,16 @@
 //  Mock implementation of ToastServiceProtocol for testing
 //
 
-import Combine
+import FunCore
 import FunModel
 
 @MainActor
 public final class MockToastService: ToastServiceProtocol {
 
-    private let toastSubject = PassthroughSubject<ToastEvent, Never>()
+    private let toastBroadcaster = StreamBroadcaster<ToastEvent>()
 
-    public var toastPublisher: AnyPublisher<ToastEvent, Never> {
-        toastSubject.eraseToAnyPublisher()
+    public var toastEvents: AsyncStream<ToastEvent> {
+        toastBroadcaster.makeStream()
     }
 
     public var showToastCalled = false
@@ -30,6 +30,6 @@ public final class MockToastService: ToastServiceProtocol {
         lastType = type
         let event = ToastEvent(message: message, type: type)
         toastHistory.append(event)
-        toastSubject.send(event)
+        toastBroadcaster.yield(event)
     }
 }

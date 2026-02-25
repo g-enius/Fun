@@ -5,14 +5,15 @@
 //  ViewModel for Login screen
 //
 
-import Combine
 import Foundation
+import Observation
 
 import FunCore
 import FunModel
 
 @MainActor
-public class LoginViewModel: ObservableObject {
+@Observable
+public class LoginViewModel {
 
     // MARK: - Navigation Closures
 
@@ -20,16 +21,16 @@ public class LoginViewModel: ObservableObject {
 
     // MARK: - Services
 
-    @Service(.logger) private var logger: LoggerService
-    @Service(.network) private var networkService: NetworkService
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.network) private var networkService: NetworkService
 
-    // MARK: - Published State
+    // MARK: - State
 
-    @Published public var isLoggingIn: Bool = false
+    public var isLoggingIn: Bool = false
 
     // MARK: - Private Properties
 
-    private var loginTask: Task<Void, Never>?
+    @ObservationIgnored private var loginTask: Task<Void, Never>?
 
     // MARK: - Initialization
 

@@ -13,7 +13,7 @@ import FunUI
 import FunViewModel
 
 public struct AppRootView: View {
-    @ObservedObject var coordinator: AppCoordinator
+    var coordinator: AppCoordinator
 
     public init(coordinator: AppCoordinator) {
         self.coordinator = coordinator

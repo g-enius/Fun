@@ -5,13 +5,12 @@
 //  Central registry for dependency injection
 //
 
-import Combine
 import Foundation
 
 // MARK: - Service Key
 
 /// Enum defining all available services
-public enum ServiceKey {
+public enum ServiceKey: Sendable {
     case network
     case logger
     case favorites
@@ -32,10 +31,10 @@ public class ServiceLocator {
     /// Registered services
     private var services: [ServiceKey: Any] = [:]
 
-    /// Emits the key whenever a service is registered
-    private let registrationSubject = PassthroughSubject<ServiceKey, Never>()
-    public var serviceDidRegisterPublisher: AnyPublisher<ServiceKey, Never> {
-        registrationSubject.eraseToAnyPublisher()
+    /// Broadcasts a key whenever a service is registered
+    private let registrationBroadcaster = StreamBroadcaster<ServiceKey>()
+    public var serviceRegistrations: AsyncStream<ServiceKey> {
+        registrationBroadcaster.makeStream()
     }
 
     private init() {}
@@ -43,7 +42,7 @@ public class ServiceLocator {
     /// Register a service
     public func register<T>(_ service: T, for key: ServiceKey) {
         services[key] = service
-        registrationSubject.send(key)
+        registrationBroadcaster.yield(key)
     }
 
     /// Resolve a service (crashes if not registered)

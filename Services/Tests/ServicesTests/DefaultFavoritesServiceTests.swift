@@ -7,7 +7,6 @@
 
 import Testing
 import Foundation
-import Combine
 @testable import FunServices
 @testable import FunModel
 
@@ -167,48 +166,56 @@ struct DefaultFavoritesServiceTests {
         #expect(service.favorites.count == countBefore)
     }
 
-    // MARK: - Publisher Tests
+    // MARK: - Stream Tests
 
-    @Test("favoritesDidChange publishes when favorites change")
-    func testFavoritesDidChangePublisher() async {
+    @Test("favoritesChanges emits when favorites change")
+    func testFavoritesChangesStream() async {
         clearUserDefaults()
         let service = DefaultFavoritesService()
 
         var receivedFavorites: Set<String>?
-        var cancellables = Set<AnyCancellable>()
-
-        service.favoritesDidChange
-            .dropFirst() // Skip the initial value from CurrentValueSubject
-            .sink { favorites in
+        let task = Task {
+            for await favorites in service.favoritesChanges {
                 receivedFavorites = favorites
+                break
             }
-            .store(in: &cancellables)
+        }
+
+        // Give the task time to start listening
+        try? await Task.sleep(for: .milliseconds(50))
 
         service.addFavorite("item2")
+
+        try? await Task.sleep(for: .milliseconds(50))
+        task.cancel()
 
         #expect(receivedFavorites != nil)
         #expect(receivedFavorites?.contains("item2") == true)
     }
 
-    @Test("favoritesDidChange publishes on toggle")
-    func testFavoritesDidChangeOnToggle() async {
+    @Test("favoritesChanges emits on toggle")
+    func testFavoritesChangesOnToggle() async {
         clearUserDefaults()
         let service = DefaultFavoritesService()
 
-        var publishCount = 0
-        var cancellables = Set<AnyCancellable>()
-
-        service.favoritesDidChange
-            .dropFirst() // Skip the initial value from CurrentValueSubject
-            .sink { _ in
-                publishCount += 1
+        var emitCount = 0
+        let task = Task {
+            for await _ in service.favoritesChanges {
+                emitCount += 1
+                if emitCount >= 2 { break }
             }
-            .store(in: &cancellables)
+        }
 
-        service.toggleFavorite( "item1")
-        service.toggleFavorite( "item1")
+        // Let the consumer task start and subscribe
+        try? await Task.sleep(for: .milliseconds(10))
 
-        #expect(publishCount == 2)
+        service.toggleFavorite("item1")
+        service.toggleFavorite("item1")
+
+        try? await Task.sleep(for: .milliseconds(50))
+        task.cancel()
+
+        #expect(emitCount == 2)
     }
 
     // MARK: - Reset Tests
@@ -232,24 +239,28 @@ struct DefaultFavoritesServiceTests {
         #expect(!service.favorites.contains("item3"))
     }
 
-    @Test("resetFavorites publishes default set")
-    func testResetFavoritesPublishesDefault() async {
+    @Test("resetFavorites emits default set via stream")
+    func testResetFavoritesEmitsDefault() async {
         clearUserDefaults()
         let service = DefaultFavoritesService()
 
         service.addFavorite("item2")
 
         var receivedFavorites: Set<String>?
-        var cancellables = Set<AnyCancellable>()
-
-        service.favoritesDidChange
-            .dropFirst()
-            .sink { favorites in
+        let task = Task {
+            for await favorites in service.favoritesChanges {
                 receivedFavorites = favorites
+                // We want to capture the reset emission, skip the addFavorite one
+                if favorites == Set(["item1"]) { break }
             }
-            .store(in: &cancellables)
+        }
+
+        await Task.yield()
 
         service.resetFavorites()
+
+        await Task.yield()
+        task.cancel()
 
         #expect(receivedFavorites != nil)
         #expect(receivedFavorites == Set(["item1"]))
