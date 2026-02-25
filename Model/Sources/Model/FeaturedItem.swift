@@ -64,8 +64,8 @@ public extension FeaturedItem {
 
     static let combine = FeaturedItem(
         id: TechnologyItem.combine.rawValue,
-        title: "Combine",
-        subtitle: "Reactive programming",
+        title: "AsyncSequence",
+        subtitle: "Reactive streams (zero Combine)",
         iconName: "arrow.triangle.merge",
         iconColor: .orange,
         category: "Reactive"
@@ -75,7 +75,7 @@ public extension FeaturedItem {
     static let swiftUI = FeaturedItem(
         id: TechnologyItem.swiftUI.rawValue,
         title: "SwiftUI",
-        subtitle: "Pure SwiftUI + NavigationStack",
+        subtitle: "Pure SwiftUI + @Observable",
         iconName: "swift",
         iconColor: .blue,
         category: "UI Framework"
@@ -84,7 +84,7 @@ public extension FeaturedItem {
     static let coordinator = FeaturedItem(
         id: TechnologyItem.coordinator.rawValue,
         title: "Coordinator",
-        subtitle: "Single ObservableObject",
+        subtitle: "Single @Observable AppCoordinator",
         iconName: "arrow.triangle.branch",
         iconColor: .purple,
         category: "Navigation"
@@ -94,7 +94,7 @@ public extension FeaturedItem {
     static let mvvm = FeaturedItem(
         id: TechnologyItem.mvvm.rawValue,
         title: "MVVM",
-        subtitle: "Architecture pattern",
+        subtitle: "@Observable ViewModels",
         iconName: "square.stack.3d.up",
         iconColor: .indigo,
         category: "Architecture"
@@ -188,7 +188,7 @@ public extension FeaturedItem {
     // Carousel Set 8: Deployment
     static let deploymentTarget = FeaturedItem(
         id: TechnologyItem.deploymentTarget.rawValue,
-        title: "iOS 16+",
+        title: "iOS 17+",
         subtitle: "Minimum deployment target",
         iconName: "iphone.gen3",
         iconColor: .yellow,
