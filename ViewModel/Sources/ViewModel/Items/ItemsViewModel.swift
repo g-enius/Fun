@@ -97,6 +97,30 @@ public class ItemsViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+
+        // MARK: - Swift Concurrency Alternative (iOS 15+)
+        //
+        // With @Observable (iOS 17+), use didSet + Task.sleep for debounce:
+        //
+        //     public var searchText: String = "" {
+        //         didSet { handleSearchTextChanged() }
+        //     }
+        //
+        //     private func handleSearchTextChanged() {
+        //         debounceTask?.cancel()
+        //         debounceTask = Task { [weak self] in
+        //             try? await Task.sleep(for: .milliseconds(600))
+        //             guard !Task.isCancelled, let self else { return }
+        //             self.processSearchText()
+        //         }
+        //     }
+        //
+        // Key differences from Combine .debounce():
+        // - No .dropFirst() needed — didSet doesn't fire during init
+        // - No .removeDuplicates() needed — didSet only fires on actual assignment
+        // - Task.cancel() handles debounce reset automatically
+        //
+        // See feature/async-sequence-migration for the full implementation.
     }
 
     private func observeFavoritesChanges() {

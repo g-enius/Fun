@@ -92,6 +92,11 @@ public final class AppCoordinator: BaseCoordinator {
         let itemsNavController = UINavigationController()
         let settingsNavController = UINavigationController()
 
+        // Large navigation titles for root screens
+        homeNavController.navigationBar.prefersLargeTitles = true
+        itemsNavController.navigationBar.prefersLargeTitles = true
+        settingsNavController.navigationBar.prefersLargeTitles = true
+
         // Configure tab bar items with icons and titles
         homeNavController.tabBarItem = UITabBarItem(
             title: L10n.Tabs.home,

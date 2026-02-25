@@ -11,6 +11,36 @@ import Foundation
 import FunCore
 import FunModel
 
+// MARK: - Swift Concurrency Alternative
+//
+// iOS 17+: Replace ObservableObject + @Published with @Observable macro.
+// @Observable tracks per-property (not per-object), so SwiftUI only re-renders
+// views that read the specific property that changed.
+//
+//     @MainActor
+//     @Observable public class HomeViewModel {
+//         var featuredItems: [[FeaturedItem]] = []   // no @Published needed
+//         var isLoading: Bool = false
+//
+//         @ObservationIgnored @Service(.network) private var networkService: NetworkService
+//         @ObservationIgnored private var loadTask: Task<Void, Never>?
+//         // @ObservationIgnored excludes non-UI state from observation tracking
+//     }
+//
+// View side: @ObservedObject → @Bindable (two-way) or plain var (read-only)
+//            @StateObject → @State
+//
+// Subscription side: .sink { }.store(in: &cancellables) → Task { for await ... }
+//     let stream = favoritesService.favoritesChanges
+//     favoritesObservation = Task { [weak self] in
+//         for await newFavorites in stream {
+//             guard let self else { break }
+//             self.favoriteIds = newFavorites
+//         }
+//     }
+//
+// See feature/async-sequence-migration for the full implementation.
+
 @MainActor
 public class HomeViewModel: ObservableObject {
 

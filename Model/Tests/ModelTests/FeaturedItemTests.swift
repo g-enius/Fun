@@ -77,21 +77,21 @@ struct FeaturedItemTests {
         #expect(ids.count == allItems.count)
     }
 
-    @Test("All carousel sets contain exactly 2 items")
-    func testCarouselSetsHaveTwoItems() {
+    @Test("All carousel sets contain 1-2 items")
+    func testCarouselSetsHaveOneOrTwoItems() {
         for (index, set) in FeaturedItem.allCarouselSets.enumerated() {
-            #expect(set.count == 2, "Carousel set \(index) has \(set.count) items, expected 2")
+            #expect(set.count >= 1 && set.count <= 2, "Carousel set \(index) has \(set.count) items, expected 1-2")
         }
     }
 
-    @Test("allCarouselSets has 7 sets")
+    @Test("allCarouselSets has 8 sets")
     func testAllCarouselSetsCount() {
-        #expect(FeaturedItem.allCarouselSets.count == 7)
+        #expect(FeaturedItem.allCarouselSets.count == 8)
     }
 
-    @Test("all contains 14 items")
+    @Test("all contains 15 items")
     func testAllItemsCount() {
-        #expect(FeaturedItem.all.count == 14)
+        #expect(FeaturedItem.all.count == 15)
     }
 
     @Test("all matches flattened carousel sets")

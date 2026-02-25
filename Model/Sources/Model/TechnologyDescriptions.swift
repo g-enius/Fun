@@ -22,6 +22,7 @@ public enum TechnologyItem: String, CaseIterable, Sendable {
     case swiftTesting = "swifttesting"
     case snapshotTesting = "snapshot"
     case accessibility = "accessibility"
+    case deploymentTarget = "deploymenttarget"
 }
 
 public enum TechnologyDescriptions {
@@ -50,7 +51,8 @@ public enum TechnologyDescriptions {
         .swift6: swift6Description,
         .swiftTesting: swiftTestingDescription,
         .snapshotTesting: snapshotDescription,
-        .accessibility: accessibilityDescription
+        .accessibility: accessibilityDescription,
+        .deploymentTarget: deploymentTargetDescription
     ]
 
     // MARK: - Descriptions
@@ -76,7 +78,7 @@ public enum TechnologyDescriptions {
         Combine framework powers the reactive data flow throughout the app:
 
         • @Published properties for automatic UI updates
-        • Debounced search input (400ms) in Items screen
+        • Debounced search input (600ms) in Items screen
         • Feature toggle change notifications
         • Favorites state synchronization across views
         • Scene lifecycle observation
@@ -84,7 +86,7 @@ public enum TechnologyDescriptions {
         Example from ItemsViewModel:
         ```swift
         $searchText
-            .debounce(for: .milliseconds(400), scheduler: RunLoop.main)
+            .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
             .sink { self.performSearch() }
             .store(in: &cancellables)
         ```
@@ -313,5 +315,22 @@ public enum TechnologyDescriptions {
         ```
 
         All interactive elements are accessible.
+        """
+
+    private static let deploymentTargetDescription = """
+        This branch requires iOS 15.0 as the minimum deployment target.
+
+        iOS 15 provides:
+        • async/await and structured concurrency
+        • AsyncStream for event-driven sequences
+        • SwiftUI improvements (refreshable, swipeActions, searchable)
+        • UIKit-based navigation with UINavigationController
+
+        Three branches demonstrate progressive iOS version requirements:
+        • main: iOS 15+ (UIKit navigation + Combine)
+        • swiftui-navigation: iOS 16+ (SwiftUI NavigationStack + Combine)
+        • async-sequence-migration: iOS 17+ (AsyncStream + @Observable, zero Combine)
+
+        Choose the branch that matches your app's deployment target.
         """
 }
