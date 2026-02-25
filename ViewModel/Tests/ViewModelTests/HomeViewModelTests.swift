@@ -10,7 +10,7 @@ import Foundation
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
-import FunModelTestSupport
+@testable import FunModelTestSupport
 
 // MARK: - Test Scenarios
 
@@ -120,13 +120,11 @@ struct HomeViewModelTests {
 
     // MARK: - Coordinator Tests
 
-    @Test("didTapFeaturedItem calls onShowDetail")
-    func testDidTapFeaturedItemCallsOnShowDetail() async throws {
-        let viewModel = HomeViewModel(session: makeSession())
-
-        var showDetailCalled = false
+    @Test("didTapFeaturedItem calls onShowDetail closure")
+    func testDidTapFeaturedItemCallsClosure() async throws {
         var showDetailItem: FeaturedItem?
-        viewModel.onShowDetail = { item in showDetailCalled = true; showDetailItem = item }
+        let viewModel = HomeViewModel(session: makeSession())
+        viewModel.onShowDetail = { item in showDetailItem = item }
 
         await viewModel.loadFeaturedItems()
 
@@ -135,15 +133,13 @@ struct HomeViewModelTests {
 
         viewModel.didTapFeaturedItem(item)
 
-        #expect(showDetailCalled == true)
         #expect(showDetailItem?.id == item.id)
     }
 
-    @Test("didTapProfile calls onShowProfile")
-    func testDidTapProfileCallsOnShowProfile() async {
-        let viewModel = HomeViewModel(session: makeSession())
-
+    @Test("didTapProfile calls onShowProfile closure")
+    func testDidTapProfileCallsClosure() async {
         var showProfileCalled = false
+        let viewModel = HomeViewModel(session: makeSession())
         viewModel.onShowProfile = { showProfileCalled = true }
 
         viewModel.didTapProfile()

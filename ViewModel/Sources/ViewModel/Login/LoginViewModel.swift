@@ -16,7 +16,7 @@ public class LoginViewModel: ObservableObject, SessionProvider {
 
     // MARK: - Navigation Closures
 
-    public var onLogin: (() -> Void)?
+    public var onLoginSuccess: (() -> Void)?
 
     // MARK: - DI
 
@@ -57,7 +57,7 @@ public class LoginViewModel: ObservableObject, SessionProvider {
             defer { self.isLoggingIn = false }
             do {
                 try await self.networkService.login()
-                self.onLogin?()
+                self.onLoginSuccess?()
             } catch {
                 self.logger.log("Login failed: \(error)", level: .error, category: .general)
                 self.toastService.showToast(message: L10n.Error.networkError, type: .error)

@@ -10,7 +10,7 @@ import Foundation
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
-import FunModelTestSupport
+@testable import FunModelTestSupport
 
 extension ViewModelTestSuite {
 
@@ -52,11 +52,10 @@ struct ProfileViewModelTests {
 
     // MARK: - Dismiss Tests
 
-    @Test("Dismiss calls onDismiss")
-    func testDismissCallsOnDismiss() async {
-        let viewModel = ProfileViewModel(session: makeSession())
-
+    @Test("Dismiss calls onDismiss closure")
+    func testDismissCallsClosure() async {
         var dismissCalled = false
+        let viewModel = ProfileViewModel(session: makeSession())
         viewModel.onDismiss = { dismissCalled = true }
 
         viewModel.didTapDismiss()
@@ -66,11 +65,10 @@ struct ProfileViewModelTests {
 
     // MARK: - Logout Tests
 
-    @Test("Logout calls onLogout")
-    func testLogoutCallsOnLogout() async {
-        let viewModel = ProfileViewModel(session: makeSession())
-
+    @Test("Logout calls onLogout closure")
+    func testLogoutCallsClosure() async {
         var logoutCalled = false
+        let viewModel = ProfileViewModel(session: makeSession())
         viewModel.onLogout = { logoutCalled = true }
 
         viewModel.logout()
@@ -80,11 +78,10 @@ struct ProfileViewModelTests {
 
     // MARK: - Go to Items Tests
 
-    @Test("didTapGoToItems calls onGoToItems")
-    func testDidTapGoToItemsCallsOnGoToItems() async {
-        let viewModel = ProfileViewModel(session: makeSession())
-
+    @Test("didTapGoToItems calls onGoToItems closure")
+    func testDidTapGoToItemsCallsClosure() async {
         var goToItemsCalled = false
+        let viewModel = ProfileViewModel(session: makeSession())
         viewModel.onGoToItems = { goToItemsCalled = true }
 
         viewModel.didTapGoToItems()

@@ -206,21 +206,17 @@ struct ItemsViewModelTests {
 
     // MARK: - Coordinator Tests
 
-    @Test("didSelectItem calls onShowDetail")
-    func testDidSelectItemCallsOnShowDetail() async throws {
-        let viewModel = ItemsViewModel(session: makeSession())
-
-        var showDetailCalled = false
+    @Test("didSelectItem calls onShowDetail closure")
+    func testDidSelectItemCallsClosure() async throws {
         var showDetailItem: FeaturedItem?
-        viewModel.onShowDetail = { item in showDetailCalled = true; showDetailItem = item }
-
+        let viewModel = ItemsViewModel(session: makeSession())
+        viewModel.onShowDetail = { item in showDetailItem = item }
         await viewModel.loadItems()
 
         let item = try #require(viewModel.items.first)
 
         viewModel.didSelectItem(item)
 
-        #expect(showDetailCalled == true)
         #expect(showDetailItem?.id == item.id)
     }
 
