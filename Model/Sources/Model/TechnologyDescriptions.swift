@@ -22,6 +22,7 @@ public enum TechnologyItem: String, CaseIterable, Sendable {
     case swiftTesting = "swifttesting"
     case snapshotTesting = "snapshot"
     case accessibility = "accessibility"
+    case deploymentTarget = "deploymenttarget"
 }
 
 public enum TechnologyDescriptions {
@@ -50,7 +51,8 @@ public enum TechnologyDescriptions {
         .swift6: swift6Description,
         .swiftTesting: swiftTestingDescription,
         .snapshotTesting: snapshotDescription,
-        .accessibility: accessibilityDescription
+        .accessibility: accessibilityDescription,
+        .deploymentTarget: deploymentTargetDescription
     ]
 
     // MARK: - Descriptions
@@ -76,7 +78,7 @@ public enum TechnologyDescriptions {
         Combine framework powers the reactive data flow throughout the app:
 
         • @Published properties for automatic UI updates
-        • Debounced search input (400ms) in Items screen
+        • Debounced search input (600ms) in Items screen
         • Feature toggle change notifications
         • Favorites state synchronization across views
         • Scene lifecycle observation
@@ -84,46 +86,43 @@ public enum TechnologyDescriptions {
         Example from ItemsViewModel:
         ```swift
         $searchText
-            .debounce(for: .milliseconds(400), scheduler: RunLoop.main)
+            .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
             .sink { self.performSearch() }
             .store(in: &cancellables)
         ```
         """
 
     private static let swiftUIDescription = """
-        SwiftUI provides the declarative UI layer:
+        SwiftUI provides the entire UI and navigation layer:
 
-        • All tab views built with SwiftUI (HomeView, ItemsView, etc.)
-        • Embedded in UIKit via UIHostingController
+        • All views built with SwiftUI (HomeView, ItemsView, etc.)
+        • NavigationStack + NavigationPath for programmatic navigation
         • @ObservedObject for ViewModel binding
         • Modern modifiers: .refreshable, .swipeActions, .searchable
 
-        UIKit + SwiftUI Interop:
+        Navigation:
         ```swift
-        func embedSwiftUIView<Content: View>(_ content: Content) {
-            let hosting = UIHostingController(rootView: content)
-            addChild(hosting)
-            view.addSubview(hosting.view)
+        NavigationStack(path: $coordinator.homePath) {
+            HomeView(viewModel: viewModel)
+                .navigationDestination(for: FeaturedItem.self) { item in
+                    DetailView(viewModel: DetailViewModel(item: item))
+                }
         }
         ```
         """
 
     private static let coordinatorDescription = """
-        Coordinator pattern manages all navigation flow:
+        A single AppCoordinator manages all navigation:
 
-        • BaseCoordinator with safe navigation methods
-        • Prevents duplicate pushes and handles transitions
-        • Child coordinator management for modal flows
-        • Clean separation of navigation from ViewModels
+        • ObservableObject owning NavigationPath per tab
+        • Programmatic push via path.append()
+        • Modal presentation via @Published booleans
+        • ViewModels receive navigation closures, not coordinator refs
 
-        Structure:
-        AppCoordinator
-        ├── HomeCoordinatorImpl
-        │   ├── DetailCoordinatorImpl
-        │   └── ProfileCoordinatorImpl
-        ├── ItemsCoordinatorImpl
-        │   └── DetailCoordinatorImpl
-        └── SettingsCoordinatorImpl
+        Flow:
+        View → ViewModel.onShowDetail?(item)
+             → AppCoordinator.homePath.append(item)
+             → NavigationStack picks up via .navigationDestination
         """
 
     private static let mvvmDescription = """
@@ -150,7 +149,7 @@ public enum TechnologyDescriptions {
         • Model - Data models, protocols
         • Services - Concrete implementations
         • ViewModel - Business logic
-        • UI - SwiftUI views, UIKit controllers
+        • UI - SwiftUI views
         • Coordinator - Navigation logic
 
         Dependency graph:
@@ -169,7 +168,7 @@ public enum TechnologyDescriptions {
     private static let serviceLocatorDescription = """
         Custom dependency injection using ServiceLocator pattern:
 
-        Registration (in SceneDelegate):
+        Registration (in Session.activate):
         ```swift
         ServiceLocator.shared.register(
             NetworkServiceImpl(),
@@ -313,5 +312,22 @@ public enum TechnologyDescriptions {
         ```
 
         All interactive elements are accessible.
+        """
+
+    private static let deploymentTargetDescription = """
+        This branch requires iOS 16.0 as the minimum deployment target.
+
+        iOS 16 unlocks:
+        • NavigationStack + NavigationPath for programmatic navigation
+        • .navigationDestination(for:) type-safe routing
+        • SwiftUI TabView improvements
+        • ShareLink and other modern SwiftUI APIs
+
+        Three branches demonstrate progressive iOS version requirements:
+        • main: iOS 15+ (UIKit navigation + Combine)
+        • swiftui-navigation: iOS 16+ (SwiftUI NavigationStack + Combine)
+        • async-sequence-migration: iOS 17+ (AsyncStream + @Observable, zero Combine)
+
+        Choose the branch that matches your app's deployment target.
         """
 }
