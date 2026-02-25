@@ -132,6 +132,63 @@ Deep links received during login are queued and executed after authentication.
 | Content & Layout | SwiftUI (all views) |
 | Forms & Settings | SwiftUI |
 
+## SwiftUI Navigation Branch
+
+A parallel branch explores replacing the UIKit navigation layer with **pure SwiftUI navigation** (`NavigationStack` + `NavigationPath`), while keeping everything else identical. See [PR #1](https://github.com/g-enius/Fun-iOS/pull/1) for the full diff.
+
+### Approach
+
+| Aspect | `main` (UIKit Navigation) | `feature/swiftui-navigation` (Pure SwiftUI) |
+|--------|--------------------------|---------------------------------------------|
+| App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
+| Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
+| Navigation stack | `UINavigationController` | `NavigationStack` + `NavigationPath` |
+| Push navigation | `pushViewController(_:animated:)` | `path.append(item)` |
+| Modal presentation | `present(_:animated:)` + `UIAdaptivePresentationControllerDelegate` | `.sheet(isPresented:)` |
+| Back detection | `didMove(toParent:)` override | Automatic (path shrinks on pop) |
+| Coordinator protocol | Per-screen protocol in `Model` + impl in `Coordinator` | Eliminated — closures on ViewModel |
+| ViewModel → Coordinator | `weak var coordinator: HomeCoordinator?` | `var onShowDetail: ((FeaturedItem) -> Void)?` |
+| Share sheet | `UIActivityViewController` via coordinator | SwiftUI `ShareLink` |
+| Toast overlay | Child `UIHostingController` with Auto Layout | `.overlay(alignment: .top)` |
+| Dark mode | `window?.overrideUserInterfaceStyle` in SceneDelegate | `.preferredColorScheme()` on root view |
+| Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
+| Minimum iOS | 15.0 | 16.0 (requires `NavigationStack`) |
+
+### What Changed
+
+| Metric | Value |
+|--------|-------|
+| Files added | 3 (`FunApp.swift`, `AppRootView.swift`, `MainTabView.swift`) |
+| Files deleted | 30 |
+| Files modified | 36 |
+| Lines added | 637 |
+| Lines removed | 1,789 |
+| **Net reduction** | **-1,152 lines** |
+
+### What Was Eliminated
+
+- 6 coordinator protocol definitions + 6 coordinator implementations
+- 5 mock coordinators (test doubles)
+- 7 `UIViewController` subclasses (thin wrappers hosting SwiftUI views)
+- `BaseCoordinator` abstract class
+- `HomeTabBarController` (144 lines) + `HomeTabBarViewModel` (53 lines) + tests
+- `UIViewController+SwiftUI` hosting extension
+- `AppDelegate` + `SceneDelegate`
+
+### Trade-offs
+
+| | UIKit Navigation (main) | SwiftUI Navigation (branch) |
+|-|------------------------|----------------------------|
+| Maturity | Battle-tested, predictable | Newer, occasional edge cases |
+| Type safety | Runtime (push any VC) | Compile-time (`Hashable` destinations) |
+| Coordinator pattern | Full protocol-based hierarchy | Simplified to closure wiring |
+| Code volume | More boilerplate (protocols, impls, mocks) | ~1,150 fewer lines |
+| iOS support | iOS 15+ | iOS 16+ |
+| Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
+| Testing | Mock coordinators for navigation assertions | Test closures directly |
+
+Both approaches produce **visually identical** apps — same screens, same behavior, same features.
+
 ## Testing
 
 - **Unit Tests**: ViewModels, services, and session lifecycle
