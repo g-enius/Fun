@@ -115,9 +115,8 @@ public class HomeViewModel: ObservableObject, ServiceLocatorProvider {
         do {
             featuredItems = try await networkService.fetchFeaturedItems()
         } catch is CancellationError {
-            // SwiftUI's .refreshable cancels the task when user releases drag early —
-            // swallow cancellation to keep refresh smooth
-            featuredItems = []
+            // Keep existing items when task is cancelled (e.g. by .refreshable)
+            logger.log("Featured items load cancelled, keeping existing data")
         } catch {
             hasError = true
             featuredItems = []
