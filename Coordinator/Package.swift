@@ -4,8 +4,8 @@ import PackageDescription
 let package = Package(
     name: "Coordinator",
     platforms: [
-        .iOS(.v16),
-        .macCatalyst(.v16),
+        .iOS(.v17),
+        .macCatalyst(.v17),
     ],
     products: [
         .library(name: "FunCoordinator", targets: ["FunCoordinator"]),
