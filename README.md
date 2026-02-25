@@ -130,9 +130,59 @@ This branch replaces UIKit navigation with pure SwiftUI. See [PR #1](https://git
 | ViewModel → nav | `weak var coordinator: Protocol?` → closures (`onShowDetail`, etc.) |
 | Deep links | `scene(_:openURLContexts:)` → `.onOpenURL { }` |
 
-### Next step: Combine removal
+### Why NavigationStack + NavigationPath over NavigationLink
 
-The [`async-sequence-migration`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence-migration) branch builds on this one, replacing Combine with `AsyncStream` + `@Observable` (iOS 17+). See [PR #2](https://github.com/g-enius/Fun-iOS/pull/2).
+This branch uses **programmatic navigation** exclusively — `NavigationStack` with `NavigationPath` managed by the coordinator. `NavigationLink` is deliberately avoided:
+
+- **Navigation belongs in the coordinator, not the view.** `NavigationLink` couples navigation decisions to SwiftUI views, making it hard to trigger navigation from ViewModels, deep links, or programmatic flows.
+- **NavigationLink(isActive:) and NavigationLink(tag:selection:) are deprecated** since iOS 16. Apple replaced them with `navigationDestination(for:)` + `NavigationPath`, which is exactly what this branch uses.
+- **NavigationPath is type-erased and composable.** The coordinator can `path.append(any Hashable)` without Views knowing the destination type. `NavigationLink` requires the destination View at the call site.
+- **Testing is simpler.** Navigation is testable via closures on ViewModels (`onShowDetail`, `onShowProfile`) — no need to tap UI elements.
+
+```swift
+// How navigation works in this branch:
+// 1. View calls ViewModel closure
+viewModel.didTapFeaturedItem(item)
+
+// 2. ViewModel fires navigation closure (set by coordinator)
+onShowDetail?(item)
+
+// 3. Coordinator appends to NavigationPath
+coordinator.homePath.append(item)
+
+// 4. NavigationStack picks up the change via .navigationDestination(for:)
+```
+
+### If you support iOS 17+: how this code evolves
+
+If your deployment target is iOS 17+, you can remove Combine entirely. Here's how each pattern changes:
+
+**ViewModels** — `ObservableObject` + `@Published` → `@Observable`:
+```swift
+// iOS 16 (this branch)                    // iOS 17+ (async-sequence-migration)
+class HomeViewModel: ObservableObject {     @Observable class HomeViewModel {
+    @Published var items = []                   var items = []
+    @Published var isLoading = false             var isLoading = false
+}                                           }
+```
+
+**Views** — `@ObservedObject` / `@StateObject` → `@Bindable` / `@State`:
+```swift
+// iOS 16 (this branch)                    // iOS 17+
+@ObservedObject var viewModel: HomeVM       @Bindable var viewModel: HomeVM
+@StateObject var viewModel = HomeVM()       @State var viewModel = HomeVM()
+```
+
+**Service events** — `AnyPublisher` → `AsyncStream`:
+```swift
+// iOS 16 (this branch)                    // iOS 17+
+favoritesService.favoritesDidChange         let stream = favoritesService.favoritesChanges
+    .sink { self.favoriteIds = $0 }         Task { for await ids in stream {
+    .store(in: &cancellables)                   self.favoriteIds = ids
+                                            }}
+```
+
+See the [`async-sequence-migration`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence-migration) branch for the complete migration ([PR #2](https://github.com/g-enius/Fun-iOS/pull/2)).
 
 ## Testing
 
