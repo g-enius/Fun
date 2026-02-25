@@ -16,7 +16,7 @@ public class LoginViewModel: ObservableObject {
 
     // MARK: - Navigation Closures
 
-    public var onLogin: (() -> Void)?
+    public var onLoginSuccess: (() -> Void)?
 
     // MARK: - Services
 
@@ -33,7 +33,9 @@ public class LoginViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init() {}
+    public init(onLoginSuccess: (() -> Void)? = nil) {
+        self.onLoginSuccess = onLoginSuccess
+    }
 
     deinit {
         loginTask?.cancel()
@@ -52,7 +54,7 @@ public class LoginViewModel: ObservableObject {
             guard let self else { return }
             defer { self.isLoggingIn = false }
             try? await self.networkService.login()
-            self.onLogin?()
+            self.onLoginSuccess?()
         }
     }
 }

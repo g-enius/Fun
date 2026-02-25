@@ -10,7 +10,7 @@ import Foundation
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
-import FunModelTestSupport
+@testable import FunModelTestSupport
 
 @Suite("ProfileViewModel Tests", .serialized)
 @MainActor
@@ -53,12 +53,10 @@ struct ProfileViewModelTests {
 
     // MARK: - Dismiss Tests
 
-    @Test("Dismiss calls onDismiss")
-    func testDismissCallsOnDismiss() async {
-        let viewModel = ProfileViewModel()
-
+    @Test("Dismiss calls onDismiss closure")
+    func testDismissCallsClosure() async {
         var dismissCalled = false
-        viewModel.onDismiss = { dismissCalled = true }
+        let viewModel = ProfileViewModel(onDismiss: { dismissCalled = true })
 
         viewModel.didTapDismiss()
 
@@ -67,12 +65,10 @@ struct ProfileViewModelTests {
 
     // MARK: - Logout Tests
 
-    @Test("Logout calls onLogout")
-    func testLogoutCallsOnLogout() async {
-        let viewModel = ProfileViewModel()
-
+    @Test("Logout calls onLogout closure")
+    func testLogoutCallsClosure() async {
         var logoutCalled = false
-        viewModel.onLogout = { logoutCalled = true }
+        let viewModel = ProfileViewModel(onLogout: { logoutCalled = true })
 
         viewModel.logout()
 
@@ -81,12 +77,10 @@ struct ProfileViewModelTests {
 
     // MARK: - Go to Items Tests
 
-    @Test("didTapGoToItems calls onGoToItems")
-    func testDidTapGoToItemsCallsOnGoToItems() async {
-        let viewModel = ProfileViewModel()
-
+    @Test("didTapGoToItems calls onGoToItems closure")
+    func testDidTapGoToItemsCallsClosure() async {
         var goToItemsCalled = false
-        viewModel.onGoToItems = { goToItemsCalled = true }
+        let viewModel = ProfileViewModel(onGoToItems: { goToItemsCalled = true })
 
         viewModel.didTapGoToItems()
 

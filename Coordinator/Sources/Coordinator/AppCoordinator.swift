@@ -2,18 +2,17 @@
 //  AppCoordinator.swift
 //  Coordinator
 //
-//  Main coordinator for the application
+//  SwiftUI-based coordinator managing navigation state and app flow
 //
 
-import UIKit
+import Combine
+import SwiftUI
 
 import FunCore
 import FunModel
-import FunUI
-import FunViewModel
 
-/// Main app coordinator that manages the root navigation and app flow
-public final class AppCoordinator: BaseCoordinator {
+@MainActor
+public final class AppCoordinator: ObservableObject {
 
     // MARK: - Services
 
@@ -26,38 +25,41 @@ public final class AppCoordinator: BaseCoordinator {
 
     // MARK: - App Flow State
 
-    private var currentFlow: AppFlow = .login
+    @Published public var currentFlow: AppFlow = .login
 
-    // MARK: - Child Coordinators
+    // MARK: - Navigation State
 
-    private var loginCoordinator: LoginCoordinator?
-    private var homeCoordinator: HomeCoordinator?
-    private var itemsCoordinator: ItemsCoordinator?
-    private var settingsCoordinator: SettingsCoordinator?
+    @Published public var selectedTab: TabIndex = .home
+    @Published public var homePath = NavigationPath()
+    @Published public var itemsPath = NavigationPath()
+    @Published public var settingsPath = NavigationPath()
+    @Published public var isProfilePresented = false
 
-    // Store tab bar view model for tab switching
-    private var tabBarViewModel: HomeTabBarViewModel?
+    // MARK: - Deep Link
 
-    // Queue deep link if received during login flow
     private var pendingDeepLink: DeepLink?
+
+    // MARK: - Toast
+
+    @Published public var activeToast: ToastEvent?
+    private var cancellables = Set<AnyCancellable>()
+
+    // MARK: - Dark Mode
+
+    @Published public var appearanceMode: AppearanceMode = .system
+    private var darkModeCancellable: AnyCancellable?
 
     // MARK: - Init
 
-    public init(navigationController: UINavigationController, sessionFactory: SessionFactory) {
+    public init(sessionFactory: SessionFactory) {
         self.sessionFactory = sessionFactory
-        super.init(navigationController: navigationController)
     }
 
     // MARK: - Start
 
-    override public func start() {
+    public func start() {
         activateSession(for: currentFlow)
-        switch currentFlow {
-        case .login:
-            showLoginFlow()
-        case .main:
-            showMainFlow()
-        }
+        observeDarkMode()
     }
 
     // MARK: - Session Lifecycle
@@ -69,112 +71,16 @@ public final class AppCoordinator: BaseCoordinator {
         currentSession = session
     }
 
-    // MARK: - Flow Management
-
-    private func showLoginFlow() {
-        // Clear any existing main flow coordinators
-        clearMainFlowCoordinators()
-
-        let loginCoordinator = LoginCoordinator(navigationController: navigationController)
-        loginCoordinator.onLoginSuccess = { [weak self] in
-            self?.transitionToMainFlow()
-        }
-        self.loginCoordinator = loginCoordinator
-        loginCoordinator.start()
-    }
-
-    private func showMainFlow() {
-        // Clear login coordinator
-        loginCoordinator = nil
-
-        // Create navigation controllers for each tab
-        let homeNavController = UINavigationController()
-        let itemsNavController = UINavigationController()
-        let settingsNavController = UINavigationController()
-
-        // Large navigation titles for root screens
-        homeNavController.navigationBar.prefersLargeTitles = true
-        itemsNavController.navigationBar.prefersLargeTitles = true
-        settingsNavController.navigationBar.prefersLargeTitles = true
-
-        // Configure tab bar items with icons and titles
-        homeNavController.tabBarItem = UITabBarItem(
-            title: L10n.Tabs.home,
-            image: UIImage(systemName: "house"),
-            selectedImage: UIImage(systemName: "house.fill")
-        )
-        homeNavController.tabBarItem.accessibilityIdentifier = AccessibilityID.Tabs.home
-
-        itemsNavController.tabBarItem = UITabBarItem(
-            title: L10n.Tabs.items,
-            image: UIImage(systemName: "list.bullet"),
-            selectedImage: UIImage(systemName: "list.bullet")
-        )
-        itemsNavController.tabBarItem.accessibilityIdentifier = AccessibilityID.Tabs.items
-
-        settingsNavController.tabBarItem = UITabBarItem(
-            title: L10n.Tabs.settings,
-            image: UIImage(systemName: "gearshape"),
-            selectedImage: UIImage(systemName: "gearshape.fill")
-        )
-        settingsNavController.tabBarItem.accessibilityIdentifier = AccessibilityID.Tabs.settings
-
-        // Create view model for tab bar
-        let tabBarViewModel = HomeTabBarViewModel()
-        self.tabBarViewModel = tabBarViewModel
-
-        // Create and store coordinators for each tab
-        let homeCoordinator = HomeCoordinator(
-            navigationController: homeNavController
-        )
-        let itemsCoordinator = ItemsCoordinator(
-            navigationController: itemsNavController
-        )
-        let settingsCoordinator = SettingsCoordinator(
-            navigationController: settingsNavController
-        )
-
-        // Set up logout callback through home coordinator (Profile modal)
-        homeCoordinator.onLogout = { [weak self] in
-            self?.transitionToLoginFlow()
-        }
-
-        // Store coordinators to prevent deallocation
-        self.homeCoordinator = homeCoordinator
-        self.itemsCoordinator = itemsCoordinator
-        self.settingsCoordinator = settingsCoordinator
-
-        // Start each coordinator's flow
-        homeCoordinator.start()
-        itemsCoordinator.start()
-        settingsCoordinator.start()
-
-        // Create tab bar with view model and navigation controllers
-        let tabBarController = HomeTabBarController(
-            viewModel: tabBarViewModel,
-            tabNavigationControllers: [
-                homeNavController,
-                itemsNavController,
-                settingsNavController
-            ]
-        )
-
-        // Set as root (tab bar doesn't push, it's the container)
-        navigationController.setViewControllers([tabBarController], animated: false)
-    }
-
     // MARK: - Flow Transitions
 
-    private func transitionToMainFlow() {
+    public func transitionToMainFlow() {
         currentFlow = .main
         activateSession(for: .main)
-        showMainFlow()
+        observeToastEvents()
 
         // Execute pending deep link after main flow is ready
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
-            // Defensive delay to ensure tab bar UI is fully initialized.
-            // In a production app, this would use coordinator lifecycle callbacks.
             Task { @MainActor [weak self] in
                 try? await Task.sleep(nanoseconds: 100_000_000)
                 self?.executeDeepLink(deepLink)
@@ -182,52 +88,81 @@ public final class AppCoordinator: BaseCoordinator {
         }
     }
 
-    private func transitionToLoginFlow() {
+    public func transitionToLoginFlow() {
         currentFlow = .login
         pendingDeepLink = nil
         activateSession(for: .login)
-        showLoginFlow()
-    }
 
-    // MARK: - Cleanup
-
-    private func clearMainFlowCoordinators() {
-        homeCoordinator = nil
-        itemsCoordinator = nil
-        settingsCoordinator = nil
-        tabBarViewModel = nil
+        // Reset navigation state
+        homePath = NavigationPath()
+        itemsPath = NavigationPath()
+        settingsPath = NavigationPath()
+        selectedTab = .home
+        isProfilePresented = false
+        activeToast = nil
     }
 
     // MARK: - Deep Link Handling
 
-    /// Handle incoming deep link
-    /// - Parameter deepLink: The deep link to handle
     public func handleDeepLink(_ deepLink: DeepLink) {
-        // If on login screen, queue for after login
         if currentFlow == .login {
             pendingDeepLink = deepLink
             return
         }
-
         executeDeepLink(deepLink)
     }
 
     private func executeDeepLink(_ deepLink: DeepLink) {
         switch deepLink {
         case .tab(let tabIndex):
-            tabBarViewModel?.switchToTab(tabIndex.rawValue)
+            selectedTab = tabIndex
 
         case .item(let id):
-            tabBarViewModel?.switchToTab(TabIndex.home.rawValue)
+            selectedTab = .home
             if let item = FeaturedItem.all.first(where: { $0.id == id }) {
-                homeCoordinator?.showDetail(for: item)
+                homePath.append(item)
             } else {
                 logger.log("Deep link item not found: \(id)", level: .warning, category: .general)
             }
 
         case .profile:
-            tabBarViewModel?.switchToTab(TabIndex.home.rawValue)
-            homeCoordinator?.showProfile()
+            selectedTab = .home
+            isProfilePresented = true
         }
+    }
+
+    // MARK: - Toast
+
+    private func observeToastEvents() {
+        @Service(.toast) var toastService: ToastServiceProtocol
+        toastService.toastPublisher
+            .sink { [weak self] event in
+                self?.activeToast = event
+            }
+            .store(in: &cancellables)
+    }
+
+    public func dismissToast() {
+        activeToast = nil
+    }
+
+    // MARK: - Dark Mode Observation
+
+    private func observeDarkMode() {
+        ServiceLocator.shared.serviceDidRegisterPublisher
+            .filter { $0 == .featureToggles }
+            .sink { [weak self] _ in
+                self?.subscribeToDarkMode()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func subscribeToDarkMode() {
+        darkModeCancellable?.cancel()
+        @Service(.featureToggles) var featureToggleService: FeatureToggleServiceProtocol
+        darkModeCancellable = featureToggleService.appearanceModePublisher
+            .sink { [weak self] mode in
+                self?.appearanceMode = mode
+            }
     }
 }
