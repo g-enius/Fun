@@ -24,12 +24,11 @@ public struct ProfileView: View {
     public var body: some View {
         profileContent
             .navigationTitle(L10n.Profile.title)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: { viewModel.didTapDismiss() }) {
-                        Text("Done")
-                    }
-                    .accessibilityIdentifier(AccessibilityID.Profile.dismissButton)
+                    Button("Done") { viewModel.didTapDismiss() }
+                        .accessibilityIdentifier(AccessibilityID.Profile.dismissButton)
                 }
             }
     }
