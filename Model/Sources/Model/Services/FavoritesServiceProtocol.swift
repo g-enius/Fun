@@ -5,15 +5,14 @@
 //  Protocol for favorites service
 //
 
-import Combine
 import Foundation
 
 @MainActor
 public protocol FavoritesServiceProtocol {
     var favorites: Set<String> { get }
 
-    /// Publisher that emits when favorites change
-    var favoritesDidChange: AnyPublisher<Set<String>, Never> { get }
+    /// Stream that emits when favorites change
+    var favoritesChanges: AsyncStream<Set<String>> { get }
 
     func isFavorited(_ itemId: String) -> Bool
     func toggleFavorite(_ itemId: String)

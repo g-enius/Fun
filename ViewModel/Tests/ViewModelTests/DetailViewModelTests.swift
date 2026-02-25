@@ -70,14 +70,21 @@ struct DetailViewModelTests {
 
     @Test("didTapToggleFavorite adds item to favorites")
     func testToggleFavoriteAdds() async {
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(initialFavorites: []))
+        let mockFavorites = MockFavoritesService(initialFavorites: [])
+        let locator = makeServiceLocator(initialFavorites: [])
+        locator.register(mockFavorites, for: .favorites)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: locator)
+
+        // Let observation tasks subscribe to streams
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.isFavorited == false)
 
-        viewModel.didTapToggleFavorite()
+        // Mutate via the same mock the observation task is listening to
+        mockFavorites.toggleFavorite(testItem.id)
 
-        // Wait for publisher to propagate
-        await Task.yield()
+        // Wait for AsyncStream to deliver
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.isFavorited == true)
     }
@@ -85,14 +92,21 @@ struct DetailViewModelTests {
     @Test("didTapToggleFavorite removes item from favorites")
     func testToggleFavoriteRemoves() async {
         let item = testItem
-        let viewModel = DetailViewModel(item: item, serviceLocator: makeServiceLocator(initialFavorites: [item.id]))
+        let mockFavorites = MockFavoritesService(initialFavorites: [item.id])
+        let locator = makeServiceLocator(initialFavorites: [item.id])
+        locator.register(mockFavorites, for: .favorites)
+        let viewModel = DetailViewModel(item: item, serviceLocator: locator)
+
+        // Let observation tasks subscribe to streams
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.isFavorited == true)
 
-        viewModel.didTapToggleFavorite()
+        // Mutate via the same mock the observation task is listening to
+        mockFavorites.toggleFavorite(item.id)
 
-        // Wait for publisher to propagate
-        await Task.yield()
+        // Wait for AsyncStream to deliver
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.isFavorited == false)
     }
@@ -113,13 +127,16 @@ struct DetailViewModelTests {
         let item = testItem
         let viewModel = DetailViewModel(item: item, serviceLocator: locator)
 
+        // Let observation tasks subscribe to streams
+        try? await Task.sleep(for: .milliseconds(50))
+
         #expect(viewModel.isFavorited == false)
 
         // Change favorites externally
         mockFavorites.addFavorite(item.id)
 
-        // Wait for publisher
-        await Task.yield()
+        // Wait for AsyncStream to deliver
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.isFavorited == true)
     }

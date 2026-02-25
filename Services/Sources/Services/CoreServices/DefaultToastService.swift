@@ -5,20 +5,20 @@
 //  Default implementation of ToastServiceProtocol
 //
 
-import Combine
 import Foundation
 
+import FunCore
 import FunModel
 
 @MainActor
 public final class DefaultToastService: ToastServiceProtocol {
 
-    // MARK: - Combine Publisher
+    // MARK: - Stream
 
-    private let toastSubject = PassthroughSubject<ToastEvent, Never>()
+    private let toastBroadcaster = StreamBroadcaster<ToastEvent>()
 
-    public var toastPublisher: AnyPublisher<ToastEvent, Never> {
-        toastSubject.eraseToAnyPublisher()
+    public var toastEvents: AsyncStream<ToastEvent> {
+        toastBroadcaster.makeStream()
     }
 
     // MARK: - Initialization
@@ -28,6 +28,6 @@ public final class DefaultToastService: ToastServiceProtocol {
     // MARK: - ToastServiceProtocol
 
     public func showToast(message: String, type: ToastType) {
-        toastSubject.send(ToastEvent(message: message, type: type))
+        toastBroadcaster.yield(ToastEvent(message: message, type: type))
     }
 }

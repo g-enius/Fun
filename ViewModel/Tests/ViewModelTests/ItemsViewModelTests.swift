@@ -155,12 +155,15 @@ struct ItemsViewModelTests {
     func testToggleFavoriteAdds() async {
         let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(initialFavorites: []))
 
+        // Let observation tasks subscribe to streams
+        try? await Task.sleep(for: .milliseconds(50))
+
         #expect(viewModel.isFavorited("test_item") == false)
 
         viewModel.toggleFavorite(for: "test_item")
 
-        // Wait for publisher to propagate
-        await Task.yield()
+        // Wait for AsyncStream to deliver
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -169,12 +172,15 @@ struct ItemsViewModelTests {
     func testToggleFavoriteRemoves() async {
         let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(initialFavorites: ["test_item"]))
 
+        // Let observation tasks subscribe to streams
+        try? await Task.sleep(for: .milliseconds(50))
+
         #expect(viewModel.isFavorited("test_item") == true)
 
         viewModel.toggleFavorite(for: "test_item")
 
-        // Wait for publisher to propagate
-        await Task.yield()
+        // Wait for AsyncStream to deliver
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.isFavorited("test_item") == false)
     }
@@ -193,13 +199,16 @@ struct ItemsViewModelTests {
 
         let viewModel = ItemsViewModel(serviceLocator: locator)
 
+        // Let observation tasks subscribe to streams
+        try? await Task.sleep(for: .milliseconds(50))
+
         #expect(viewModel.favoriteIds.isEmpty)
 
         // Add favorite directly on the service
         mockFavorites.addFavorite("new_item")
 
-        // Wait for publisher to propagate
-        await Task.yield()
+        // Wait for AsyncStream to deliver
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.favoriteIds.contains("new_item"))
     }
@@ -287,7 +296,9 @@ struct ItemsViewModelTests {
     @Test("Search error sets hasError and shows toast")
     func testSearchErrorSetsHasError() async throws {
         let mockNetwork = MockNetworkService(shouldThrowError: true)
+        let mockToast = MockToastService()
         let locator = makeServiceLocator(networkService: mockNetwork)
+        locator.register(mockToast, for: .toast)
         let viewModel = ItemsViewModel(serviceLocator: locator)
 
         viewModel.searchText = "swift"
@@ -299,8 +310,8 @@ struct ItemsViewModelTests {
         #expect(viewModel.items.isEmpty)
         #expect(viewModel.isSearching == false)
 
-        let toast: MockToastService = locator.resolve(for: .toast)
-        #expect(toast.showToastCalled == true)
+        // Use local ref, not ServiceLocator which may be reset by parallel tests
+        #expect(mockToast.showToastCalled == true)
     }
 
     @Test("Clear search resets to filtered allItems")
