@@ -5,7 +5,6 @@
 //  Protocol for feature toggle service
 //
 
-import Combine
 import Foundation
 
 @MainActor
@@ -15,6 +14,6 @@ public protocol FeatureToggleServiceProtocol: AnyObject {
     var aiSummary: Bool { get set }
     var appearanceMode: AppearanceMode { get set }
 
-    var featuredCarouselPublisher: AnyPublisher<Bool, Never> { get }
-    var appearanceModePublisher: AnyPublisher<AppearanceMode, Never> { get }
+    var featuredCarouselChanges: AsyncStream<Bool> { get }
+    var appearanceModeChanges: AsyncStream<AppearanceMode> { get }
 }

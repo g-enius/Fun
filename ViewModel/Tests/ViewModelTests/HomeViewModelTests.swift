@@ -113,10 +113,9 @@ struct HomeViewModelTests {
         // Explicitly call loadFeaturedItems and wait for it
         await viewModel.loadFeaturedItems()
 
-        // Verify the toast was called
-        let resolvedToast: MockToastService = ServiceLocator.shared.resolve(for: .toast)
-        #expect(resolvedToast.showToastCalled == true)
-        #expect(resolvedToast.lastType == .error)
+        // Verify the toast was called (use local ref, not ServiceLocator which may be reset by parallel tests)
+        #expect(mockToast.showToastCalled == true)
+        #expect(mockToast.lastType == .error)
     }
 
     // MARK: - Coordinator Tests
@@ -175,12 +174,15 @@ struct HomeViewModelTests {
         setupServices(initialFavorites: [])
         let viewModel = HomeViewModel()
 
+        // Let observation tasks subscribe to streams
+        try? await Task.sleep(for: .milliseconds(50))
+
         #expect(viewModel.isFavorited("test_item") == false)
 
         viewModel.toggleFavorite(for: "test_item")
 
-        // Wait for publisher to propagate
-        await Task.yield()
+        // Wait for AsyncStream to deliver
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -190,12 +192,15 @@ struct HomeViewModelTests {
         setupServices(initialFavorites: ["test_item"])
         let viewModel = HomeViewModel()
 
+        // Let observation tasks subscribe to streams
+        try? await Task.sleep(for: .milliseconds(50))
+
         #expect(viewModel.isFavorited("test_item") == true)
 
         viewModel.toggleFavorite(for: "test_item")
 
-        // Wait for publisher to propagate
-        await Task.yield()
+        // Wait for AsyncStream to deliver
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(viewModel.isFavorited("test_item") == false)
     }

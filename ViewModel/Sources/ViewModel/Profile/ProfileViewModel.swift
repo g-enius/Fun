@@ -6,12 +6,14 @@
 //
 
 import Foundation
+import Observation
 
 import FunCore
 import FunModel
 
 @MainActor
-public class ProfileViewModel: ObservableObject {
+@Observable
+public class ProfileViewModel {
 
     // MARK: - Navigation Closures
 
@@ -21,16 +23,16 @@ public class ProfileViewModel: ObservableObject {
 
     // MARK: - Services
 
-    @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
 
-    // MARK: - Published State
+    // MARK: - State
 
-    @Published public var userName: String
-    @Published public var userEmail: String
-    @Published public var userBio: String
-    @Published public var viewCount: Int
-    @Published public var favoritesCount: Int
-    @Published public var daysCount: Int
+    public var userName: String
+    public var userEmail: String
+    public var userBio: String
+    public var viewCount: Int
+    public var favoritesCount: Int
+    public var daysCount: Int
 
     // MARK: - Initialization
 
