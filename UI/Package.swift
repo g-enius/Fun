@@ -4,8 +4,8 @@ import PackageDescription
 let package = Package(
     name: "UI",
     platforms: [
-        .iOS(.v15),
-        .macCatalyst(.v15),
+        .iOS(.v16),
+        .macCatalyst(.v16),
     ],
     products: [
         .library(name: "FunUI", targets: ["FunUI"]),

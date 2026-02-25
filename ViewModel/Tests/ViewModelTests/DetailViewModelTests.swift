@@ -123,44 +123,14 @@ struct DetailViewModelTests {
         #expect(viewModel.isFavorited == true)
     }
 
-    // MARK: - Share Tests
+    // MARK: - Share Text Tests
 
-    @Test("didTapShare calls onShare with item title")
-    func testDidTapShareCallsOnShare() async {
+    @Test("shareText contains item title")
+    func testShareTextContainsItemTitle() async {
         setupServices()
         let viewModel = DetailViewModel(item: testItem)
 
-        var shareCalled = false
-        var shareText: String?
-        viewModel.onShare = { text in shareCalled = true; shareText = text }
-
-        viewModel.didTapShare()
-
-        #expect(shareCalled == true)
-        #expect(shareText?.contains(testItem.title) == true)
-    }
-
-    // MARK: - Back Navigation Tests
-
-    @Test("handleBackNavigation calls onPop")
-    func testHandleBackNavigationCallsOnPop() async {
-        setupServices()
-        let viewModel = DetailViewModel(item: testItem)
-
-        var popCalled = false
-        viewModel.onPop = { popCalled = true }
-
-        viewModel.handleBackNavigation()
-
-        #expect(popCalled == true)
-    }
-
-    @Test("handleBackNavigation with nil closure does not crash")
-    func testHandleBackNavigationWithNilClosure() async {
-        setupServices()
-        let viewModel = DetailViewModel(item: testItem)
-
-        viewModel.handleBackNavigation() // Should not crash
+        #expect(viewModel.shareText.contains(testItem.title))
     }
 
     // MARK: - Different Items Tests
