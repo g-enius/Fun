@@ -75,13 +75,12 @@ Consult these files for detailed guidance (not auto-loaded — read on demand):
 
 ## Code Style
 - Swift 6 strict concurrency, iOS 17+
-- Pure SwiftUI (NavigationStack), MVVM-C with Combine
-- Single AppCoordinator: ObservableObject with @Published NavigationPath per tab
-- ViewModels use closures for navigation, wired in tab content wrappers
+- Pure SwiftUI (NavigationStack), MVVM-C with AsyncSequence + @Observable
+- Zero Combine — AsyncStream + StreamBroadcaster for reactive service events, @Observable for ViewModel state
+- Navigation closures on ViewModels, wired by single AppCoordinator
 - Navigation logic ONLY in Coordinators, never in Views
 - Protocol placement: Core = reusable abstractions, Model = domain-specific
-- ServiceLocator with @Service property wrapper
-- Combine over NotificationCenter for reactive state
+- ServiceLocator with @Service property wrapper (assertionFailure, not fatalError)
 
 ## Testing
 - Swift Testing framework (`import Testing`, `@Test`, `#expect`, `@Suite`)
