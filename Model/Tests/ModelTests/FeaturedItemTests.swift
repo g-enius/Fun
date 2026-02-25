@@ -89,9 +89,9 @@ struct FeaturedItemTests {
         #expect(FeaturedItem.allCarouselSets.count == 8)
     }
 
-    @Test("all contains 16 items")
+    @Test("all contains 15 items")
     func testAllItemsCount() {
-        #expect(FeaturedItem.all.count == 16)
+        #expect(FeaturedItem.all.count == 15)
     }
 
     @Test("all matches flattened carousel sets")

@@ -39,7 +39,7 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 Fun-iOS/
 ├── FunApp/         # iOS app target (Xcode project)
 ├── Coordinator/    # Navigation coordinators
-├── UI/             # SwiftUI views & UIKit controllers
+├── UI/             # SwiftUI views
 ├── ViewModel/      # Business logic (MVVM)
 ├── Model/          # Data models & protocols
 ├── Services/       # Concrete service implementations
@@ -123,7 +123,7 @@ This branch replaces UIKit navigation with pure SwiftUI. See [PR #1](https://git
 | Metric | Value |
 |--------|-------|
 | Files deleted | 30 (coordinators, protocols, mocks, UIViewControllers) |
-| Net reduction | **-1,152 lines** |
+| Net reduction | **~1,100 lines** |
 | Navigation | `UINavigationController` → `NavigationStack` + `NavigationPath` |
 | App entry | `AppDelegate` + `SceneDelegate` → SwiftUI `@main App` |
 | Coordinator | 8-class hierarchy → single `AppCoordinator: ObservableObject` |

@@ -75,7 +75,7 @@ public extension FeaturedItem {
     static let swiftUI = FeaturedItem(
         id: TechnologyItem.swiftUI.rawValue,
         title: "SwiftUI",
-        subtitle: "Declarative UI",
+        subtitle: "Pure SwiftUI + NavigationStack",
         iconName: "swift",
         iconColor: .blue,
         category: "UI Framework"
@@ -84,7 +84,7 @@ public extension FeaturedItem {
     static let coordinator = FeaturedItem(
         id: TechnologyItem.coordinator.rawValue,
         title: "Coordinator",
-        subtitle: "Navigation pattern",
+        subtitle: "Single ObservableObject",
         iconName: "arrow.triangle.branch",
         iconColor: .purple,
         category: "Navigation"
@@ -185,19 +185,10 @@ public extension FeaturedItem {
         category: "A11y"
     )
 
-    // Carousel Set 8: Deployment & Concurrency
-    static let concurrencyPatterns = FeaturedItem(
-        id: TechnologyItem.concurrencyPatterns.rawValue,
-        title: "Concurrency Patterns",
-        subtitle: "Callbacks vs Combine vs async/await",
-        iconName: "arrow.triangle.2.circlepath",
-        iconColor: .orange,
-        category: "Concurrency"
-    )
-
+    // Carousel Set 8: Deployment
     static let deploymentTarget = FeaturedItem(
         id: TechnologyItem.deploymentTarget.rawValue,
-        title: "iOS 15+",
+        title: "iOS 16+",
         subtitle: "Minimum deployment target",
         iconName: "iphone.gen3",
         iconColor: .yellow,
@@ -212,7 +203,7 @@ public extension FeaturedItem {
     private static let carouselSet5: [FeaturedItem] = [.featureToggles, .osLog]
     private static let carouselSet6: [FeaturedItem] = [.swift6, .swiftTesting]
     private static let carouselSet7: [FeaturedItem] = [.snapshotTesting, .accessibility]
-    private static let carouselSet8: [FeaturedItem] = [.deploymentTarget, .concurrencyPatterns]
+    private static let carouselSet8: [FeaturedItem] = [.deploymentTarget]
 
     static let allCarouselSets: [[FeaturedItem]] = [
         carouselSet1, carouselSet2, carouselSet3, carouselSet4,
