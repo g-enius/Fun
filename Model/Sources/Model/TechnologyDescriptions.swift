@@ -23,7 +23,6 @@ public enum TechnologyItem: String, CaseIterable, Sendable {
     case snapshotTesting = "snapshot"
     case accessibility = "accessibility"
     case deploymentTarget = "deploymenttarget"
-    case concurrencyPatterns = "concurrencypatterns"
 }
 
 public enum TechnologyDescriptions {
@@ -53,8 +52,7 @@ public enum TechnologyDescriptions {
         .swiftTesting: swiftTestingDescription,
         .snapshotTesting: snapshotDescription,
         .accessibility: accessibilityDescription,
-        .deploymentTarget: deploymentTargetDescription,
-        .concurrencyPatterns: concurrencyPatternsDescription
+        .deploymentTarget: deploymentTargetDescription
     ]
 
     // MARK: - Descriptions
@@ -280,4 +278,53 @@ public enum TechnologyDescriptions {
         Benefits over XCTest: cleaner syntax, better assertions, parallel execution.
         """
 
+    private static let snapshotDescription = """
+        Visual regression testing with swift-snapshot-testing:
+
+        ```swift
+        @Test func homeViewSnapshot() {
+            let view = HomeView(viewModel: mockViewModel)
+            assertSnapshot(of: view, as: .image)
+        }
+        ```
+
+        • Captures UI as images
+        • Detects unintended visual changes
+        • Multiple device configurations
+        • Light/dark mode variants
+        """
+
+    private static let accessibilityDescription = """
+        Full VoiceOver and accessibility support:
+
+        • accessibilityIdentifier for UI testing
+        • accessibilityLabel for VoiceOver
+        • accessibilityHint for context
+
+        Example:
+        ```swift
+        .accessibilityIdentifier("featured_card_\\(item.id)")
+        .accessibilityLabel("\\(item.title), \\(item.subtitle)")
+        .accessibilityHint("Double tap to view details")
+        ```
+
+        All interactive elements are accessible.
+        """
+
+    private static let deploymentTargetDescription = """
+        This branch requires iOS 17.0 as the minimum deployment target.
+
+        iOS 17 unlocks:
+        • @Observable macro (replacing ObservableObject + @Published)
+        • AsyncSequence-based reactive patterns (zero Combine)
+        • StreamBroadcaster for service event broadcasting
+        • NavigationStack + NavigationPath for programmatic navigation
+
+        Three branches demonstrate progressive iOS version requirements:
+        • main: iOS 15+ (UIKit navigation + Combine)
+        • navigation-stack: iOS 16+ (SwiftUI NavigationStack + Combine)
+        • observation: iOS 17+ (AsyncStream + @Observable, zero Combine)
+
+        Choose the branch that matches your app's deployment target.
+        """
 }
