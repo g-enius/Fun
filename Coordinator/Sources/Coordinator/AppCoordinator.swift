@@ -5,54 +5,62 @@
 //  SwiftUI-based coordinator managing navigation state and app flow
 //
 
-import Combine
+import Observation
 import SwiftUI
 
 import FunCore
 import FunModel
 
 @MainActor
-public final class AppCoordinator: ObservableObject {
+@Observable
+public final class AppCoordinator {
 
     // MARK: - Services
 
-    @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
 
     // MARK: - Session Management
 
-    private let sessionFactory: SessionFactory
-    private var currentSession: Session?
+    @ObservationIgnored private let sessionFactory: SessionFactory
+    @ObservationIgnored private var currentSession: Session?
 
     // MARK: - App Flow State
 
-    @Published public var currentFlow: AppFlow = .login
+    public var currentFlow: AppFlow = .login
 
     // MARK: - Navigation State
 
-    @Published public var selectedTab: TabIndex = .home
-    @Published public var homePath = NavigationPath()
-    @Published public var itemsPath = NavigationPath()
-    @Published public var settingsPath = NavigationPath()
-    @Published public var isProfilePresented = false
+    public var selectedTab: TabIndex = .home
+    public var homePath = NavigationPath()
+    public var itemsPath = NavigationPath()
+    public var settingsPath = NavigationPath()
+    public var isProfilePresented = false
 
     // MARK: - Deep Link
 
-    private var pendingDeepLink: DeepLink?
+    @ObservationIgnored private var pendingDeepLink: DeepLink?
 
     // MARK: - Toast
 
-    @Published public var activeToast: ToastEvent?
-    private var cancellables = Set<AnyCancellable>()
+    public var activeToast: ToastEvent?
+    @ObservationIgnored private var toastObservation: Task<Void, Never>?
 
     // MARK: - Dark Mode
 
-    @Published public var appearanceMode: AppearanceMode = .system
-    private var darkModeCancellable: AnyCancellable?
+    public var appearanceMode: AppearanceMode = .system
+    @ObservationIgnored private var registrationObservation: Task<Void, Never>?
+    @ObservationIgnored private var darkModeObservation: Task<Void, Never>?
 
     // MARK: - Init
 
     public init(sessionFactory: SessionFactory) {
         self.sessionFactory = sessionFactory
+    }
+
+    deinit {
+        toastObservation?.cancel()
+        registrationObservation?.cancel()
+        darkModeObservation?.cancel()
     }
 
     // MARK: - Start
@@ -134,12 +142,15 @@ public final class AppCoordinator: ObservableObject {
     // MARK: - Toast
 
     private func observeToastEvents() {
+        toastObservation?.cancel()
         @Service(.toast) var toastService: ToastServiceProtocol
-        toastService.toastPublisher
-            .sink { [weak self] event in
-                self?.activeToast = event
+        let stream = toastService.toastEvents
+        toastObservation = Task { [weak self] in
+            for await event in stream {
+                guard let self else { break }
+                self.activeToast = event
             }
-            .store(in: &cancellables)
+        }
     }
 
     public func dismissToast() {
@@ -149,20 +160,26 @@ public final class AppCoordinator: ObservableObject {
     // MARK: - Dark Mode Observation
 
     private func observeDarkMode() {
-        ServiceLocator.shared.serviceDidRegisterPublisher
-            .filter { $0 == .featureToggles }
-            .sink { [weak self] _ in
-                self?.subscribeToDarkMode()
+        let stream = ServiceLocator.shared.serviceRegistrations
+        registrationObservation = Task { [weak self] in
+            for await key in stream {
+                guard let self else { break }
+                if key == .featureToggles {
+                    self.subscribeToDarkMode()
+                }
             }
-            .store(in: &cancellables)
+        }
     }
 
     private func subscribeToDarkMode() {
-        darkModeCancellable?.cancel()
+        darkModeObservation?.cancel()
         @Service(.featureToggles) var featureToggleService: FeatureToggleServiceProtocol
-        darkModeCancellable = featureToggleService.appearanceModePublisher
-            .sink { [weak self] mode in
-                self?.appearanceMode = mode
+        let stream = featureToggleService.appearanceModeChanges
+        darkModeObservation = Task { [weak self] in
+            for await mode in stream {
+                guard let self else { break }
+                self.appearanceMode = mode
             }
+        }
     }
 }

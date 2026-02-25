@@ -5,10 +5,10 @@
 //  Default implementation of FavoritesServiceProtocol
 //
 
-import Combine
 import Foundation
 import OSLog
 
+import FunCore
 import FunModel
 
 @MainActor
@@ -20,14 +20,14 @@ public final class DefaultFavoritesService: FavoritesServiceProtocol {
     public private(set) var favorites: Set<String> {
         didSet {
             saveFavorites()
-            favoritesSubject.send(favorites)
+            favoritesBroadcaster.yield(favorites)
         }
     }
 
-    private let favoritesSubject: CurrentValueSubject<Set<String>, Never>
+    private let favoritesBroadcaster = StreamBroadcaster<Set<String>>()
 
-    public var favoritesDidChange: AnyPublisher<Set<String>, Never> {
-        favoritesSubject.eraseToAnyPublisher()
+    public var favoritesChanges: AsyncStream<Set<String>> {
+        favoritesBroadcaster.makeStream()
     }
 
     public init() {
@@ -43,7 +43,6 @@ public final class DefaultFavoritesService: FavoritesServiceProtocol {
             loaded = Self.defaultFavorites
         }
         self.favorites = loaded
-        self.favoritesSubject = CurrentValueSubject(loaded)
     }
 
     public func isFavorited(_ itemId: String) -> Bool {
