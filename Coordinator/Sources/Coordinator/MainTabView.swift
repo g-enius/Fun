@@ -88,7 +88,7 @@ struct HomeTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: HomeViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: HomeViewModel(session: coordinator.session))
     }
 
     var body: some View {
@@ -111,7 +111,7 @@ struct ItemsTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ItemsViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: ItemsViewModel(session: coordinator.session))
     }
 
     var body: some View {
@@ -131,7 +131,7 @@ struct SettingsTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: SettingsViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: SettingsViewModel(session: coordinator.session))
     }
 
     var body: some View {
@@ -146,7 +146,7 @@ struct DetailTabContent: View {
 
     init(item: FeaturedItem, coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: DetailViewModel(item: item, serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: DetailViewModel(item: item, session: coordinator.session))
     }
 
     var body: some View {
@@ -161,7 +161,7 @@ struct ProfileTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ProfileViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: ProfileViewModel(session: coordinator.session))
     }
 
     var body: some View {
@@ -190,6 +190,26 @@ struct LoginTabContent: View {
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
         _viewModel = StateObject(wrappedValue: LoginViewModel(serviceLocator: coordinator.serviceLocator))
+    }
+
+    var body: some View {
+        LoginView(viewModel: viewModel)
+            .task {
+                viewModel.onLoginSuccess = { [weak coordinator] in
+                    coordinator?.transitionToMainFlow()
+                }
+            }
+    }
+}
+
+/// Wrapper that creates LoginViewModel with login success closure
+struct LoginContent: View {
+    let coordinator: AppCoordinator
+    @StateObject private var viewModel: LoginViewModel
+
+    init(coordinator: AppCoordinator) {
+        self.coordinator = coordinator
+        _viewModel = StateObject(wrappedValue: LoginViewModel(session: coordinator.session))
     }
 
     var body: some View {
