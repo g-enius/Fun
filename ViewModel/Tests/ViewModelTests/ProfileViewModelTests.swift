@@ -10,7 +10,7 @@ import Foundation
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
-import FunModelTestSupport
+@testable import FunModelTestSupport
 
 extension ViewModelTestSuite {
 
@@ -52,12 +52,13 @@ struct ProfileViewModelTests {
 
     // MARK: - Dismiss Tests
 
-    @Test("Dismiss calls onDismiss")
-    func testDismissCallsOnDismiss() async {
-        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
-
+    @Test("Dismiss calls onDismiss closure")
+    func testDismissCallsClosure() async {
         var dismissCalled = false
-        viewModel.onDismiss = { dismissCalled = true }
+        let viewModel = ProfileViewModel(
+            onDismiss: { dismissCalled = true },
+            serviceLocator: makeServiceLocator()
+        )
 
         viewModel.didTapDismiss()
 
@@ -66,12 +67,13 @@ struct ProfileViewModelTests {
 
     // MARK: - Logout Tests
 
-    @Test("Logout calls onLogout")
-    func testLogoutCallsOnLogout() async {
-        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
-
+    @Test("Logout calls onLogout closure")
+    func testLogoutCallsClosure() async {
         var logoutCalled = false
-        viewModel.onLogout = { logoutCalled = true }
+        let viewModel = ProfileViewModel(
+            onLogout: { logoutCalled = true },
+            serviceLocator: makeServiceLocator()
+        )
 
         viewModel.logout()
 
@@ -80,12 +82,13 @@ struct ProfileViewModelTests {
 
     // MARK: - Go to Items Tests
 
-    @Test("didTapGoToItems calls onGoToItems")
-    func testDidTapGoToItemsCallsOnGoToItems() async {
-        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
-
+    @Test("didTapGoToItems calls onGoToItems closure")
+    func testDidTapGoToItemsCallsClosure() async {
         var goToItemsCalled = false
-        viewModel.onGoToItems = { goToItemsCalled = true }
+        let viewModel = ProfileViewModel(
+            onGoToItems: { goToItemsCalled = true },
+            serviceLocator: makeServiceLocator()
+        )
 
         viewModel.didTapGoToItems()
 

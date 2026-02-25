@@ -10,7 +10,7 @@ import Foundation
 @testable import FunViewModel
 @testable import FunModel
 @testable import FunCore
-import FunModelTestSupport
+@testable import FunModelTestSupport
 
 // MARK: - Test Scenarios
 
@@ -119,13 +119,13 @@ struct HomeViewModelTests {
 
     // MARK: - Coordinator Tests
 
-    @Test("didTapFeaturedItem calls onShowDetail")
-    func testDidTapFeaturedItemCallsOnShowDetail() async throws {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
-
-        var showDetailCalled = false
+    @Test("didTapFeaturedItem calls onShowDetail closure")
+    func testDidTapFeaturedItemCallsClosure() async throws {
         var showDetailItem: FeaturedItem?
-        viewModel.onShowDetail = { item in showDetailCalled = true; showDetailItem = item }
+        let viewModel = HomeViewModel(
+            onShowDetail: { item in showDetailItem = item },
+            serviceLocator: makeServiceLocator()
+        )
 
         await viewModel.loadFeaturedItems()
 
@@ -134,16 +134,16 @@ struct HomeViewModelTests {
 
         viewModel.didTapFeaturedItem(item)
 
-        #expect(showDetailCalled == true)
         #expect(showDetailItem?.id == item.id)
     }
 
-    @Test("didTapProfile calls onShowProfile")
-    func testDidTapProfileCallsOnShowProfile() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
-
+    @Test("didTapProfile calls onShowProfile closure")
+    func testDidTapProfileCallsClosure() async {
         var showProfileCalled = false
-        viewModel.onShowProfile = { showProfileCalled = true }
+        let viewModel = HomeViewModel(
+            onShowProfile: { showProfileCalled = true },
+            serviceLocator: makeServiceLocator()
+        )
 
         viewModel.didTapProfile()
 
