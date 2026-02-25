@@ -34,7 +34,15 @@ public class ProfileViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(profile: UserProfile = .demo) {
+    public init(
+        onDismiss: (() -> Void)? = nil,
+        onLogout: (() -> Void)? = nil,
+        onGoToItems: (() -> Void)? = nil,
+        profile: UserProfile = .demo
+    ) {
+        self.onDismiss = onDismiss
+        self.onLogout = onLogout
+        self.onGoToItems = onGoToItems
         self.userName = profile.name
         self.userEmail = profile.email
         self.userBio = profile.bio

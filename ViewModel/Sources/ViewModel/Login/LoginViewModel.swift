@@ -16,7 +16,7 @@ public class LoginViewModel: ObservableObject {
 
     // MARK: - Navigation Closures
 
-    public var onLogin: (() -> Void)?
+    public var onLoginSuccess: (() -> Void)?
 
     // MARK: - Services
 
@@ -34,7 +34,9 @@ public class LoginViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init() {}
+    public init(onLoginSuccess: (() -> Void)? = nil) {
+        self.onLoginSuccess = onLoginSuccess
+    }
 
     deinit {
         loginTask?.cancel()
@@ -54,7 +56,7 @@ public class LoginViewModel: ObservableObject {
             defer { self.isLoggingIn = false }
             do {
                 try await self.networkService.login()
-                self.onLogin?()
+                self.onLoginSuccess?()
             } catch {
                 self.logger.log("Login failed: \(error)", level: .error, category: .general)
                 self.toastService.showToast(message: L10n.Error.networkError, type: .error)
