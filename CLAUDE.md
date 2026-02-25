@@ -69,8 +69,8 @@ Consult these files for detailed guidance (not auto-loaded — read on demand):
 
 ## Code Style
 - Swift 6 strict concurrency, iOS 17+
-- SwiftUI + UIKit hybrid, MVVM-C with Combine
-- ViewModels use closures for navigation (no coordinator protocols)
+- Pure SwiftUI (NavigationStack), MVVM-C with Combine
+- Navigation closures on ViewModels, wired by single AppCoordinator: ObservableObject
 - Navigation logic ONLY in Coordinators, never in Views
 - Protocol placement: Core = reusable abstractions, Model = domain-specific
 - Session-scoped ServiceLocator with `@Service` property wrapper — ViewModels conform to `SessionProvider`, store `let session: Session`

@@ -21,7 +21,7 @@ public struct SettingsView: View {
     public var body: some View {
         settingsContent
             .navigationTitle(L10n.Tabs.settings)
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
     }
 
     private var settingsContent: some View {
