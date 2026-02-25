@@ -344,38 +344,37 @@ public enum TechnologyDescriptions {
 
         1. Callbacks (DispatchGroup + concurrent barrier queue):
         ```swift
+        let queue = DispatchQueue(label: "concurrent", attributes: .concurrent)
         let group = DispatchGroup()
-        let queue = DispatchQueue(label: "fetch", attributes: .concurrent)
-        var allItems: [[Item]] = Array(repeating: [], count: 3)
+        var items: [Item] = []
 
-        for page in 0..<3 {
+        for _ in 0..<3 {
             group.enter()
-            queue.async {
-                let items = fetchPage(page)
-                queue.async(flags: .barrier) {
-                    allItems[page] = items
+            dataSource.fetchItems { result in
+                queue.asyncAndWait(flags: .barrier) {
+                    items.append(contentsOf: result)
                     group.leave()
                 }
             }
         }
-        group.notify(queue: .main) { completion(allItems.flatMap { $0 }) }
+        group.notify(queue: .main) { completion(items) }
         ```
-        Note: A serial queue would execute fetches one at a time. The concurrent \
-        queue runs all 3 in parallel, and the barrier flag ensures thread-safe writes.
+        The concurrent queue runs all 3 fetches in parallel. asyncAndWait with \
+        barrier ensures thread-safe array mutations.
 
         2. AsyncStream (makeStream + continuation):
         ```swift
         let (stream, continuation) = AsyncStream.makeStream(of: [Item].self)
-        for page in 0..<3 {
+        for _ in 0..<3 {
             Task {
-                let items = await fetchPage(page)
+                let items = await dataSource.fetchItems()
                 continuation.yield(items)
             }
         }
-        var allItems: [[Item]] = []
-        for await items in stream {
-            allItems.append(items)
-            if allItems.count == 3 { break }
+        var items: [Item] = []
+        for await result in stream {
+            items.append(contentsOf: result)
+            if items.count >= expectedTotal { break }
         }
         continuation.finish()
         ```
@@ -383,14 +382,18 @@ public enum TechnologyDescriptions {
 
         3. async/await (TaskGroup):
         ```swift
-        let items = await withTaskGroup(of: (Int, [Item]).self) { group in
-            for page in 0..<3 {
-                group.addTask { (page, await fetchPage(page)) }
+        var items: [Item] = []
+        await withTaskGroup { group in
+            for _ in 0..<3 {
+                group.addTask {
+                    await self.dataSource.fetchItems()
+                }
             }
-            var results: [(Int, [Item])] = []
-            for await result in group { results.append(result) }
-            return results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
+            for await result in group {
+                items.append(contentsOf: result)
+            }
         }
+        return items
         ```
 
         All three produce identical results. async/await is the cleanest syntax.
