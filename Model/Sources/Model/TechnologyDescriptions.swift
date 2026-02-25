@@ -75,20 +75,23 @@ public enum TechnologyDescriptions {
         """
 
     private static let combineDescription = """
-        Combine framework powers the reactive data flow throughout the app:
+        This branch replaced Combine entirely with Swift Concurrency:
 
-        • @Published properties for automatic UI updates
-        • Debounced search input (600ms) in Items screen
-        • Feature toggle change notifications
-        • Favorites state synchronization across views
-        • Scene lifecycle observation
+        • AsyncStream for service event delivery
+        • StreamBroadcaster for multi-consumer streams
+        • Task-based observation with for-await loops
+        • @Observable macro for ViewModel state
+        • didSet + Task.sleep for debounced search
 
-        Example from ItemsViewModel:
+        Example from HomeViewModel:
         ```swift
-        $searchText
-            .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
-            .sink { self.performSearch() }
-            .store(in: &cancellables)
+        let stream = favoritesService.favoritesChanges
+        Task { [weak self] in
+            for await favorites in stream {
+                guard let self else { break }
+                self.favoriteIds = favorites
+            }
+        }
         ```
         """
 
@@ -97,7 +100,8 @@ public enum TechnologyDescriptions {
 
         • All views built with SwiftUI (HomeView, ItemsView, etc.)
         • NavigationStack + NavigationPath for programmatic navigation
-        • @ObservedObject for ViewModel binding
+        • @Bindable for two-way ViewModel binding
+        • @State for ViewModel ownership
         • Modern modifiers: .refreshable, .swipeActions, .searchable
 
         Navigation:
@@ -114,9 +118,9 @@ public enum TechnologyDescriptions {
     private static let coordinatorDescription = """
         A single AppCoordinator manages all navigation:
 
-        • ObservableObject owning NavigationPath per tab
+        • @Observable class owning NavigationPath per tab
         • Programmatic push via path.append()
-        • Modal presentation via @Published booleans
+        • Modal presentation via @Bindable booleans
         • ViewModels receive navigation closures, not coordinator refs
 
         Flow:
@@ -133,9 +137,9 @@ public enum TechnologyDescriptions {
         • Model: Data structures and protocols
 
         Each screen follows this pattern:
-        HomeView (@ObservedObject viewModel)
+        HomeView (@Bindable viewModel)
             ↓ binds to
-        HomeViewModel (@Published state)
+        HomeViewModel (@Observable, per-property tracking)
             ↓ uses
         Services (Network, Favorites, etc.)
 
@@ -208,14 +212,15 @@ public enum TechnologyDescriptions {
         Runtime feature flags with reactive updates:
 
         • Persisted via UserDefaults
-        • Combine publisher for cross-component sync
+        • AsyncStream for cross-component sync
         • Toggle carousel visibility in Settings
 
         Usage:
         ```swift
-        featureToggleService.featuredCarouselPublisher
-            .sink { newValue in self.isCarouselEnabled = newValue }
-            .store(in: &cancellables)
+        let stream = featureToggleService.featuredCarouselChanges
+        Task { for await newValue in stream {
+            self.isCarouselEnabled = newValue
+        }}
         ```
 
         Try it: Go to Settings → Toggle "Featured Carousel"
@@ -248,7 +253,7 @@ public enum TechnologyDescriptions {
         Example:
         ```swift
         @MainActor
-        public class HomeViewModel: ObservableObject {
+        @Observable public class HomeViewModel {
             // All UI-related code is main-thread safe
         }
 
@@ -315,15 +320,15 @@ public enum TechnologyDescriptions {
         This branch requires iOS 17.0 as the minimum deployment target.
 
         iOS 17 unlocks:
-        • @Observable macro (replacing ObservableObject + @Published)
-        • AsyncSequence-based reactive patterns (zero Combine)
-        • StreamBroadcaster for service event broadcasting
-        • NavigationStack + NavigationPath for programmatic navigation
+        • @Observable macro (Observation framework) — per-property tracking
+        • @Bindable for two-way bindings with @Observable classes
+        • Full NavigationStack + NavigationPath API maturity
+        • Symbol effects and sensory feedback
 
         Three branches demonstrate progressive iOS version requirements:
         • main: iOS 15+ (UIKit navigation + Combine)
-        • navigation-stack: iOS 16+ (SwiftUI NavigationStack + Combine)
-        • observation: iOS 17+ (AsyncStream + @Observable, zero Combine)
+        • swiftui-navigation: iOS 16+ (SwiftUI NavigationStack + Combine)
+        • async-sequence-migration: iOS 17+ (AsyncStream + @Observable, zero Combine)
 
         Choose the branch that matches your app's deployment target.
         """
