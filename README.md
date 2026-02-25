@@ -190,7 +190,7 @@ All three produce **visually identical** apps — same screens, same behavior, s
 |--------|-------|
 | Files added | 3 |
 | Files deleted | 30 (coordinators, VCs, protocols, mocks) |
-| Net reduction | **-1,152 lines** |
+| Net reduction | **~1,100 lines** |
 
 ### Migration stats (swiftui-navigation → async-sequence-migration)
 
