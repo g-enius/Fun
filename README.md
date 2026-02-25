@@ -40,7 +40,7 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 Fun-iOS/
 ├── FunApp/         # iOS app target (Xcode project)
 ├── Coordinator/    # Navigation coordinators
-├── UI/             # SwiftUI views & UIKit controllers
+├── UI/             # SwiftUI views
 ├── ViewModel/      # Business logic (MVVM)
 ├── Model/          # Data models & protocols
 ├── Services/       # Concrete service implementations

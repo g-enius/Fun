@@ -22,8 +22,6 @@ public enum TechnologyItem: String, CaseIterable, Sendable {
     case swiftTesting = "swifttesting"
     case snapshotTesting = "snapshot"
     case accessibility = "accessibility"
-    case deploymentTarget = "deploymenttarget"
-    case concurrencyPatterns = "concurrencypatterns"
 }
 
 public enum TechnologyDescriptions {
@@ -52,9 +50,7 @@ public enum TechnologyDescriptions {
         .swift6: swift6Description,
         .swiftTesting: swiftTestingDescription,
         .snapshotTesting: snapshotDescription,
-        .accessibility: accessibilityDescription,
-        .deploymentTarget: deploymentTargetDescription,
-        .concurrencyPatterns: concurrencyPatternsDescription
+        .accessibility: accessibilityDescription
     ]
 
     // MARK: - Descriptions
@@ -77,20 +73,23 @@ public enum TechnologyDescriptions {
         """
 
     private static let combineDescription = """
-        Combine framework powers the reactive data flow throughout the app:
+        This branch replaced Combine entirely with Swift Concurrency:
 
-        • @Published properties for automatic UI updates
-        • Debounced search input (600ms) in Items screen
-        • Feature toggle change notifications
-        • Favorites state synchronization across views
-        • Scene lifecycle observation
+        • AsyncStream for service event delivery
+        • StreamBroadcaster for multi-consumer streams
+        • Task-based observation with for-await loops
+        • @Observable macro for ViewModel state
+        • didSet + Task.sleep for debounced search
 
-        Example from ItemsViewModel:
+        Example from HomeViewModel:
         ```swift
-        $searchText
-            .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
-            .sink { self.performSearch() }
-            .store(in: &cancellables)
+        let stream = favoritesService.favoritesChanges
+        Task { [weak self] in
+            for await favorites in stream {
+                guard let self else { break }
+                self.favoriteIds = favorites
+            }
+        }
         ```
         """
 
@@ -99,7 +98,8 @@ public enum TechnologyDescriptions {
 
         • All views built with SwiftUI (HomeView, ItemsView, etc.)
         • NavigationStack + NavigationPath for programmatic navigation
-        • @ObservedObject for ViewModel binding
+        • @Bindable for two-way ViewModel binding
+        • @State for ViewModel ownership
         • Modern modifiers: .refreshable, .swipeActions, .searchable
 
         Navigation:
@@ -116,9 +116,9 @@ public enum TechnologyDescriptions {
     private static let coordinatorDescription = """
         A single AppCoordinator manages all navigation:
 
-        • ObservableObject owning NavigationPath per tab
+        • @Observable class owning NavigationPath per tab
         • Programmatic push via path.append()
-        • Modal presentation via @Published booleans
+        • Modal presentation via @Bindable booleans
         • ViewModels receive navigation closures, not coordinator refs
 
         Flow:
@@ -135,9 +135,9 @@ public enum TechnologyDescriptions {
         • Model: Data structures and protocols
 
         Each screen follows this pattern:
-        HomeView (@ObservedObject viewModel)
+        HomeView (@Bindable viewModel)
             ↓ binds to
-        HomeViewModel (@Published state)
+        HomeViewModel (@Observable, per-property tracking)
             ↓ uses
         Services (Network, Favorites, etc.)
 
@@ -213,14 +213,15 @@ public enum TechnologyDescriptions {
         Runtime feature flags with reactive updates:
 
         • Persisted via UserDefaults
-        • Combine publisher for cross-component sync
+        • AsyncStream for cross-component sync
         • Toggle carousel visibility in Settings
 
         Usage:
         ```swift
-        featureToggleService.featuredCarouselPublisher
-            .sink { newValue in self.isCarouselEnabled = newValue }
-            .store(in: &cancellables)
+        let stream = featureToggleService.featuredCarouselChanges
+        Task { for await newValue in stream {
+            self.isCarouselEnabled = newValue
+        }}
         ```
 
         Try it: Go to Settings → Toggle "Featured Carousel"
@@ -253,7 +254,7 @@ public enum TechnologyDescriptions {
         Example:
         ```swift
         @MainActor
-        public class HomeViewModel: ObservableObject {
+        @Observable public class HomeViewModel {
             // All UI-related code is main-thread safe
         }
 
@@ -314,76 +315,5 @@ public enum TechnologyDescriptions {
         ```
 
         All interactive elements are accessible.
-        """
-
-    private static let deploymentTargetDescription = """
-        This branch requires iOS 16.0 as the minimum deployment target.
-
-        iOS 16 unlocks:
-        • NavigationStack + NavigationPath for programmatic navigation
-        • .navigationDestination(for:) type-safe routing
-        • SwiftUI TabView improvements
-        • ShareLink and other modern SwiftUI APIs
-
-        Three branches demonstrate progressive iOS version requirements:
-        • main: iOS 15+ (UIKit navigation + Combine)
-        • navigation-stack: iOS 16+ (SwiftUI NavigationStack + Combine)
-        • async-sequence: iOS 17+ (AsyncStream + @Observable, zero Combine)
-
-        Choose the branch that matches your app's deployment target.
-        """
-
-    private static let concurrencyPatternsDescription = """
-        Three approaches to the same problem: fetch 3 pages of items concurrently \
-        and combine results.
-
-        1. Callbacks (DispatchGroup + concurrent barrier queue):
-        ```swift
-        let group = DispatchGroup()
-        let queue = DispatchQueue(label: "fetch", attributes: .concurrent)
-        var allItems: [[Item]] = Array(repeating: [], count: 3)
-
-        for page in 0..<3 {
-            group.enter()
-            queue.async {
-                let items = fetchPage(page)
-                queue.async(flags: .barrier) {
-                    allItems[page] = items
-                    group.leave()
-                }
-            }
-        }
-        group.notify(queue: .main) { completion(allItems.flatMap { $0 }) }
-        ```
-        Note: A serial queue would execute fetches one at a time. The concurrent \
-        queue runs all 3 in parallel, and the barrier flag ensures thread-safe writes.
-
-        2. Combine (Publishers.MergeMany):
-        ```swift
-        let publishers = (0..<3).map { page in
-            Future<[Item], Never> { promise in
-                promise(.success(fetchPage(page)))
-            }
-        }
-        Publishers.MergeMany(publishers)
-            .collect()
-            .map { $0.flatMap { $0 } }
-            .sink { items in self.allItems = items }
-            .store(in: &cancellables)
-        ```
-
-        3. async/await (TaskGroup):
-        ```swift
-        let items = await withTaskGroup(of: (Int, [Item]).self) { group in
-            for page in 0..<3 {
-                group.addTask { (page, await fetchPage(page)) }
-            }
-            var results: [(Int, [Item])] = []
-            for await result in group { results.append(result) }
-            return results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
-        }
-        ```
-
-        All three produce identical results. async/await is the cleanest syntax.
         """
 }
