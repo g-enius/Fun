@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FeaturedItem: Identifiable, Equatable, Sendable {
+public struct FeaturedItem: Identifiable, Hashable, Sendable {
     public let id: String
     public let title: String
     public let subtitle: String

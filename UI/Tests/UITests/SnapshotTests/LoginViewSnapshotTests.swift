@@ -27,7 +27,7 @@ final class LoginViewSnapshotTests: XCTestCase {
     private var recording: Bool { false }
 
     func testLoginView_defaultState() {
-        let viewModel = LoginViewModel(coordinator: nil)
+        let viewModel = LoginViewModel()
 
         let view = LoginView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -37,7 +37,7 @@ final class LoginViewSnapshotTests: XCTestCase {
     }
 
     func testLoginView_loggingInState() {
-        let viewModel = LoginViewModel(coordinator: nil)
+        let viewModel = LoginViewModel()
         viewModel.isLoggingIn = true
 
         let view = LoginView(viewModel: viewModel)
@@ -48,7 +48,7 @@ final class LoginViewSnapshotTests: XCTestCase {
     }
 
     func testLoginView_darkMode() {
-        let viewModel = LoginViewModel(coordinator: nil)
+        let viewModel = LoginViewModel()
 
         let view = LoginView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)

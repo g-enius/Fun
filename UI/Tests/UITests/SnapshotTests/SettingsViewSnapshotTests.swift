@@ -29,7 +29,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     private var recording: Bool { false }
 
     func testSettingsView_defaultState() {
-        let viewModel = SettingsViewModel(coordinator: nil)
+        let viewModel = SettingsViewModel()
 
         let view = SettingsView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -39,7 +39,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     }
 
     func testSettingsView_darkAppearance() {
-        let viewModel = SettingsViewModel(coordinator: nil)
+        let viewModel = SettingsViewModel()
         viewModel.appearanceMode = .dark
 
         let view = SettingsView(viewModel: viewModel)
@@ -51,7 +51,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     }
 
     func testSettingsView_carouselEnabled() {
-        let viewModel = SettingsViewModel(coordinator: nil)
+        let viewModel = SettingsViewModel()
         viewModel.featuredCarouselEnabled = true
 
         let view = SettingsView(viewModel: viewModel)
@@ -62,7 +62,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     }
 
     func testSettingsView_carouselDisabled() {
-        let viewModel = SettingsViewModel(coordinator: nil)
+        let viewModel = SettingsViewModel()
         viewModel.featuredCarouselEnabled = false
 
         let view = SettingsView(viewModel: viewModel)

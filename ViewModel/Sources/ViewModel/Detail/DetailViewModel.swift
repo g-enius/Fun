@@ -14,10 +14,6 @@ import FunModel
 @MainActor
 public class DetailViewModel: ObservableObject {
 
-    // MARK: - Coordinator
-
-    private weak var coordinator: DetailCoordinator?
-
     // MARK: - Services
 
     @Service(.logger) private var logger: LoggerService
@@ -39,6 +35,11 @@ public class DetailViewModel: ObservableObject {
         featureToggleService.aiSummary && aiService.isAvailable
     }
 
+    /// Text to share via share sheet
+    public var shareText: String {
+        L10n.Detail.shareText(itemTitle)
+    }
+
     // MARK: - Private Properties
 
     private var cancellables = Set<AnyCancellable>()
@@ -46,12 +47,11 @@ public class DetailViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(item: FeaturedItem, coordinator: DetailCoordinator?) {
+    public init(item: FeaturedItem) {
         self.itemTitle = item.title
         self.category = item.category
         self.itemId = item.id
         self.itemDescription = TechnologyDescriptions.description(for: item.id)
-        self.coordinator = coordinator
         self.isFavorited = favoritesService.isFavorited(itemId)
         observeFavoritesChanges()
     }
@@ -68,16 +68,6 @@ public class DetailViewModel: ObservableObject {
     }
 
     // MARK: - Actions
-
-    /// Called when the view controller is removed from the navigation stack by the system (back button)
-    public func handleBackNavigation() {
-        coordinator?.didPop()
-    }
-
-    public func didTapShare() {
-        let shareText = L10n.Detail.shareText(itemTitle)
-        coordinator?.share(text: shareText)
-    }
 
     public func didTapToggleFavorite() {
         favoritesService.toggleFavorite(itemId)

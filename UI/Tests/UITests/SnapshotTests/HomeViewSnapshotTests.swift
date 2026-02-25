@@ -31,7 +31,7 @@ final class HomeViewSnapshotTests: XCTestCase {
     private var recording: Bool { false }
 
     func testHomeView_withCarouselEnabled() {
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
         viewModel.isCarouselEnabled = true
 
         let view = HomeView(viewModel: viewModel)
@@ -42,7 +42,7 @@ final class HomeViewSnapshotTests: XCTestCase {
     }
 
     func testHomeView_withCarouselDisabled() {
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
         viewModel.isCarouselEnabled = false
 
         let view = HomeView(viewModel: viewModel)
@@ -53,7 +53,7 @@ final class HomeViewSnapshotTests: XCTestCase {
     }
 
     func testHomeView_darkMode() {
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
         viewModel.isCarouselEnabled = true
 
         let view = HomeView(viewModel: viewModel)
@@ -67,7 +67,7 @@ final class HomeViewSnapshotTests: XCTestCase {
     // MARK: - iPad Tests
 
     func testHomeView_iPad_portrait() {
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
         viewModel.isCarouselEnabled = true
 
         let view = HomeView(viewModel: viewModel)
@@ -78,7 +78,7 @@ final class HomeViewSnapshotTests: XCTestCase {
     }
 
     func testHomeView_iPad_landscape() {
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
         viewModel.isCarouselEnabled = true
 
         let view = HomeView(viewModel: viewModel)

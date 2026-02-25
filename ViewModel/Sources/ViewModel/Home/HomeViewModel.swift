@@ -14,9 +14,10 @@ import FunModel
 @MainActor
 public class HomeViewModel: ObservableObject {
 
-    // MARK: - Coordinator
+    // MARK: - Navigation Closures
 
-    private weak var coordinator: HomeCoordinator?
+    public var onShowDetail: ((FeaturedItem) -> Void)?
+    public var onShowProfile: (() -> Void)?
 
     // MARK: - Services
 
@@ -44,8 +45,12 @@ public class HomeViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(coordinator: HomeCoordinator?) {
-        self.coordinator = coordinator
+    public init(
+        onShowDetail: ((FeaturedItem) -> Void)? = nil,
+        onShowProfile: (() -> Void)? = nil
+    ) {
+        self.onShowDetail = onShowDetail
+        self.onShowProfile = onShowProfile
 
         observeFeatureToggleChanges()
         observeFavoritesChanges()
@@ -155,11 +160,11 @@ public class HomeViewModel: ObservableObject {
 
     public func didTapFeaturedItem(_ item: FeaturedItem) {
         logger.log("Featured item tapped: \(item.title)")
-        coordinator?.showDetail(for: item)
+        onShowDetail?(item)
     }
 
     public func didTapProfile() {
         logger.log("Profile tapped")
-        coordinator?.showProfile()
+        onShowProfile?()
     }
 }

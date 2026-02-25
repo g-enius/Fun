@@ -32,7 +32,7 @@ struct ItemsViewModelTests {
     @Test("Items are loaded on initialization")
     func testItemsLoadedOnInit() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         #expect(viewModel.items.isEmpty == false)
@@ -41,7 +41,7 @@ struct ItemsViewModelTests {
     @Test("Initial search text is empty")
     func testInitialSearchTextEmpty() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.searchText.isEmpty)
     }
@@ -49,7 +49,7 @@ struct ItemsViewModelTests {
     @Test("Initial selected category is 'All'")
     func testInitialCategoryIsAll() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.selectedCategory == "All")
     }
@@ -57,7 +57,7 @@ struct ItemsViewModelTests {
     @Test("Initial isSearching is false")
     func testInitialIsSearchingFalse() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.isSearching == false)
     }
@@ -65,7 +65,7 @@ struct ItemsViewModelTests {
     @Test("Minimum search characters is 2")
     func testMinimumSearchCharacters() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.minimumSearchCharacters == 2)
     }
@@ -75,7 +75,7 @@ struct ItemsViewModelTests {
     @Test("Categories include 'All' as first option")
     func testCategoriesIncludeAll() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         #expect(viewModel.categories.first == "All")
@@ -84,7 +84,7 @@ struct ItemsViewModelTests {
     @Test("Selecting a category updates selectedCategory")
     func testSelectCategoryUpdatesState() async throws {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         let categories = viewModel.categories
@@ -99,7 +99,7 @@ struct ItemsViewModelTests {
     @Test("Selecting 'All' shows all items")
     func testSelectAllShowsAllItems() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         // Get initial item count (with All selected)
@@ -121,7 +121,7 @@ struct ItemsViewModelTests {
     @Test("Clear search resets search text and isSearching")
     func testClearSearchResetsState() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         viewModel.searchText = "test"
         viewModel.clearSearch()
@@ -133,7 +133,7 @@ struct ItemsViewModelTests {
     @Test("Initial needsMoreCharacters is false")
     func testInitialNeedsMoreCharactersFalse() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.needsMoreCharacters == false)
     }
@@ -143,7 +143,7 @@ struct ItemsViewModelTests {
     @Test("isFavorited returns false for unfavorited item")
     func testIsFavoritedReturnsFalse() async {
         setupServices(initialFavorites: [])
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.isFavorited("unfavorited_item") == false)
     }
@@ -151,7 +151,7 @@ struct ItemsViewModelTests {
     @Test("isFavorited returns true for favorited item")
     func testIsFavoritedReturnsTrue() async {
         setupServices(initialFavorites: ["test_item"])
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -159,7 +159,7 @@ struct ItemsViewModelTests {
     @Test("toggleFavorite adds unfavorited item to favorites")
     func testToggleFavoriteAdds() async {
         setupServices(initialFavorites: [])
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.isFavorited("test_item") == false)
 
@@ -174,7 +174,7 @@ struct ItemsViewModelTests {
     @Test("toggleFavorite removes favorited item from favorites")
     func testToggleFavoriteRemoves() async {
         setupServices(initialFavorites: ["test_item"])
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.isFavorited("test_item") == true)
 
@@ -194,7 +194,7 @@ struct ItemsViewModelTests {
         let mockFavorites = MockFavoritesService(initialFavorites: [])
         ServiceLocator.shared.register(mockFavorites, for: .favorites)
 
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.favoriteIds.isEmpty)
 
@@ -209,19 +209,20 @@ struct ItemsViewModelTests {
 
     // MARK: - Coordinator Tests
 
-    @Test("didSelectItem calls coordinator showDetail")
-    func testDidSelectItemCallsCoordinator() async throws {
+    @Test("didSelectItem calls onShowDetail closure")
+    func testDidSelectItemCallsClosure() async throws {
         setupServices()
-        let mockCoordinator = MockTabCoordinator()
-        let viewModel = ItemsViewModel(coordinator: mockCoordinator)
+        var showDetailItem: FeaturedItem?
+        let viewModel = ItemsViewModel(
+            onShowDetail: { item in showDetailItem = item }
+        )
         await viewModel.loadItems()
 
         let item = try #require(viewModel.items.first)
 
         viewModel.didSelectItem(item)
 
-        #expect(mockCoordinator.showDetailCalled == true)
-        #expect(mockCoordinator.showDetailItem?.id == item.id)
+        #expect(showDetailItem?.id == item.id)
     }
 
     // MARK: - Filter Behavior Tests
@@ -229,7 +230,7 @@ struct ItemsViewModelTests {
     @Test("Filtering by category reduces item count")
     func testCategoryFilterReducesItems() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         let allItemsCount = viewModel.items.count
@@ -251,7 +252,7 @@ struct ItemsViewModelTests {
     @Test("Items in filtered list match selected category")
     func testFilteredItemsMatchCategory() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         let categories = viewModel.categories.filter { $0 != "All" }
@@ -275,7 +276,7 @@ struct ItemsViewModelTests {
             stubbedSearchItems: [.swiftUI]
         )
         ServiceLocator.shared.register(mockNetwork, for: .network)
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         viewModel.searchText = "swift"
@@ -297,7 +298,7 @@ struct ItemsViewModelTests {
         setupServices()
         let mockNetwork = MockNetworkService(shouldThrowError: true)
         ServiceLocator.shared.register(mockNetwork, for: .network)
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
@@ -320,7 +321,7 @@ struct ItemsViewModelTests {
             stubbedSearchItems: [.swiftUI]
         )
         ServiceLocator.shared.register(mockNetwork, for: .network)
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         let allItemsCount = viewModel.items.count
@@ -342,7 +343,7 @@ struct ItemsViewModelTests {
     @Test("Initial hasError is false")
     func testInitialHasErrorFalse() async {
         setupServices()
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         #expect(viewModel.hasError == false)
     }
@@ -359,7 +360,7 @@ struct ItemsViewModelTests {
     @Test("clearSearch always sets hasError to false")
     func testClearSearchSetsHasErrorFalse() async {
         setupServices(simulateErrors: true)
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         // Manually set hasError to true to simulate error state
         viewModel.hasError = true
@@ -373,7 +374,7 @@ struct ItemsViewModelTests {
     @Test("retry resets hasError before re-searching")
     func testRetryResetsHasError() async {
         setupServices(simulateErrors: false)
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
 
         // Manually set hasError to true
         viewModel.hasError = true
