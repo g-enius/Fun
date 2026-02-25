@@ -19,36 +19,48 @@ public struct HomeView: View {
     }
 
     public var body: some View {
-        Group {
-            if viewModel.isLoading {
-                VStack(spacing: 16) {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .scaleEffect(1.5)
-                    Text(L10n.Common.loading)
-                        .foregroundColor(.secondary)
+        content
+            .navigationTitle(L10n.Tabs.home)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { viewModel.didTapProfile() }) {
+                        Image(systemName: "person.circle")
+                    }
+                    .accessibilityIdentifier(AccessibilityID.Home.profileButton)
+                    .accessibilityLabel(L10n.Profile.title)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasError {
-                ErrorStateView(onRetry: viewModel.retry)
-            } else if viewModel.isCarouselEnabled && !viewModel.featuredItems.isEmpty {
-                ScrollView {
-                    CarouselView(
-                        featuredItems: viewModel.featuredItems,
-                        currentIndex: $viewModel.currentCarouselIndex,
-                        isFavorited: viewModel.isFavorited,
-                        onItemTap: viewModel.didTapFeaturedItem,
-                        onFavoriteTap: { viewModel.toggleFavorite(for: $0) }
-                    )
-                    .padding(.vertical)
-                }
-                .refreshable {
-                    await viewModel.refresh()
-                }
-            } else {
-                // Empty state when carousel is disabled
-                CarouselDisabledView()
             }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if viewModel.isLoading {
+            VStack(spacing: 16) {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .scaleEffect(1.5)
+                Text(L10n.Common.loading)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if viewModel.hasError {
+            ErrorStateView(onRetry: viewModel.retry)
+        } else if viewModel.isCarouselEnabled && !viewModel.featuredItems.isEmpty {
+            ScrollView {
+                CarouselView(
+                    featuredItems: viewModel.featuredItems,
+                    currentIndex: $viewModel.currentCarouselIndex,
+                    isFavorited: viewModel.isFavorited,
+                    onItemTap: viewModel.didTapFeaturedItem,
+                    onFavoriteTap: { viewModel.toggleFavorite(for: $0) }
+                )
+                .padding(.vertical)
+            }
+            .refreshable {
+                await viewModel.refresh()
+            }
+        } else {
+            CarouselDisabledView()
         }
     }
 }
