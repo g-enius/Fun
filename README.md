@@ -4,7 +4,7 @@
 
 A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
 
-> **This is the `feature/async-sequence` branch** — zero Combine, pure AsyncSequence + @Observable (iOS 17+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`swiftui-navigation`](https://github.com/g-enius/Fun-iOS/tree/feature/swiftui-navigation) for the iOS 16+ Combine version.
+> **This is the `feature/async-sequence` branch** — zero Combine, pure AsyncSequence + @Observable (iOS 17+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) for the iOS 16+ Combine version.
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
@@ -141,7 +141,7 @@ Deep links received during login are queued and executed after authentication.
 - **Dark Mode & Dynamic Type**: System-adaptive colors, semantic font styles, System/Light/Dark appearance picker
 - **iOS 17+ APIs**: Symbol effects, sensory feedback (backwards compatible)
 
-## What Changed vs `swiftui-navigation`
+## What Changed vs `navigation-stack`
 
 This branch removes all Combine in favor of AsyncSequence + @Observable. See [PR #2](https://github.com/g-enius/Fun-iOS/pull/2) for the full diff, or [`main` README](https://github.com/g-enius/Fun-iOS) for the 3-branch comparison table.
 
