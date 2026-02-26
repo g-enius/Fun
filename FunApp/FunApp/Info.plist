@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>Fun SwiftUI</string>
+	<string>Fun Async</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
