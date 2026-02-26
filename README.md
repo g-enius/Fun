@@ -31,7 +31,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | **Navigation** | **UIKit**&nbsp;(`UINavigationController`) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) |
 | **Reactive** | **Combine**&nbsp;(`@Published`&nbsp;+&nbsp;`.sink`) | ← same | **AsyncSequence**&nbsp;[![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
 | **ViewModel** | `ObservableObject`&nbsp;+&nbsp;`@Published` | ← same | **@Observable**&nbsp;macro |
-| View binding | `@ObservedObject`&nbsp;/&nbsp;`@StateObject` | ← same | `@Bindable`&nbsp;/&nbsp;`@State` |
+| View binding | `@ObservedObject` | ← same | `@Bindable`&nbsp;/&nbsp;`@State` |
 | Service events | `AnyPublisher`&nbsp;+&nbsp;`Subject` | ← same | `AsyncStream`&nbsp;+&nbsp;`StreamBroadcaster` |
 | Coordinator | Protocol hierarchy (8 classes) | Single&nbsp;`AppCoordinator:&nbsp;ObservableObject` | Single&nbsp;`AppCoordinator:&nbsp;@Observable` |
 | App entry | `AppDelegate`&nbsp;+&nbsp;`SceneDelegate` | SwiftUI&nbsp;`@main&nbsp;App` | SwiftUI&nbsp;`@main&nbsp;App` |
