@@ -61,7 +61,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 |--------|----------------------------------------|---------------------------------------------|
 | Service publisher | `AnyPublisher<Set<String>, Never>` | `AsyncStream<Set<String>>` |
 | Multi-consumer | `CurrentValueSubject` / `PassthroughSubject` | `StreamBroadcaster` (custom, in Core) |
-| Subscribe | `.sink { }.store(in: &cancellables)` | `for await value in stream { }` |
+| Subscribe | `.sink { }.store(in: &cancellables)` | <code>Task&nbsp;{&nbsp;for&nbsp;await&nbsp;value&nbsp;in&nbsp;stream&nbsp;{&nbsp;}&nbsp;}</code> |
 | Lifecycle cleanup | `Set<AnyCancellable>` + `cancellables = []` | Task cancellation (`task.cancel()`) |
 | Debounced search | `.debounce(for:scheduler:)` operator | `didSet` + `Task.sleep` with cancellation |
 | Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
