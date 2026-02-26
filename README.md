@@ -72,16 +72,16 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Metric | Value |
 |--------|-------|
 | Files added | 6 |
-| Files deleted | 30 (coordinators, VCs, protocols, mocks) |
-| Net reduction | **~1,000 lines** |
+| Files deleted | 17 (coordinators, VCs, UIKit extensions) |
+| Net reduction | **~880 lines** |
 
 ### Migration stats (Combine → AsyncSequence)
 
 | Metric | Value |
 |--------|-------|
-| Files changed | 56 (55 modified + 1 new) |
-| Lines added | 817 |
-| Lines removed | 629 |
+| Files changed | 55 (49 modified + 1 new + 5 deleted) |
+| Lines added | 694 |
+| Lines removed | 591 |
 | `import Combine` remaining | 0 |
 
 ## Module Structure
