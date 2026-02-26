@@ -35,7 +35,6 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Service events | `AnyPublisher` + `Subject` | ← same | `AsyncStream` + `StreamBroadcaster` |
 | Coordinator | Protocol hierarchy (8 classes) | Single `AppCoordinator: ObservableObject` | Single `AppCoordinator: @Observable` |
 | App entry | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` | SwiftUI `@main App` |
-| `import Combine` | Yes | Yes | **None** |
 | Architecture | MVVM + Coordinator | ← same | ← same |
 | Language | Swift 6.0 | ← same | ← same |
 | DI | Session-Scoped + @Service | ← same | ← same |
