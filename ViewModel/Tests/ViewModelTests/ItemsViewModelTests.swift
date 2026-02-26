@@ -283,9 +283,9 @@ struct ItemsViewModelTests {
         await viewModel.loadItems()
 
         viewModel.searchText = "swift"
+        viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        // Wait for Combine debounce (600ms) + search task completion
-        try await Task.sleep(nanoseconds: 2_000_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_000)
 
         #expect(mockNetwork.searchItemsCallCount >= 1)
         #expect(mockNetwork.lastSearchQuery == "swift")
@@ -302,9 +302,9 @@ struct ItemsViewModelTests {
         let viewModel = ItemsViewModel()
 
         viewModel.searchText = "swift"
+        viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        // Wait for Combine debounce (600ms) + search task completion
-        try await Task.sleep(nanoseconds: 2_000_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_000)
 
         #expect(viewModel.hasError == true)
         #expect(viewModel.items.isEmpty)
@@ -327,9 +327,10 @@ struct ItemsViewModelTests {
 
         let allItemsCount = viewModel.items.count
 
-        // Perform a search — wait for debounce (600ms) + task
+        // Perform a search
         viewModel.searchText = "swift"
-        try await Task.sleep(nanoseconds: 2_000_000_000)
+        viewModel.didSelectCategory(viewModel.selectedCategory)
+        try await Task.sleep(nanoseconds: 1_000_000_000)
         #expect(viewModel.items.count == 1)
 
         // Clear search
