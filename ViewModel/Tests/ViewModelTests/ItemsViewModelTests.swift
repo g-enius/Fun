@@ -305,7 +305,11 @@ struct ItemsViewModelTests {
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        try await Task.sleep(nanoseconds: 100_000_000)
+        // Poll until the search task completes
+        for _ in 0..<20 {
+            try await Task.sleep(nanoseconds: 100_000_000)
+            if viewModel.hasError { break }
+        }
 
         #expect(viewModel.hasError == true)
         #expect(viewModel.items.isEmpty)
