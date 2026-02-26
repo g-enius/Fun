@@ -283,8 +283,11 @@ struct ItemsViewModelTests {
         // Trigger search directly by calling the debounced path
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        // Wait for debounce (600ms) + search task completion
-        try await Task.sleep(nanoseconds: 2_000_000_000)
+        // Poll until search completes
+        for _ in 0..<20 {
+            try await Task.sleep(nanoseconds: 100_000_000)
+            if mockNetwork.searchItemsCallCount >= 1 { break }
+        }
 
         #expect(mockNetwork.searchItemsCallCount == 1)
         #expect(mockNetwork.lastSearchQuery == "swift")
@@ -304,8 +307,11 @@ struct ItemsViewModelTests {
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        // Wait for debounce (600ms) + search task completion
-        try await Task.sleep(nanoseconds: 2_000_000_000)
+        // Poll until the search task completes
+        for _ in 0..<20 {
+            try await Task.sleep(nanoseconds: 100_000_000)
+            if viewModel.hasError { break }
+        }
 
         #expect(viewModel.hasError == true)
         #expect(viewModel.items.isEmpty)
