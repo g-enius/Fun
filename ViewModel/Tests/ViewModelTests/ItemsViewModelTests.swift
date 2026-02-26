@@ -286,8 +286,8 @@ struct ItemsViewModelTests {
         // Trigger search directly by calling the debounced path
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        // Wait for the search task to complete
-        try await Task.sleep(nanoseconds: 100_000_000)
+        // Wait for the search task to complete (needs enough time for CI runners)
+        try await Task.sleep(nanoseconds: 500_000_000)
 
         #expect(mockNetwork.searchItemsCallCount == 1)
         #expect(mockNetwork.lastSearchQuery == "swift")
