@@ -283,15 +283,13 @@ struct ItemsViewModelTests {
         await viewModel.loadItems()
 
         viewModel.searchText = "swift"
+        // Trigger search directly by calling the debounced path
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        // Poll until search completes
-        for _ in 0..<20 {
-            try await Task.sleep(nanoseconds: 100_000_000)
-            if mockNetwork.searchItemsCallCount >= 1 { break }
-        }
+        // Wait for the search task to complete
+        try await Task.sleep(nanoseconds: 100_000_000)
 
-        #expect(mockNetwork.searchItemsCallCount >= 1)
+        #expect(mockNetwork.searchItemsCallCount == 1)
         #expect(mockNetwork.lastSearchQuery == "swift")
         #expect(mockNetwork.lastSearchCategory == "All")
         #expect(viewModel.items == [.swiftUI])
@@ -308,11 +306,7 @@ struct ItemsViewModelTests {
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        // Poll until the search task completes (mock throws instantly, but Task scheduling varies)
-        for _ in 0..<20 {
-            try await Task.sleep(nanoseconds: 100_000_000)
-            if viewModel.hasError { break }
-        }
+        try await Task.sleep(nanoseconds: 100_000_000)
 
         #expect(viewModel.hasError == true)
         #expect(viewModel.items.isEmpty)
@@ -338,10 +332,7 @@ struct ItemsViewModelTests {
         // Perform a search
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
-        for _ in 0..<20 {
-            try await Task.sleep(nanoseconds: 100_000_000)
-            if viewModel.items.count == 1 { break }
-        }
+        try await Task.sleep(nanoseconds: 100_000_000)
         #expect(viewModel.items.count == 1)
 
         // Clear search
