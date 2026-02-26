@@ -28,19 +28,19 @@ Three branches demonstrate progressive modernization — same app, three archite
 | | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
 |---|---|---|---|
 | **Deployment** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
-| **Navigation** | **UIKit**&nbsp;(`UINavigationController`) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) |
-| **Reactive** | **Combine**&nbsp;(`@Published`&nbsp;+&nbsp;`.sink`) | ← same | **AsyncSequence**&nbsp;[![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
-| **ViewModel** | `ObservableObject`&nbsp;+&nbsp;`@Published` | ← same | **@Observable**&nbsp;macro |
-| View binding | `@ObservedObject` | ← same | `@Bindable`&nbsp;/&nbsp;`@State` |
-| Service events | `AnyPublisher`&nbsp;+&nbsp;`Subject` | ← same | `AsyncStream`&nbsp;+&nbsp;`StreamBroadcaster` |
-| Coordinator | Protocol hierarchy (8 classes) | Single&nbsp;`AppCoordinator:&nbsp;ObservableObject` | Single&nbsp;`AppCoordinator:&nbsp;@Observable` |
-| App entry | `AppDelegate`&nbsp;+&nbsp;`SceneDelegate` | SwiftUI&nbsp;`@main&nbsp;App` | SwiftUI&nbsp;`@main&nbsp;App` |
+| **Navigation** | **UIKit** (`UINavigationController`) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) |
+| **Reactive** | **Combine** (`@Published` + `.sink`) | ← same | **AsyncSequence**&nbsp;[![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
+| **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
+| View binding | `@ObservedObject` | ← same | `@Bindable` / `@State` |
+| Service events | `AnyPublisher` + `Subject` | ← same | `AsyncStream` + `StreamBroadcaster` |
+| Coordinator | Protocol hierarchy (8 classes) | Single `AppCoordinator: ObservableObject` | Single `AppCoordinator: @Observable` |
+| App entry | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` | SwiftUI `@main App` |
 | `import Combine` | Yes | Yes | **None** |
-| Architecture | MVVM&nbsp;+&nbsp;Coordinator | ← same | ← same |
+| Architecture | MVVM + Coordinator | ← same | ← same |
 | Language | Swift 6.0 | ← same | ← same |
-| DI | Session-Scoped&nbsp;+&nbsp;@Service | ← same | ← same |
-| LLM | Foundation&nbsp;Models&nbsp;(iOS&nbsp;26+) | ← same | ← same |
-| Testing | Swift&nbsp;Testing,&nbsp;swift-snapshot-testing | ← same | ← same |
+| DI | Session-Scoped + @Service | ← same | ← same |
+| LLM | Foundation Models (iOS 26+) | ← same | ← same |
+| Testing | Swift Testing, swift-snapshot-testing | ← same | ← same |
 | Best for | iOS 15+, full transition control | iOS 16+, −30 files / −1,100 lines | iOS 17+, modern Swift Concurrency |
 | PR | — | [#3](https://github.com/g-enius/Fun-iOS/pull/3) | [#4](https://github.com/g-enius/Fun-iOS/pull/4) |
 
