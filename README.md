@@ -74,6 +74,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Files added | 6 |
 | Files deleted | 17 (coordinators, VCs, UIKit extensions) |
 | Net reduction | **~880 lines** |
+| `import UIKit` remaining | 0 |
 
 ### Migration stats (Combine → AsyncSequence)
 
