@@ -40,7 +40,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | DI | Session-Scoped + @Service | ← same | ← same |
 | LLM | Foundation Models (iOS 26+) | ← same | ← same |
 | Testing | Swift Testing, swift-snapshot-testing | ← same | ← same |
-| Best for | iOS 15+, full transition control | iOS 16+, −30 files / −1,100 lines | iOS 17+, modern Swift Concurrency |
+| **Best for** | **iOS 15+, full transition control** | **iOS 16+, −30 files / −1,100 lines** | **iOS 17+, modern Swift Concurrency** |
 | PR | — | [#3](https://github.com/g-enius/Fun-iOS/pull/3) | [#4](https://github.com/g-enius/Fun-iOS/pull/4) |
 
 ### Navigation: UIKit vs SwiftUI
