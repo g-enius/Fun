@@ -65,7 +65,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Lifecycle cleanup | `Set<AnyCancellable>` + `cancellables = []` | Task cancellation (`task.cancel()`) |
 | Debounced search | `.debounce(for:scheduler:)` operator | `didSet` + `Task.sleep` with cancellation |
 | Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
-| ViewModel observation | `ObservableObject` (per-object invalidation) | `@Observable` (per-property tracking) |
+| ViewModel observation | `ObservableObject` (**per-object invalidation**) | `@Observable` (**per-property tracking**) |
 
 ### Migration stats (main → navigation-stack)
 
