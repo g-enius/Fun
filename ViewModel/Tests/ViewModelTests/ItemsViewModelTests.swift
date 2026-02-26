@@ -285,7 +285,11 @@ struct ItemsViewModelTests {
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        // Poll until search completes
+        for _ in 0..<20 {
+            try await Task.sleep(nanoseconds: 100_000_000)
+            if mockNetwork.searchItemsCallCount >= 1 { break }
+        }
 
         #expect(mockNetwork.searchItemsCallCount >= 1)
         #expect(mockNetwork.lastSearchQuery == "swift")
@@ -304,7 +308,11 @@ struct ItemsViewModelTests {
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        // Poll until the search task completes (mock throws instantly, but Task scheduling varies)
+        for _ in 0..<20 {
+            try await Task.sleep(nanoseconds: 100_000_000)
+            if viewModel.hasError { break }
+        }
 
         #expect(viewModel.hasError == true)
         #expect(viewModel.items.isEmpty)
@@ -330,7 +338,10 @@ struct ItemsViewModelTests {
         // Perform a search
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        for _ in 0..<20 {
+            try await Task.sleep(nanoseconds: 100_000_000)
+            if viewModel.items.count == 1 { break }
+        }
         #expect(viewModel.items.count == 1)
 
         // Clear search
