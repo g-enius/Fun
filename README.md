@@ -52,7 +52,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Modal presentation | `present(_:animated:)` | `.sheet(isPresented:)` |
 | Views | SwiftUI hosted in `UIHostingController` | Native SwiftUI views |
 | View controllers | UIKit VCs wrap SwiftUI views | None |
-| Coordinators | `HomeCoordinator`, `ItemsCoordinator`, `SettingsCoordinator` | Single `AppCoordinator` (ObservableObject) |
+| Coordinators | Multiple `TabCoordinator`s | Single `AppCoordinator` (ObservableObject) |
 | Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
 | Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
 | `import UIKit` | Coordinators + VCs | None |
