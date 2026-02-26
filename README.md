@@ -55,7 +55,6 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Coordinators | Multiple `TabCoordinator`s | Single `AppCoordinator` (ObservableObject) |
 | Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
 | Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
-| `import UIKit` | Coordinators + VCs | None |
 
 ### Reactive State: Combine vs AsyncSequence
 
