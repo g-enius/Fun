@@ -4,7 +4,7 @@
 
 A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
 
-> **This is the `feature/swiftui-navigation` branch** — pure SwiftUI navigation (iOS 16+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`async-sequence-migration`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence-migration) for the Combine-free iOS 17+ version.
+> **This is the `feature/swiftui-navigation` branch** — pure SwiftUI navigation (iOS 16+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) for the Combine-free iOS 17+ version.
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
@@ -159,7 +159,7 @@ If your deployment target is iOS 17+, you can remove Combine entirely. Here's ho
 
 **ViewModels** — `ObservableObject` + `@Published` → `@Observable`:
 ```swift
-// iOS 16 (this branch)                    // iOS 17+ (async-sequence-migration)
+// iOS 16 (this branch)                    // iOS 17+ (async-sequence)
 class HomeViewModel: ObservableObject {     @Observable class HomeViewModel {
     @Published var items = []                   var items = []
     @Published var isLoading = false             var isLoading = false
@@ -182,7 +182,7 @@ favoritesService.favoritesDidChange         let stream = favoritesService.favori
                                             }}
 ```
 
-See the [`async-sequence-migration`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence-migration) branch for the complete migration ([PR #2](https://github.com/g-enius/Fun-iOS/pull/2)).
+See the [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) branch for the complete migration ([PR #2](https://github.com/g-enius/Fun-iOS/pull/2)).
 
 ## Testing
 
