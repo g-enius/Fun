@@ -4,7 +4,7 @@
 
 A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
 
-> **This is the `feature/async-sequence-migration` branch** — zero Combine, pure AsyncSequence + @Observable (iOS 17+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`swiftui-navigation`](https://github.com/g-enius/Fun-iOS/tree/feature/swiftui-navigation) for the iOS 16+ Combine version.
+> **This is the `feature/async-sequence` branch** — zero Combine, pure AsyncSequence + @Observable (iOS 17+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`swiftui-navigation`](https://github.com/g-enius/Fun-iOS/tree/feature/swiftui-navigation) for the iOS 16+ Combine version.
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
