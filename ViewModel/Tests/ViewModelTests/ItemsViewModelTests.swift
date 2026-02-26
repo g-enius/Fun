@@ -305,7 +305,7 @@ struct ItemsViewModelTests {
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        // Poll until the search task completes (mock throws instantly, but Task scheduling varies)
+        // Poll until the search task completes
         for _ in 0..<20 {
             try await Task.sleep(nanoseconds: 100_000_000)
             if viewModel.hasError { break }
