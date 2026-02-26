@@ -39,7 +39,6 @@ public final class DetailViewController: UIViewController {
 
     override public func viewDidLoad() {
         super.viewDidLoad()
-        title = viewModel.itemTitle
         setupNavigationBar()
         observeFavoriteState()
         embedSwiftUIView(DetailView(viewModel: viewModel))

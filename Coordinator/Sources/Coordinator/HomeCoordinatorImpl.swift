@@ -18,11 +18,7 @@ public final class HomeCoordinatorImpl: BaseCoordinator {
     /// Callback to notify parent coordinator of logout
     public var onLogout: (() -> Void)?
 
-    // MARK: - Child Coordinators
-
-    // Store to prevent deallocation, ViewModels hold weak refs
-    private var detailCoordinator: DetailCoordinatorImpl?
-    private var profileCoordinator: ProfileCoordinatorImpl?
+    private var isShowingDetail = false
 
     override public func start() {
         let viewModel = HomeViewModel(coordinator: self)
@@ -36,39 +32,30 @@ public final class HomeCoordinatorImpl: BaseCoordinator {
 extension HomeCoordinatorImpl: HomeCoordinator {
 
     public func showDetail(for item: FeaturedItem) {
-        guard detailCoordinator == nil else { return }
+        guard !isShowingDetail else { return }
+        isShowingDetail = true
 
-        let coordinator = DetailCoordinatorImpl(
-            navigationController: navigationController
-        )
-        coordinator.onPop = { [weak self] in
-            self?.detailCoordinator = nil
-        }
-        detailCoordinator = coordinator
+        let viewModel = DetailViewModel(item: item)
+        viewModel.onPop = { [weak self] in self?.isShowingDetail = false }
+        viewModel.onShare = { [weak self] text in self?.share(text: text) }
 
-        let viewModel = DetailViewModel(
-            item: item,
-            coordinator: coordinator
-        )
         let viewController = DetailViewController(viewModel: viewModel)
         safePush(viewController)
     }
 
     public func showProfile() {
-        guard profileCoordinator == nil else { return }
-
         let profileNavController = UINavigationController()
-        let coordinator = ProfileCoordinatorImpl(navigationController: profileNavController)
-        coordinator.onDismiss = { [weak self] in
-            self?.profileCoordinator = nil
-        }
-        coordinator.onLogout = { [weak self] in
-            self?.profileCoordinator = nil
-            self?.onLogout?()
-        }
-        profileCoordinator = coordinator
 
-        let viewModel = ProfileViewModel(coordinator: coordinator)
+        let viewModel = ProfileViewModel()
+        viewModel.onDismiss = { [weak self] in self?.safeDismiss() }
+        viewModel.onLogout = { [weak self] in self?.safeDismiss { self?.onLogout?() } }
+        viewModel.onGoToItems = { [weak self] in
+            self?.safeDismiss()
+            if let url = URL(string: "funapp://tab/items") {
+                UIApplication.shared.open(url)
+            }
+        }
+
         let viewController = ProfileViewController(viewModel: viewModel)
         profileNavController.setViewControllers([viewController], animated: false)
 

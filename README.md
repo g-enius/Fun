@@ -28,7 +28,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
 |---|---|---|---|
 | **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
-| **Navigation** | **UIKit** | **SwiftUI** | ← same |
+| **Navigation** | **UIKit** + 3 tab coordinators | **SwiftUI** | ← same |
 | **Reactive** | **Combine** | ← same | **AsyncSequence** [![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
 | **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
 | **View binding** | `@ObservedObject` | ← same | **@Bindable** / **@State** |
@@ -49,7 +49,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Navigation stack | `UINavigationController` | `NavigationStack` + `NavigationPath` |
 | Push navigation | `pushViewController(_:animated:)` | `path.append(item)` |
 | Modal presentation | `present(_:animated:)` | `.sheet(isPresented:)` |
-| Coordinator → ViewModel | `weak var coordinator: HomeCoordinator?` | Closures: `var onShowDetail: ((FeaturedItem) -> Void)?` |
+| Coordinator → ViewModel | `weak var coordinator` + closures | Closures only |
 | Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
 | Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
 
@@ -139,13 +139,12 @@ All services defined as protocols in `Model`, implementations in `Services`.
 ```
 AppCoordinator
 ├── LoginCoordinator
-├── HomeCoordinator
-│   ├── DetailCoordinator
-│   └── ProfileCoordinator (modal)
-├── ItemsCoordinator
-│   └── DetailCoordinator
+├── HomeCoordinator (detail + profile screens)
+├── ItemsCoordinator (detail screens)
 └── SettingsCoordinator
 ```
+
+3 tab coordinators handle all screens in their navigation stack directly. ViewModels use closures (`onPop`, `onShare`, `onDismiss`) instead of coordinator protocols.
 
 `AppCoordinator` manages login/main flow transitions with session lifecycle.
 

@@ -42,7 +42,7 @@ struct DetailViewModelTests {
     func testInitialStateMatchesItem() async {
         setupServices()
         let item = testItem
-        let viewModel = DetailViewModel(item: item, coordinator: nil)
+        let viewModel = DetailViewModel(item: item)
 
         #expect(viewModel.itemTitle == item.title)
         #expect(viewModel.category == item.category)
@@ -53,7 +53,7 @@ struct DetailViewModelTests {
     func testIsFavoritedTrue() async {
         let item = testItem
         setupServices(initialFavorites: [item.id])
-        let viewModel = DetailViewModel(item: item, coordinator: nil)
+        let viewModel = DetailViewModel(item: item)
 
         #expect(viewModel.isFavorited == true)
     }
@@ -61,7 +61,7 @@ struct DetailViewModelTests {
     @Test("isFavorited is false when item is not in favorites")
     func testIsFavoritedFalse() async {
         setupServices(initialFavorites: [])
-        let viewModel = DetailViewModel(item: testItem, coordinator: nil)
+        let viewModel = DetailViewModel(item: testItem)
 
         #expect(viewModel.isFavorited == false)
     }
@@ -71,7 +71,7 @@ struct DetailViewModelTests {
     @Test("didTapToggleFavorite adds item to favorites")
     func testToggleFavoriteAdds() async {
         setupServices(initialFavorites: [])
-        let viewModel = DetailViewModel(item: testItem, coordinator: nil)
+        let viewModel = DetailViewModel(item: testItem)
 
         #expect(viewModel.isFavorited == false)
 
@@ -87,7 +87,7 @@ struct DetailViewModelTests {
     func testToggleFavoriteRemoves() async {
         let item = testItem
         setupServices(initialFavorites: [item.id])
-        let viewModel = DetailViewModel(item: item, coordinator: nil)
+        let viewModel = DetailViewModel(item: item)
 
         #expect(viewModel.isFavorited == true)
 
@@ -108,7 +108,7 @@ struct DetailViewModelTests {
         ServiceLocator.shared.register(mockFavorites, for: .favorites)
 
         let item = testItem
-        let viewModel = DetailViewModel(item: item, coordinator: nil)
+        let viewModel = DetailViewModel(item: item)
 
         #expect(viewModel.isFavorited == false)
 
@@ -123,36 +123,40 @@ struct DetailViewModelTests {
 
     // MARK: - Share Tests
 
-    @Test("didTapShare calls coordinator share")
-    func testDidTapShareCallsCoordinator() async {
+    @Test("didTapShare calls onShare with item title")
+    func testDidTapShareCallsOnShare() async {
         setupServices()
-        let coordinator = MockDetailCoordinator()
-        let viewModel = DetailViewModel(item: testItem, coordinator: coordinator)
+        let viewModel = DetailViewModel(item: testItem)
+
+        var shareCalled = false
+        var shareText: String?
+        viewModel.onShare = { text in shareCalled = true; shareText = text }
 
         viewModel.didTapShare()
 
-        #expect(coordinator.shareCalled == true)
-        #expect(coordinator.lastShareText != nil)
-        #expect(coordinator.lastShareText?.contains(testItem.title) == true)
+        #expect(shareCalled == true)
+        #expect(shareText?.contains(testItem.title) == true)
     }
 
     // MARK: - Back Navigation Tests
 
-    @Test("handleBackNavigation calls coordinator didPop")
-    func testHandleBackNavigationCallsCoordinator() async {
+    @Test("handleBackNavigation calls onPop")
+    func testHandleBackNavigationCallsOnPop() async {
         setupServices()
-        let coordinator = MockDetailCoordinator()
-        let viewModel = DetailViewModel(item: testItem, coordinator: coordinator)
+        let viewModel = DetailViewModel(item: testItem)
+
+        var popCalled = false
+        viewModel.onPop = { popCalled = true }
 
         viewModel.handleBackNavigation()
 
-        #expect(coordinator.didPopCalled == true)
+        #expect(popCalled == true)
     }
 
-    @Test("handleBackNavigation with nil coordinator does not crash")
-    func testHandleBackNavigationWithNilCoordinator() async {
+    @Test("handleBackNavigation with nil closure does not crash")
+    func testHandleBackNavigationWithNilClosure() async {
         setupServices()
-        let viewModel = DetailViewModel(item: testItem, coordinator: nil)
+        let viewModel = DetailViewModel(item: testItem)
 
         viewModel.handleBackNavigation() // Should not crash
     }
@@ -165,7 +169,7 @@ struct DetailViewModelTests {
 
         let items: [FeaturedItem] = [.swiftUI, .combine, .mvvm, .coordinator]
         for item in items {
-            let viewModel = DetailViewModel(item: item, coordinator: nil)
+            let viewModel = DetailViewModel(item: item)
             #expect(viewModel.itemTitle == item.title)
             #expect(viewModel.category == item.category)
         }
@@ -178,7 +182,7 @@ struct DetailViewModelTests {
         let aiService = MockAIService(isAvailable: true)
         let featureToggle = MockFeatureToggleService(aiSummary: true)
         setupServices(aiService: aiService, featureToggleService: featureToggle)
-        let viewModel = DetailViewModel(item: testItem, coordinator: nil)
+        let viewModel = DetailViewModel(item: testItem)
 
         #expect(viewModel.showAISummary == true)
     }
@@ -188,7 +192,7 @@ struct DetailViewModelTests {
         let aiService = MockAIService(isAvailable: true)
         let featureToggle = MockFeatureToggleService(aiSummary: false)
         setupServices(aiService: aiService, featureToggleService: featureToggle)
-        let viewModel = DetailViewModel(item: testItem, coordinator: nil)
+        let viewModel = DetailViewModel(item: testItem)
 
         #expect(viewModel.showAISummary == false)
     }
@@ -198,7 +202,7 @@ struct DetailViewModelTests {
         let aiService = MockAIService(isAvailable: false)
         let featureToggle = MockFeatureToggleService(aiSummary: true)
         setupServices(aiService: aiService, featureToggleService: featureToggle)
-        let viewModel = DetailViewModel(item: testItem, coordinator: nil)
+        let viewModel = DetailViewModel(item: testItem)
 
         #expect(viewModel.showAISummary == false)
     }
@@ -207,7 +211,7 @@ struct DetailViewModelTests {
     func testGenerateSummarySetsText() async {
         let aiService = MockAIService(stubbedSummary: "Test summary result")
         setupServices(aiService: aiService)
-        let viewModel = DetailViewModel(item: testItem, coordinator: nil)
+        let viewModel = DetailViewModel(item: testItem)
 
         await viewModel.generateSummary()
 
@@ -221,7 +225,7 @@ struct DetailViewModelTests {
     func testGenerateSummaryHandlesErrors() async {
         let aiService = MockAIService(shouldThrowError: true)
         setupServices(aiService: aiService)
-        let viewModel = DetailViewModel(item: testItem, coordinator: nil)
+        let viewModel = DetailViewModel(item: testItem)
 
         await viewModel.generateSummary()
 
@@ -234,7 +238,7 @@ struct DetailViewModelTests {
     func testIsSummarizingStateAfterCompletion() async {
         let aiService = MockAIService(stubbedSummary: "Summary")
         setupServices(aiService: aiService)
-        let viewModel = DetailViewModel(item: testItem, coordinator: nil)
+        let viewModel = DetailViewModel(item: testItem)
 
         #expect(viewModel.isSummarizing == false)
 

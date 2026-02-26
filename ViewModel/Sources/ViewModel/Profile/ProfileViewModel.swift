@@ -13,9 +13,11 @@ import FunModel
 @MainActor
 public class ProfileViewModel: ObservableObject {
 
-    // MARK: - Coordinator
+    // MARK: - Navigation Closures
 
-    private weak var coordinator: ProfileCoordinator?
+    public var onDismiss: (() -> Void)?
+    public var onLogout: (() -> Void)?
+    public var onGoToItems: (() -> Void)?
 
     // MARK: - Services
 
@@ -32,8 +34,7 @@ public class ProfileViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(coordinator: ProfileCoordinator?, profile: UserProfile = .demo) {
-        self.coordinator = coordinator
+    public init(profile: UserProfile = .demo) {
         self.userName = profile.name
         self.userEmail = profile.email
         self.userBio = profile.bio
@@ -46,24 +47,15 @@ public class ProfileViewModel: ObservableObject {
 
     public func didTapGoToItems() {
         logger.log("Go to Items tapped from Profile")
-        coordinator?.dismiss()
-        // Use deep link to switch to Items tab (decoupled navigation)
-        if let url = URL(string: "funapp://tab/items") {
-            coordinator?.openURL(url)
-        }
+        onGoToItems?()
     }
 
     public func didTapDismiss() {
-        coordinator?.dismiss()
+        onDismiss?()
     }
 
     public func logout() {
         logger.log("User tapped logout from Profile", level: .info, category: .general)
-        coordinator?.logout()
-    }
-
-    /// Called when the modal was dismissed by swipe-down gesture
-    public func handleInteractiveDismiss() {
-        coordinator?.didDismiss()
+        onLogout?()
     }
 }

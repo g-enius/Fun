@@ -13,9 +13,7 @@ import FunViewModel
 
 public final class ItemsCoordinatorImpl: BaseCoordinator {
 
-    // MARK: - Child Coordinators
-
-    private var detailCoordinator: DetailCoordinatorImpl?
+    private var isShowingDetail = false
 
     override public func start() {
         let viewModel = ItemsViewModel(coordinator: self)
@@ -29,20 +27,13 @@ public final class ItemsCoordinatorImpl: BaseCoordinator {
 extension ItemsCoordinatorImpl: ItemsCoordinator {
 
     public func showDetail(for item: FeaturedItem) {
-        guard detailCoordinator == nil else { return }
+        guard !isShowingDetail else { return }
+        isShowingDetail = true
 
-        let coordinator = DetailCoordinatorImpl(
-            navigationController: navigationController
-        )
-        coordinator.onPop = { [weak self] in
-            self?.detailCoordinator = nil
-        }
-        detailCoordinator = coordinator
+        let viewModel = DetailViewModel(item: item)
+        viewModel.onPop = { [weak self] in self?.isShowingDetail = false }
+        viewModel.onShare = { [weak self] text in self?.share(text: text) }
 
-        let viewModel = DetailViewModel(
-            item: item,
-            coordinator: coordinator
-        )
         let viewController = DetailViewController(viewModel: viewModel)
         safePush(viewController)
     }

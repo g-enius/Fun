@@ -31,7 +31,7 @@ struct ProfileViewModelTests {
 
     @Test("Initial state matches demo profile")
     func testInitialState() async {
-        let viewModel = ProfileViewModel(coordinator: nil)
+        let viewModel = ProfileViewModel()
 
         #expect(viewModel.userName == UserProfile.demo.name)
         #expect(viewModel.userEmail == UserProfile.demo.email)
@@ -44,7 +44,7 @@ struct ProfileViewModelTests {
     @Test("Custom profile values are used")
     func testCustomProfileValues() async {
         let profile = UserProfile(name: "Test", email: "test@test.com", bio: "Bio", viewsCount: 1, favoritesCount: 2, daysCount: 3)
-        let viewModel = ProfileViewModel(coordinator: nil, profile: profile)
+        let viewModel = ProfileViewModel(profile: profile)
 
         #expect(viewModel.userName == "Test")
         #expect(viewModel.userEmail == "test@test.com")
@@ -53,51 +53,43 @@ struct ProfileViewModelTests {
 
     // MARK: - Dismiss Tests
 
-    @Test("Dismiss calls coordinator dismiss")
-    func testDismissCallsCoordinator() async {
-        let coordinator = MockProfileCoordinator()
-        let viewModel = ProfileViewModel(coordinator: coordinator)
+    @Test("Dismiss calls onDismiss")
+    func testDismissCallsOnDismiss() async {
+        let viewModel = ProfileViewModel()
+
+        var dismissCalled = false
+        viewModel.onDismiss = { dismissCalled = true }
 
         viewModel.didTapDismiss()
 
-        #expect(coordinator.dismissCalled == true)
+        #expect(dismissCalled == true)
     }
 
     // MARK: - Logout Tests
 
-    @Test("Logout calls coordinator logout")
-    func testLogoutCallsCoordinator() async {
-        let coordinator = MockProfileCoordinator()
-        let viewModel = ProfileViewModel(coordinator: coordinator)
+    @Test("Logout calls onLogout")
+    func testLogoutCallsOnLogout() async {
+        let viewModel = ProfileViewModel()
+
+        var logoutCalled = false
+        viewModel.onLogout = { logoutCalled = true }
 
         viewModel.logout()
 
-        #expect(coordinator.logoutCalled == true)
-    }
-
-    // MARK: - Interactive Dismiss Tests
-
-    @Test("Interactive dismiss calls coordinator didDismiss")
-    func testInteractiveDismissCallsCoordinator() async {
-        let coordinator = MockProfileCoordinator()
-        let viewModel = ProfileViewModel(coordinator: coordinator)
-
-        viewModel.handleInteractiveDismiss()
-
-        #expect(coordinator.didDismissCalled == true)
+        #expect(logoutCalled == true)
     }
 
     // MARK: - Go to Items Tests
 
-    @Test("didTapGoToItems calls coordinator dismiss and openURL")
-    func testDidTapGoToItemsCallsCoordinator() async {
-        let coordinator = MockProfileCoordinator()
-        let viewModel = ProfileViewModel(coordinator: coordinator)
+    @Test("didTapGoToItems calls onGoToItems")
+    func testDidTapGoToItemsCallsOnGoToItems() async {
+        let viewModel = ProfileViewModel()
+
+        var goToItemsCalled = false
+        viewModel.onGoToItems = { goToItemsCalled = true }
 
         viewModel.didTapGoToItems()
 
-        #expect(coordinator.dismissCalled == true)
-        #expect(coordinator.openURLCalled == true)
-        #expect(coordinator.lastOpenedURL?.absoluteString == "funapp://tab/items")
+        #expect(goToItemsCalled == true)
     }
 }

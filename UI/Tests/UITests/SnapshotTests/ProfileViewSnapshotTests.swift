@@ -29,7 +29,7 @@ final class ProfileViewSnapshotTests: XCTestCase {
     private var recording: Bool { false }
 
     func testProfileView_defaultState() {
-        let viewModel = ProfileViewModel(coordinator: nil)
+        let viewModel = ProfileViewModel()
 
         let view = ProfileView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -39,7 +39,7 @@ final class ProfileViewSnapshotTests: XCTestCase {
     }
 
     func testProfileView_darkMode() {
-        let viewModel = ProfileViewModel(coordinator: nil)
+        let viewModel = ProfileViewModel()
 
         let view = ProfileView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)

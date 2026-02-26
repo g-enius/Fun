@@ -32,7 +32,7 @@ final class DetailViewSnapshotTests: XCTestCase {
     private var recording: Bool { false }
 
     func testDetailView_defaultState() {
-        let viewModel = DetailViewModel(item: .asyncAwait, coordinator: nil)
+        let viewModel = DetailViewModel(item: .asyncAwait)
 
         let view = DetailView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -42,7 +42,7 @@ final class DetailViewSnapshotTests: XCTestCase {
     }
 
     func testDetailView_favorited() {
-        let viewModel = DetailViewModel(item: .asyncAwait, coordinator: nil)
+        let viewModel = DetailViewModel(item: .asyncAwait)
         viewModel.isFavorited = true
 
         let view = DetailView(viewModel: viewModel)
@@ -53,7 +53,7 @@ final class DetailViewSnapshotTests: XCTestCase {
     }
 
     func testDetailView_darkMode() {
-        let viewModel = DetailViewModel(item: .swiftUI, coordinator: nil)
+        let viewModel = DetailViewModel(item: .swiftUI)
 
         let view = DetailView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)

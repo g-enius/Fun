@@ -50,6 +50,6 @@ public final class ProfileViewController: UIViewController {
 extension ProfileViewController: UIAdaptivePresentationControllerDelegate {
 
     public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        viewModel.handleInteractiveDismiss()
+        viewModel.didTapDismiss()
     }
 }

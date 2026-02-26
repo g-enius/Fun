@@ -117,16 +117,13 @@ public enum TechnologyDescriptions {
 
         • BaseCoordinator with safe navigation methods
         • Prevents duplicate pushes and handles transitions
-        • Child coordinator management for modal flows
-        • Clean separation of navigation from ViewModels
+        • 3 tab coordinators handle all screens in their stack directly
+        • ViewModels use closures (onPop, onShare, onDismiss) instead of coordinator protocols
 
         Structure:
         AppCoordinator
-        ├── HomeCoordinatorImpl
-        │   ├── DetailCoordinatorImpl
-        │   └── ProfileCoordinatorImpl
-        ├── ItemsCoordinatorImpl
-        │   └── DetailCoordinatorImpl
+        ├── HomeCoordinatorImpl (detail + profile screens)
+        ├── ItemsCoordinatorImpl (detail screens)
         └── SettingsCoordinatorImpl
         """
 
