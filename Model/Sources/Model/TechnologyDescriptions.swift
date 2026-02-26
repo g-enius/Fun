@@ -330,8 +330,8 @@ public enum TechnologyDescriptions {
 
         Three branches demonstrate progressive iOS version requirements:
         • main: iOS 15+ (UIKit navigation + Combine)
-        • swiftui-navigation: iOS 16+ (SwiftUI NavigationStack + Combine)
-        • async-sequence-migration: iOS 17+ (AsyncStream + @Observable, zero Combine)
+        • navigation-stack: iOS 16+ (SwiftUI NavigationStack + Combine)
+        • async-sequence: iOS 17+ (AsyncStream + @Observable, zero Combine)
 
         Choose the branch that matches your app's deployment target.
         """

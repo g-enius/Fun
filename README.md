@@ -2,7 +2,14 @@
 
 [![CI](https://github.com/g-enius/Fun-iOS/actions/workflows/ci.yml/badge.svg)](https://github.com/g-enius/Fun-iOS/actions/workflows/ci.yml)
 
-A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development. Three branches show progressive modernization from UIKit+Combine (iOS 15) → SwiftUI Navigation (iOS 16) → AsyncSequence+@Observable (iOS 17). Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
+A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
+
+Three branches show progressive modernization:
+- UIKit + Combine (iOS 15+) — [`main`](https://github.com/g-enius/Fun-iOS/tree/main)
+- SwiftUI Navigation (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack)
+- AsyncSequence + @Observable (iOS 17+) — [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence)
+
+Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
 ## Screenshots
 
@@ -16,17 +23,17 @@ A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concur
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Language | Swift 6.0 |
-| UI Framework | SwiftUI + UIKit |
-| Reactive & Concurrency | Combine, Swift Concurrency (async/await) |
-| Architecture | MVVM + Coordinator |
-| Dependency Injection | Session-Scoped DI + Property Wrapper |
-| Package Management | Swift Package Manager |
-| Minimum iOS | iOS 15.0 |
-| On-Device LLM | Apple Intelligence / Foundation Models (iOS 26+) |
-| Testing | Swift Testing, swift-snapshot-testing |
+| | `main` | `navigation-stack` | `async-sequence` |
+|--|--------|----------------------|------------------|
+| **Deployment** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
+| **UI** | **SwiftUI&nbsp;+&nbsp;UIKit** | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) |
+| **Reactive** | **Combine** | ← same | **AsyncSequence**&nbsp;[![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
+| **ViewModel** | **ObservableObject** | ← same | **@Observable** |
+| Architecture | MVVM&nbsp;+&nbsp;Coordinator | ← same | ← same |
+| Language | Swift 6.0 | ← same | ← same |
+| DI | Session-Scoped&nbsp;+&nbsp;@Service | ← same | ← same |
+| LLM | Foundation&nbsp;Models&nbsp;(iOS&nbsp;26+) | ← same | ← same |
+| Testing | Swift&nbsp;Testing,&nbsp;swift-snapshot-testing | ← same | ← same |
 
 ## Module Structure
 
@@ -52,6 +59,7 @@ FunApp → Coordinator → UI → ViewModel → Model → Core
 ## Key Patterns
 
 ### MVVM + Coordinator
+- **Model**: Data models, protocols, domain logic
 - **ViewModel**: Business logic, state management
 - **View**: Pure UI (SwiftUI)
 - **Coordinator**: Navigation flow, screen transitions
@@ -136,7 +144,7 @@ Deep links received during login are queued and executed after authentication.
 
 Three branches demonstrate progressive modernization — same app, three architectural approaches. Choose based on your minimum iOS target.
 
-| | `main` | [`swiftui-navigation`](https://github.com/g-enius/Fun-iOS/tree/feature/swiftui-navigation) | [`async-sequence-migration`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence-migration) |
+| | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
 |---|---|---|---|
 | **Minimum iOS** | **15.0** | **16.0** | **17.0** |
 | Navigation | UIKit (`UINavigationController`) | SwiftUI (`NavigationStack`) | SwiftUI (`NavigationStack`) |
@@ -156,12 +164,12 @@ All three produce **visually identical** apps — same screens, same behavior, s
 | Branch | Best for |
 |--------|----------|
 | `main` | Apps supporting **iOS 15+**. UIKit navigation is battle-tested and gives full transition control. Combine is stable and well-understood. |
-| `swiftui-navigation` | Apps on **iOS 16+**. Drops 30 files and ~1,150 lines of coordinator boilerplate. Same Combine reactive layer. |
-| `async-sequence-migration` | Apps on **iOS 17+**. Zero Combine dependency. Modern Swift Concurrency throughout — `AsyncStream` for events, `@Observable` for state, Task cancellation for lifecycle. |
+| `navigation-stack` | Apps on **iOS 16+**. Drops 30 files and ~1,150 lines of coordinator boilerplate. Same Combine reactive layer. |
+| `async-sequence` | Apps on **iOS 17+**. 🚫 Combine dependency. Modern Swift Concurrency throughout — `AsyncStream` for events, `@Observable` for state, Task cancellation for lifecycle. |
 
 ### Navigation: UIKit vs SwiftUI
 
-| Aspect | `main` (UIKit) | `swiftui-navigation` / `async-sequence-migration` (SwiftUI) |
+| Aspect | `main` (UIKit) | `navigation-stack` / `async-sequence` (SwiftUI) |
 |--------|---------------|--------------------------------------------------------------|
 | App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
 | Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
@@ -174,7 +182,7 @@ All three produce **visually identical** apps — same screens, same behavior, s
 
 ### Reactive State: Combine vs AsyncSequence
 
-| Aspect | `main` / `swiftui-navigation` (Combine) | `async-sequence-migration` (AsyncSequence) |
+| Aspect | `main` / `navigation-stack` (Combine) | `async-sequence` (AsyncSequence) |
 |--------|----------------------------------------|---------------------------------------------|
 | Service publisher | `AnyPublisher<Set<String>, Never>` | `AsyncStream<Set<String>>` |
 | Multi-consumer | `CurrentValueSubject` / `PassthroughSubject` | `StreamBroadcaster` (custom, in Core) |
@@ -184,7 +192,7 @@ All three produce **visually identical** apps — same screens, same behavior, s
 | Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
 | ViewModel observation | `ObservableObject` (per-object invalidation) | `@Observable` (per-property tracking) |
 
-### Migration stats (main → swiftui-navigation)
+### Migration stats (main → navigation-stack)
 
 | Metric | Value |
 |--------|-------|
@@ -192,7 +200,7 @@ All three produce **visually identical** apps — same screens, same behavior, s
 | Files deleted | 30 (coordinators, VCs, protocols, mocks) |
 | Net reduction | **~1,100 lines** |
 
-### Migration stats (swiftui-navigation → async-sequence-migration)
+### Migration stats (navigation-stack → async-sequence)
 
 | Metric | Value |
 |--------|-------|

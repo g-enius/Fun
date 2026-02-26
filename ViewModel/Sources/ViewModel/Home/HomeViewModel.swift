@@ -39,7 +39,7 @@ import FunModel
 //         }
 //     }
 //
-// See feature/async-sequence-migration for the full implementation.
+// See feature/async-sequence for the full implementation.
 
 @MainActor
 public class HomeViewModel: ObservableObject {

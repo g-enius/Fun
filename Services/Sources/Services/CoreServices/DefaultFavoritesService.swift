@@ -50,7 +50,7 @@ public final class DefaultFavoritesService: FavoritesServiceProtocol {
     // CurrentValueSubject where all subscribers share one publisher. Each consumer's
     // stream is cleaned up automatically when the consuming Task is cancelled.
     //
-    // See Core/Sources/Core/StreamBroadcaster.swift on feature/async-sequence-migration.
+    // See Core/Sources/Core/StreamBroadcaster.swift on feature/async-sequence.
 
     public init() {
         let loaded: Set<String>

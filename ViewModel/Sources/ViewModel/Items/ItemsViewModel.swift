@@ -120,7 +120,7 @@ public class ItemsViewModel: ObservableObject {
         // - No .removeDuplicates() needed — didSet only fires on actual assignment
         // - Task.cancel() handles debounce reset automatically
         //
-        // See feature/async-sequence-migration for the full implementation.
+        // See feature/async-sequence for the full implementation.
     }
 
     private func observeFavoritesChanges() {
