@@ -4,7 +4,7 @@
 
 A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
 
-> **This is the `feature/swiftui-navigation` branch** — pure SwiftUI navigation (iOS 16+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) for the Combine-free iOS 17+ version.
+> **This is the `feature/navigation-stack` branch** — pure SwiftUI navigation (iOS 16+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) for the Combine-free iOS 17+ version.
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
