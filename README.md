@@ -4,7 +4,10 @@
 
 A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
 
-> **This is the `feature/navigation-stack` branch** — pure SwiftUI navigation (iOS 16+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) for the Combine-free iOS 17+ version.
+Three branches show progressive modernization:
+- UIKit + SwiftUI + Combine (iOS 15+) — [`main`](https://github.com/g-enius/Fun-iOS/tree/main)
+- Pure SwiftUI + Combine (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) - [PR](https://github.com/g-enius/Fun-iOS/pull/3)
+- Pure SwiftUI + AsyncSequence (iOS 17+) — [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) - [PR](https://github.com/g-enius/Fun-iOS/pull/4)
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
@@ -18,20 +21,69 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
 ![App Demo](assets/demo.gif)
 
-## Tech Stack
+## Tech Stack & Branch Comparison
 
-| Category | Technology |
-|----------|------------|
-| Language | Swift 6.0 |
-| UI Framework | SwiftUI (pure — no UIKit navigation) |
-| Reactive & Concurrency | Combine, Swift Concurrency (async/await) |
-| Architecture | MVVM + Coordinator (single `AppCoordinator`) |
-| Navigation | `NavigationStack` + `NavigationPath` |
-| Dependency Injection | Session-Scoped DI + Property Wrapper |
-| Package Management | Swift Package Manager |
-| Minimum iOS | iOS 16.0 |
-| On-Device LLM | Apple Intelligence / Foundation Models (iOS 26+) |
-| Testing | Swift Testing, swift-snapshot-testing |
+Three branches demonstrate progressive modernization — same app, three architectural approaches. Choose based on your minimum iOS target. All three produce **visually identical** apps.
+
+| | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
+|---|---|---|---|
+| **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
+| **UI framework** | **UIKit + SwiftUI** | **SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
+| **Reactive** | **Combine** | ← same | **AsyncSequence** [![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
+| **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
+| **View binding** | `@ObservedObject` | ← same | **@Bindable** / **@State** |
+| **Service events** | `AnyPublisher` + `Subject` | ← same | **AsyncStream** + **StreamBroadcaster** |
+| Architecture | MVVM + Coordinator | ← same | ← same |
+| Coordinator → ViewModel | Closures | ← same | ← same |
+| Language | Swift 6.0 | ← same | ← same |
+| DI | Session-Scoped + @Service | ← same | ← same |
+| LLM | Foundation Models (iOS 26+) | ← same | ← same |
+| Testing | Swift Testing, swift-snapshot-testing | ← same | ← same |
+
+### UIKit + SwiftUI vs Pure SwiftUI
+
+| Aspect | `main` (UIKit + SwiftUI) | `navigation-stack`&nbsp;/&nbsp;`async-sequence`&nbsp;(Pure&nbsp;SwiftUI) |
+|--------|--------------------------|------------------------------------------------------|
+| App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
+| Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
+| Navigation stack | `UINavigationController` | `NavigationStack` + `NavigationPath` |
+| Push navigation | `pushViewController(_:animated:)` | `path.append(item)` |
+| Modal presentation | `present(_:animated:)` | `.sheet(isPresented:)` |
+| Views | SwiftUI hosted in `UIHostingController` | Native SwiftUI views |
+| View controllers | UIKit VCs wrap SwiftUI views | None |
+| Coordinators | Multiple `TabCoordinator`s | Single `AppCoordinator` (ObservableObject) |
+| Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
+| Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
+
+### Reactive State: Combine vs AsyncSequence
+
+| Aspect | `main` / `navigation-stack` (Combine) | `async-sequence` (AsyncSequence) |
+|--------|----------------------------------------|---------------------------------------------|
+| Service publisher | `AnyPublisher<Set<String>, Never>` | `AsyncStream<Set<String>>` |
+| Multi-consumer | `CurrentValueSubject` / `PassthroughSubject` | `StreamBroadcaster` (custom, in Core) |
+| Subscribe | `.sink { }.store(in: &cancellables)` | <code>Task&nbsp;{&nbsp;for&nbsp;await&nbsp;value&nbsp;in&nbsp;stream&nbsp;{&nbsp;}&nbsp;}</code> |
+| Lifecycle cleanup | `Set<AnyCancellable>` + `cancellables = []` | Task cancellation (`task.cancel()`) |
+| Debounced search | `.debounce(for:scheduler:)` operator | `didSet` + `Task.sleep` with cancellation |
+| Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
+| ViewModel observation | `ObservableObject`<br>(**per-object invalidation**) | `@Observable`<br>(**per-property tracking**) |
+
+### Migration stats (UIKit+SwiftUI → Pure SwiftUI)
+
+| Metric | Value |
+|--------|-------|
+| Files added | 6 |
+| Files deleted | 17 (coordinators, VCs, UIKit extensions) |
+| Net reduction | **~880 lines** |
+| `import UIKit` remaining | 0 |
+
+### Migration stats (Combine → AsyncSequence)
+
+| Metric | Value |
+|--------|-------|
+| Files changed | 55 (49 modified + 1 new + 5 deleted) |
+| Lines added | 694 |
+| Lines removed | 591 |
+| `import Combine` remaining | 0 |
 
 ## Module Structure
 
@@ -39,7 +91,7 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 Fun-iOS/
 ├── FunApp/         # iOS app target (Xcode project)
 ├── Coordinator/    # Navigation coordinators
-├── UI/             # SwiftUI views
+├── UI/             # SwiftUI views & UIKit controllers
 ├── ViewModel/      # Business logic (MVVM)
 ├── Model/          # Data models & protocols
 ├── Services/       # Concrete service implementations
@@ -81,6 +133,7 @@ Modules only import from layers below them.
 ## Key Patterns
 
 ### MVVM + Coordinator
+- **Model**: Data models, protocols, domain logic
 - **ViewModel**: Business logic, state management
 - **View**: Pure UI (SwiftUI)
 - **Coordinator**: Navigation flow, screen transitions
@@ -108,9 +161,19 @@ protocol Session: AnyObject {
 ### Protocol-Oriented Design
 All services defined as protocols in `Model`, implementations in `Services`.
 
-### Single Coordinator
+### Coordinator Hierarchy
 
-A single `AppCoordinator: ObservableObject` replaces the UIKit branch's 8-class coordinator hierarchy. It owns `NavigationPath` per tab and manages login/main flow transitions with session lifecycle. ViewModels receive navigation closures instead of coordinator protocol references.
+```
+AppCoordinator
+├── LoginCoordinator
+├── HomeCoordinator (detail + profile screens)
+├── ItemsCoordinator (detail screens)
+└── SettingsCoordinator
+```
+
+3 tab coordinators handle all screens in their navigation stack directly. ViewModels communicate via closures (`onShowDetail`, `onShowProfile`, `onPop`, `onShare`, `onDismiss`, `onLogin`) — no coordinator protocols.
+
+`AppCoordinator` manages login/main flow transitions with session lifecycle.
 
 ### Deep Linking
 
@@ -140,74 +203,6 @@ Deep links received during login are queued and executed after authentication.
 - **Dark Mode & Dynamic Type**: System-adaptive colors, semantic font styles, System/Light/Dark appearance picker
 - **iOS 17+ APIs**: Symbol effects, sensory feedback (backwards compatible)
 
-## What Changed vs `main`
-
-This branch replaces UIKit navigation with pure SwiftUI. See [PR #1](https://github.com/g-enius/Fun-iOS/pull/1) for the full diff, or [`main` README](https://github.com/g-enius/Fun-iOS) for the 3-branch comparison table.
-
-| Metric | Value |
-|--------|-------|
-| Files deleted | 30 (coordinators, protocols, mocks, UIViewControllers) |
-| Net reduction | **~1,100 lines** |
-| Navigation | `UINavigationController` → `NavigationStack` + `NavigationPath` |
-| App entry | `AppDelegate` + `SceneDelegate` → SwiftUI `@main App` |
-| Coordinator | 8-class hierarchy → single `AppCoordinator: ObservableObject` |
-| ViewModel → nav | `weak var coordinator: Protocol?` → closures (`onShowDetail`, etc.) |
-| Deep links | `scene(_:openURLContexts:)` → `.onOpenURL { }` |
-
-### Why NavigationStack + NavigationPath over NavigationLink
-
-This branch uses **programmatic navigation** exclusively — `NavigationStack` with `NavigationPath` managed by the coordinator. `NavigationLink` is deliberately avoided:
-
-- **Navigation belongs in the coordinator, not the view.** `NavigationLink` couples navigation decisions to SwiftUI views, making it hard to trigger navigation from ViewModels, deep links, or programmatic flows.
-- **NavigationLink(isActive:) and NavigationLink(tag:selection:) are deprecated** since iOS 16. Apple replaced them with `navigationDestination(for:)` + `NavigationPath`, which is exactly what this branch uses.
-- **NavigationPath is type-erased and composable.** The coordinator can `path.append(any Hashable)` without Views knowing the destination type. `NavigationLink` requires the destination View at the call site.
-- **Testing is simpler.** Navigation is testable via closures on ViewModels (`onShowDetail`, `onShowProfile`) — no need to tap UI elements.
-
-```swift
-// How navigation works in this branch:
-// 1. View calls ViewModel closure
-viewModel.didTapFeaturedItem(item)
-
-// 2. ViewModel fires navigation closure (set by coordinator)
-onShowDetail?(item)
-
-// 3. Coordinator appends to NavigationPath
-coordinator.homePath.append(item)
-
-// 4. NavigationStack picks up the change via .navigationDestination(for:)
-```
-
-### If you support iOS 17+: how this code evolves
-
-If your deployment target is iOS 17+, you can remove Combine entirely. Here's how each pattern changes:
-
-**ViewModels** — `ObservableObject` + `@Published` → `@Observable`:
-```swift
-// iOS 16 (this branch)                    // iOS 17+ (async-sequence)
-class HomeViewModel: ObservableObject {     @Observable class HomeViewModel {
-    @Published var items = []                   var items = []
-    @Published var isLoading = false             var isLoading = false
-}                                           }
-```
-
-**Views** — `@ObservedObject` / `@StateObject` → `@Bindable` / `@State`:
-```swift
-// iOS 16 (this branch)                    // iOS 17+
-@ObservedObject var viewModel: HomeVM       @Bindable var viewModel: HomeVM
-@StateObject var viewModel = HomeVM()       @State var viewModel = HomeVM()
-```
-
-**Service events** — `AnyPublisher` → `AsyncStream`:
-```swift
-// iOS 16 (this branch)                    // iOS 17+
-favoritesService.favoritesDidChange         let stream = favoritesService.favoritesChanges
-    .sink { self.favoriteIds = $0 }         Task { for await ids in stream {
-    .store(in: &cancellables)                   self.favoriteIds = ids
-                                            }}
-```
-
-See the [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) branch for the complete migration ([PR #2](https://github.com/g-enius/Fun-iOS/pull/2)).
-
 ## Testing
 
 - **Unit Tests**: ViewModels, services, and session lifecycle
@@ -219,7 +214,7 @@ See the [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async
 
 ### Requirements
 - Xcode 16.0+
-- iOS 16.0+
+- iOS 15.0+
 - Swift 6.0
 
 ### Installation
