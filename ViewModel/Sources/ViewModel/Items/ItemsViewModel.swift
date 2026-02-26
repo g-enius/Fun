@@ -73,7 +73,7 @@ public class ItemsViewModel: ObservableObject {
         // Debounce search text with minimum character requirement
         $searchText
             .dropFirst() // Skip initial value
-            .debounce(for: .milliseconds(600), scheduler: DispatchQueue.main)
+            .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] text in
                 guard let self else { return }
