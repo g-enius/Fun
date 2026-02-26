@@ -42,7 +42,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 
 ### UIKit + SwiftUI vs Pure SwiftUI
 
-| Aspect | `main` (UIKit + SwiftUI) | `navigation-stack` / `async-sequence` (Pure SwiftUI) |
+| Aspect | `main` (UIKit + SwiftUI) | `navigation-stack`&nbsp;/&nbsp;`async-sequence`&nbsp;(Pure&nbsp;SwiftUI) |
 |--------|--------------------------|------------------------------------------------------|
 | App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
 | Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
@@ -65,7 +65,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Lifecycle cleanup | `Set<AnyCancellable>` + `cancellables = []` | Task cancellation (`task.cancel()`) |
 | Debounced search | `.debounce(for:scheduler:)` operator | `didSet` + `Task.sleep` with cancellation |
 | Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
-| ViewModel observation | `ObservableObject` (**per-object invalidation**) | `@Observable` (**per-property tracking**) |
+| ViewModel observation | `ObservableObject`&nbsp;(**per-object&nbsp;invalidation**) | `@Observable`&nbsp;(**per-property&nbsp;tracking**) |
 
 ### Migration stats (UIKit+SwiftUI → Pure SwiftUI)
 
