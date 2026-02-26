@@ -6,8 +6,8 @@ A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concur
 
 Three branches show progressive modernization:
 - UIKit + SwiftUI + Combine (iOS 15+) — [`main`](https://github.com/g-enius/Fun-iOS/tree/main)
-- Pure SwiftUI + Combine (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) - [#3](https://github.com/g-enius/Fun-iOS/pull/3)
-- Pure SwiftUI + AsyncSequence (iOS 17+) — [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) - [#4](https://github.com/g-enius/Fun-iOS/pull/4)
+- Pure SwiftUI + Combine (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) - [PR](https://github.com/g-enius/Fun-iOS/pull/3)
+- Pure SwiftUI + AsyncSequence (iOS 17+) — [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) - [PR](https://github.com/g-enius/Fun-iOS/pull/4)
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
