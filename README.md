@@ -148,7 +148,7 @@ This branch removes all Combine in favor of AsyncSequence + @Observable. See [PR
 | Aspect | Before (Combine) | After (AsyncSequence) |
 |--------|-------------------|------------------------|
 | Service events | `AnyPublisher<T, Never>` + `Subject` | `AsyncStream<T>` + `StreamBroadcaster` |
-| Subscribe | `.sink { }.store(in: &cancellables)` | `Task { for await value in stream { } }` |
+| Subscribe | `.sink { }.store(in: &cancellables)` | <code>Task&nbsp;{&nbsp;for&nbsp;await&nbsp;value&nbsp;in&nbsp;stream&nbsp;{&nbsp;}&nbsp;}</code> |
 | ViewModel | `ObservableObject` + `@Published` | `@Observable` macro |
 | View binding | `@ObservedObject` / `@StateObject` | `@Bindable` / `@State` |
 | Coordinator | `AppCoordinator: ObservableObject` | `AppCoordinator: @Observable` |
