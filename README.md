@@ -29,12 +29,12 @@ Three branches demonstrate progressive modernization — same app, three archite
 |---|---|---|---|
 | **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
 | **UI framework** | **UIKit + SwiftUI** | **SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
-| **Coordinator → ViewModel** | Closures | ← same | ← same |
 | **Reactive** | **Combine** | ← same | **AsyncSequence** [![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
 | **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
 | **View binding** | `@ObservedObject` | ← same | **@Bindable** / **@State** |
 | **Service events** | `AnyPublisher` + `Subject` | ← same | **AsyncStream** + **StreamBroadcaster** |
 | Architecture | MVVM + Coordinator | ← same | ← same |
+| Coordinator → ViewModel | Closures | ← same | ← same |
 | Language | Swift 6.0 | ← same | ← same |
 | DI | Session-Scoped + @Service | ← same | ← same |
 | LLM | Foundation Models (iOS 26+) | ← same | ← same |
