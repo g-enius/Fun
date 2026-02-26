@@ -28,8 +28,8 @@ Three branches demonstrate progressive modernization — same app, three archite
 | | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
 |---|---|---|---|
 | **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
-| **UI framework** | **UIKit + SwiftUI** | **Pure SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
-| **Navigation** | **UIKit** + 3 tab coordinators | **SwiftUI** `NavigationStack` | ← same |
+| **UI framework** | **UIKit + SwiftUI** | **SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
+| **Navigation** | **UINavigationController** | **NavigationStack** | ← same |
 | **Coordinator → ViewModel** | Closures | ← same | ← same |
 | **Reactive** | **Combine** | ← same | **AsyncSequence** [![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
 | **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
