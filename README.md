@@ -35,6 +35,75 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 | LLM | Foundation&nbsp;Models&nbsp;(iOS&nbsp;26+) | ← same | ← same |
 | Testing | Swift&nbsp;Testing,&nbsp;swift-snapshot-testing | ← same | ← same |
 
+## Branch Comparison
+
+Three branches demonstrate progressive modernization — same app, three architectural approaches. Choose based on your minimum iOS target.
+
+| | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
+|---|---|---|---|
+| **Minimum iOS** | **15.0** | **16.0** | **17.0** |
+| Navigation | UIKit (`UINavigationController`) | SwiftUI (`NavigationStack`) | SwiftUI (`NavigationStack`) |
+| Reactive state | Combine (`@Published` + `.sink`) | Combine (`@Published` + `.sink`) | AsyncSequence (`AsyncStream` + `for await`) |
+| ViewModel | `ObservableObject` + `@Published` | `ObservableObject` + `@Published` | `@Observable` macro |
+| View binding | `@ObservedObject` / `@StateObject` | `@ObservedObject` / `@StateObject` | `@Bindable` / `@State` |
+| Service events | `AnyPublisher` + `Subject` | `AnyPublisher` + `Subject` | `AsyncStream` + `StreamBroadcaster` |
+| Coordinator | Protocol hierarchy (8 classes) | Single `AppCoordinator: ObservableObject` | Single `AppCoordinator: @Observable` |
+| App entry | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` | SwiftUI `@main App` |
+| `import Combine` | Yes | Yes | **None** |
+| PR | — | [#3](https://github.com/g-enius/Fun-iOS/pull/3) | [#4](https://github.com/g-enius/Fun-iOS/pull/4) |
+
+All three produce **visually identical** apps — same screens, same behavior, same features.
+
+### When to use which
+
+| Branch | Best for |
+|--------|----------|
+| `main` | Apps supporting **iOS 15+**. UIKit navigation is battle-tested and gives full transition control. Combine is stable and well-understood. |
+| `navigation-stack` | Apps on **iOS 16+**. Drops 30 files and ~1,150 lines of coordinator boilerplate. Same Combine reactive layer. |
+| `async-sequence` | Apps on **iOS 17+**. 🚫 Combine dependency. Modern Swift Concurrency throughout — `AsyncStream` for events, `@Observable` for state, Task cancellation for lifecycle. |
+
+### Navigation: UIKit vs SwiftUI
+
+| Aspect | `main` (UIKit) | `navigation-stack` / `async-sequence` (SwiftUI) |
+|--------|---------------|--------------------------------------------------------------|
+| App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
+| Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
+| Navigation stack | `UINavigationController` | `NavigationStack` + `NavigationPath` |
+| Push navigation | `pushViewController(_:animated:)` | `path.append(item)` |
+| Modal presentation | `present(_:animated:)` | `.sheet(isPresented:)` |
+| Coordinator → ViewModel | `weak var coordinator: HomeCoordinator?` | Closures: `var onShowDetail: ((FeaturedItem) -> Void)?` |
+| Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
+| Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
+
+### Reactive State: Combine vs AsyncSequence
+
+| Aspect | `main` / `navigation-stack` (Combine) | `async-sequence` (AsyncSequence) |
+|--------|----------------------------------------|---------------------------------------------|
+| Service publisher | `AnyPublisher<Set<String>, Never>` | `AsyncStream<Set<String>>` |
+| Multi-consumer | `CurrentValueSubject` / `PassthroughSubject` | `StreamBroadcaster` (custom, in Core) |
+| Subscribe | `.sink { }.store(in: &cancellables)` | `Task { for await value in stream { } }` |
+| Lifecycle cleanup | `Set<AnyCancellable>` + `cancellables = []` | Task cancellation (`task.cancel()`) |
+| Debounced search | `.debounce(for:scheduler:)` operator | `didSet` + `Task.sleep` with cancellation |
+| Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
+| ViewModel observation | `ObservableObject` (per-object invalidation) | `@Observable` (per-property tracking) |
+
+### Migration stats (main → navigation-stack)
+
+| Metric | Value |
+|--------|-------|
+| Files added | 3 |
+| Files deleted | 30 (coordinators, VCs, protocols, mocks) |
+| Net reduction | **~1,100 lines** |
+
+### Migration stats (navigation-stack → async-sequence)
+
+| Metric | Value |
+|--------|-------|
+| Files changed | 49 (48 modified + 1 new) |
+| Lines added | 552 |
+| Lines removed | 473 |
+| `import Combine` remaining | 0 |
+
 ## Module Structure
 
 ```
@@ -129,85 +198,6 @@ Deep links received during login are queued and executed after authentication.
 - **Pull-to-Refresh**: Native SwiftUI `.refreshable`
 - **Dark Mode & Dynamic Type**: System-adaptive colors, semantic font styles, System/Light/Dark appearance picker
 - **iOS 17+ APIs**: Symbol effects, sensory feedback (backwards compatible)
-
-## UIKit + SwiftUI Hybrid
-
-**UIKit for navigation** (reliable Coordinator pattern), **SwiftUI for content**.
-
-| Use Case | Framework |
-|----------|-----------|
-| Navigation/Presentation | UIKit (`UINavigationController` + Coordinators) |
-| Content & Layout | SwiftUI (all views) |
-| Forms & Settings | SwiftUI |
-
-## Branch Comparison
-
-Three branches demonstrate progressive modernization — same app, three architectural approaches. Choose based on your minimum iOS target.
-
-| | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
-|---|---|---|---|
-| **Minimum iOS** | **15.0** | **16.0** | **17.0** |
-| Navigation | UIKit (`UINavigationController`) | SwiftUI (`NavigationStack`) | SwiftUI (`NavigationStack`) |
-| Reactive state | Combine (`@Published` + `.sink`) | Combine (`@Published` + `.sink`) | AsyncSequence (`AsyncStream` + `for await`) |
-| ViewModel | `ObservableObject` + `@Published` | `ObservableObject` + `@Published` | `@Observable` macro |
-| View binding | `@ObservedObject` / `@StateObject` | `@ObservedObject` / `@StateObject` | `@Bindable` / `@State` |
-| Service events | `AnyPublisher` + `Subject` | `AnyPublisher` + `Subject` | `AsyncStream` + `StreamBroadcaster` |
-| Coordinator | Protocol hierarchy (8 classes) | Single `AppCoordinator: ObservableObject` | Single `AppCoordinator: @Observable` |
-| App entry | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` | SwiftUI `@main App` |
-| `import Combine` | Yes | Yes | **None** |
-| PR | — | [#1](https://github.com/g-enius/Fun-iOS/pull/1) | [#2](https://github.com/g-enius/Fun-iOS/pull/2) |
-
-All three produce **visually identical** apps — same screens, same behavior, same features.
-
-### When to use which
-
-| Branch | Best for |
-|--------|----------|
-| `main` | Apps supporting **iOS 15+**. UIKit navigation is battle-tested and gives full transition control. Combine is stable and well-understood. |
-| `navigation-stack` | Apps on **iOS 16+**. Drops 30 files and ~1,150 lines of coordinator boilerplate. Same Combine reactive layer. |
-| `async-sequence` | Apps on **iOS 17+**. 🚫 Combine dependency. Modern Swift Concurrency throughout — `AsyncStream` for events, `@Observable` for state, Task cancellation for lifecycle. |
-
-### Navigation: UIKit vs SwiftUI
-
-| Aspect | `main` (UIKit) | `navigation-stack` / `async-sequence` (SwiftUI) |
-|--------|---------------|--------------------------------------------------------------|
-| App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
-| Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
-| Navigation stack | `UINavigationController` | `NavigationStack` + `NavigationPath` |
-| Push navigation | `pushViewController(_:animated:)` | `path.append(item)` |
-| Modal presentation | `present(_:animated:)` | `.sheet(isPresented:)` |
-| Coordinator → ViewModel | `weak var coordinator: HomeCoordinator?` | Closures: `var onShowDetail: ((FeaturedItem) -> Void)?` |
-| Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
-| Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
-
-### Reactive State: Combine vs AsyncSequence
-
-| Aspect | `main` / `navigation-stack` (Combine) | `async-sequence` (AsyncSequence) |
-|--------|----------------------------------------|---------------------------------------------|
-| Service publisher | `AnyPublisher<Set<String>, Never>` | `AsyncStream<Set<String>>` |
-| Multi-consumer | `CurrentValueSubject` / `PassthroughSubject` | `StreamBroadcaster` (custom, in Core) |
-| Subscribe | `.sink { }.store(in: &cancellables)` | `Task { for await value in stream { } }` |
-| Lifecycle cleanup | `Set<AnyCancellable>` + `cancellables = []` | Task cancellation (`task.cancel()`) |
-| Debounced search | `.debounce(for:scheduler:)` operator | `didSet` + `Task.sleep` with cancellation |
-| Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
-| ViewModel observation | `ObservableObject` (per-object invalidation) | `@Observable` (per-property tracking) |
-
-### Migration stats (main → navigation-stack)
-
-| Metric | Value |
-|--------|-------|
-| Files added | 3 |
-| Files deleted | 30 (coordinators, VCs, protocols, mocks) |
-| Net reduction | **~1,100 lines** |
-
-### Migration stats (navigation-stack → async-sequence)
-
-| Metric | Value |
-|--------|-------|
-| Files changed | 49 (48 modified + 1 new) |
-| Lines added | 552 |
-| Lines removed | 473 |
-| `import Combine` remaining | 0 |
 
 ## Testing
 
