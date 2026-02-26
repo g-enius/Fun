@@ -28,8 +28,8 @@ Three branches demonstrate progressive modernization — same app, three archite
 | | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
 |---|---|---|---|
 | **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
-| **Navigation** | **UIKit** + 8 coordinators | **SwiftUI** `NavigationStack` + single `AppCoordinator`&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
-| **Reactive** | **Combine** (`@Published` + `.sink`) | ← same | **AsyncSequence** (`AsyncStream` + `for await`)&nbsp;[![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
+| **Navigation** | **UIKit** | **SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
+| **Reactive** | **Combine** (`@Published` + `.sink`) | ← same | **AsyncSequence** [![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
 | **App entry** | `AppDelegate` + `SceneDelegate` | **SwiftUI `@main App`** | ← same |
 | **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
 | **View binding** | `@ObservedObject` | ← same | **@Bindable** / **@State** |
