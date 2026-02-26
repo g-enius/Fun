@@ -21,46 +21,28 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
 ![App Demo](assets/demo.gif)
 
-## Tech Stack
+## Tech Stack & Branch Comparison
 
-| | `main` | `navigation-stack` | `async-sequence` |
-|--|--------|----------------------|------------------|
+Three branches demonstrate progressive modernization — same app, three architectural approaches. Choose based on your minimum iOS target. All three produce **visually identical** apps.
+
+| | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
+|---|---|---|---|
 | **Deployment** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
-| **UI** | **SwiftUI&nbsp;+&nbsp;UIKit** | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) |
-| **Reactive** | **Combine** | ← same | **AsyncSequence**&nbsp;[![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
-| **ViewModel** | **ObservableObject** | ← same | **@Observable** |
+| **Navigation** | **UIKit**&nbsp;(`UINavigationController`) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) |
+| **Reactive** | **Combine**&nbsp;(`@Published`&nbsp;+&nbsp;`.sink`) | ← same | **AsyncSequence**&nbsp;[![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
+| **ViewModel** | `ObservableObject`&nbsp;+&nbsp;`@Published` | ← same | **@Observable**&nbsp;macro |
+| View binding | `@ObservedObject`&nbsp;/&nbsp;`@StateObject` | ← same | `@Bindable`&nbsp;/&nbsp;`@State` |
+| Service events | `AnyPublisher`&nbsp;+&nbsp;`Subject` | ← same | `AsyncStream`&nbsp;+&nbsp;`StreamBroadcaster` |
+| Coordinator | Protocol hierarchy (8 classes) | Single&nbsp;`AppCoordinator:&nbsp;ObservableObject` | Single&nbsp;`AppCoordinator:&nbsp;@Observable` |
+| App entry | `AppDelegate`&nbsp;+&nbsp;`SceneDelegate` | SwiftUI&nbsp;`@main&nbsp;App` | SwiftUI&nbsp;`@main&nbsp;App` |
+| `import Combine` | Yes | Yes | **None** |
 | Architecture | MVVM&nbsp;+&nbsp;Coordinator | ← same | ← same |
 | Language | Swift 6.0 | ← same | ← same |
 | DI | Session-Scoped&nbsp;+&nbsp;@Service | ← same | ← same |
 | LLM | Foundation&nbsp;Models&nbsp;(iOS&nbsp;26+) | ← same | ← same |
 | Testing | Swift&nbsp;Testing,&nbsp;swift-snapshot-testing | ← same | ← same |
-
-## Branch Comparison
-
-Three branches demonstrate progressive modernization — same app, three architectural approaches. Choose based on your minimum iOS target.
-
-| | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
-|---|---|---|---|
-| **Minimum iOS** | **15.0** | **16.0** | **17.0** |
-| Navigation | UIKit (`UINavigationController`) | SwiftUI (`NavigationStack`) | SwiftUI (`NavigationStack`) |
-| Reactive state | Combine (`@Published` + `.sink`) | Combine (`@Published` + `.sink`) | AsyncSequence (`AsyncStream` + `for await`) |
-| ViewModel | `ObservableObject` + `@Published` | `ObservableObject` + `@Published` | `@Observable` macro |
-| View binding | `@ObservedObject` / `@StateObject` | `@ObservedObject` / `@StateObject` | `@Bindable` / `@State` |
-| Service events | `AnyPublisher` + `Subject` | `AnyPublisher` + `Subject` | `AsyncStream` + `StreamBroadcaster` |
-| Coordinator | Protocol hierarchy (8 classes) | Single `AppCoordinator: ObservableObject` | Single `AppCoordinator: @Observable` |
-| App entry | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` | SwiftUI `@main App` |
-| `import Combine` | Yes | Yes | **None** |
+| Best for | iOS 15+, full transition control | iOS 16+, −30 files / −1,100 lines | iOS 17+, modern Swift Concurrency |
 | PR | — | [#3](https://github.com/g-enius/Fun-iOS/pull/3) | [#4](https://github.com/g-enius/Fun-iOS/pull/4) |
-
-All three produce **visually identical** apps — same screens, same behavior, same features.
-
-### When to use which
-
-| Branch | Best for |
-|--------|----------|
-| `main` | Apps supporting **iOS 15+**. UIKit navigation is battle-tested and gives full transition control. Combine is stable and well-understood. |
-| `navigation-stack` | Apps on **iOS 16+**. Drops 30 files and ~1,150 lines of coordinator boilerplate. Same Combine reactive layer. |
-| `async-sequence` | Apps on **iOS 17+**. 🚫 Combine dependency. Modern Swift Concurrency throughout — `AsyncStream` for events, `@Observable` for state, Task cancellation for lifecycle. |
 
 ### Navigation: UIKit vs SwiftUI
 
