@@ -31,7 +31,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | **Navigation** | **UIKit** | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
 | **Reactive** | **Combine** (`@Published` + `.sink`) | ← same | **AsyncSequence**&nbsp;[![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
 | **Coordinator** | 8 coordinators | **Single `AppCoordinator`** | ← same |
-| **App entry** | `AppDelegate` + `SceneDelegate` | **SwiftUI `@main App`** | **SwiftUI `@main App`** |
+| **App entry** | `AppDelegate` + `SceneDelegate` | **SwiftUI `@main App`** | ← same |
 | **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
 | **View binding** | `@ObservedObject` | ← same | **@Bindable** / **@State** |
 | **Service events** | `AnyPublisher` + `Subject` | ← same | **AsyncStream** + **StreamBroadcaster** |
