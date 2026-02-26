@@ -67,21 +67,21 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
 | ViewModel observation | `ObservableObject` (**per-object invalidation**) | `@Observable` (**per-property tracking**) |
 
-### Migration stats (main → navigation-stack)
+### Migration stats (UIKit+SwiftUI → Pure SwiftUI)
 
 | Metric | Value |
 |--------|-------|
-| Files added | 3 |
+| Files added | 6 |
 | Files deleted | 30 (coordinators, VCs, protocols, mocks) |
-| Net reduction | **~1,100 lines** |
+| Net reduction | **~1,000 lines** |
 
-### Migration stats (navigation-stack → async-sequence)
+### Migration stats (Combine → AsyncSequence)
 
 | Metric | Value |
 |--------|-------|
-| Files changed | 49 (48 modified + 1 new) |
-| Lines added | 552 |
-| Lines removed | 473 |
+| Files changed | 56 (55 modified + 1 new) |
+| Lines added | 817 |
+| Lines removed | 629 |
 | `import Combine` remaining | 0 |
 
 ## Module Structure
