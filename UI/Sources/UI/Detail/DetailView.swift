@@ -19,8 +19,6 @@ public struct DetailView: View {
 
     public var body: some View {
         detailContent
-            .navigationTitle(viewModel.itemTitle)
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .tabBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
