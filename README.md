@@ -65,7 +65,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Lifecycle cleanup | `Set<AnyCancellable>` + `cancellables = []` | Task cancellation (`task.cancel()`) |
 | Debounced search | `.debounce(for:scheduler:)` operator | `didSet` + `Task.sleep` with cancellation |
 | Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
-| ViewModel&nbsp;observation | <code>ObservableObject</code>&nbsp;(**per&#8209;object&nbsp;invalidation**) | <code>@Observable</code>&nbsp;(**per&#8209;property&nbsp;tracking**) |
+| ViewModel observation | `ObservableObject`<br>(**per-object invalidation**) | `@Observable`<br>(**per-property tracking**) |
 
 ### Migration stats (UIKit+SwiftUI → Pure SwiftUI)
 
