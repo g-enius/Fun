@@ -4,7 +4,10 @@
 
 A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
 
-> **This is the `feature/async-sequence` branch** — zero Combine, pure AsyncSequence + @Observable (iOS 17+). See [`main`](https://github.com/g-enius/Fun-iOS) for the full 3-branch comparison, or [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) for the iOS 16+ Combine version.
+Three branches show progressive modernization:
+- UIKit + SwiftUI + Combine (iOS 15+) — [`main`](https://github.com/g-enius/Fun-iOS/tree/main)
+- Pure SwiftUI + Combine (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) - [PR](https://github.com/g-enius/Fun-iOS/pull/3)
+- Pure SwiftUI + AsyncSequence (iOS 17+) — [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) - [PR](https://github.com/g-enius/Fun-iOS/pull/4)
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
@@ -18,21 +21,69 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
 ![App Demo](assets/demo.gif)
 
-## Tech Stack
+## Tech Stack & Branch Comparison
 
-| Category | Technology |
-|----------|------------|
-| Language | Swift 6.0 |
-| UI Framework | SwiftUI (pure — no UIKit navigation) |
-| Reactive & Concurrency | Swift Concurrency (AsyncStream, async/await) — **zero Combine** |
-| State Observation | `@Observable` macro (Observation framework) |
-| Architecture | MVVM + Coordinator (single `AppCoordinator`) |
-| Navigation | `NavigationStack` + `NavigationPath` |
-| Dependency Injection | Session-Scoped DI + Property Wrapper |
-| Package Management | Swift Package Manager |
-| Minimum iOS | iOS 17.0 |
-| On-Device LLM | Apple Intelligence / Foundation Models (iOS 26+) |
-| Testing | Swift Testing, swift-snapshot-testing |
+Three branches demonstrate progressive modernization — same app, three architectural approaches. Choose based on your minimum iOS target. All three produce **visually identical** apps.
+
+| | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
+|---|---|---|---|
+| **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
+| **UI framework** | **UIKit + SwiftUI** | **SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
+| **Reactive** | **Combine** | ← same | **AsyncSequence** [![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
+| **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
+| **View binding** | `@ObservedObject` | ← same | **@Bindable** / **@State** |
+| **Service events** | `AnyPublisher` + `Subject` | ← same | **AsyncStream** + **StreamBroadcaster** |
+| Architecture | MVVM + Coordinator | ← same | ← same |
+| Coordinator → ViewModel | Closures | ← same | ← same |
+| Language | Swift 6.0 | ← same | ← same |
+| DI | Session-Scoped + @Service | ← same | ← same |
+| LLM | Foundation Models (iOS 26+) | ← same | ← same |
+| Testing | Swift Testing, swift-snapshot-testing | ← same | ← same |
+
+### UIKit + SwiftUI vs Pure SwiftUI
+
+| Aspect | `main` (UIKit + SwiftUI) | `navigation-stack`&nbsp;/&nbsp;`async-sequence`&nbsp;(Pure&nbsp;SwiftUI) |
+|--------|--------------------------|------------------------------------------------------|
+| App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
+| Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
+| Navigation stack | `UINavigationController` | `NavigationStack` + `NavigationPath` |
+| Push navigation | `pushViewController(_:animated:)` | `path.append(item)` |
+| Modal presentation | `present(_:animated:)` | `.sheet(isPresented:)` |
+| Views | SwiftUI hosted in `UIHostingController` | Native SwiftUI views |
+| View controllers | UIKit VCs wrap SwiftUI views | None |
+| Coordinators | Multiple `TabCoordinator`s | Single `AppCoordinator` (ObservableObject) |
+| Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
+| Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
+
+### Reactive State: Combine vs AsyncSequence
+
+| Aspect | `main` / `navigation-stack` (Combine) | `async-sequence` (AsyncSequence) |
+|--------|----------------------------------------|---------------------------------------------|
+| Service publisher | `AnyPublisher<Set<String>, Never>` | `AsyncStream<Set<String>>` |
+| Multi-consumer | `CurrentValueSubject` / `PassthroughSubject` | `StreamBroadcaster` (custom, in Core) |
+| Subscribe | `.sink { }.store(in: &cancellables)` | <code>Task&nbsp;{&nbsp;for&nbsp;await&nbsp;value&nbsp;in&nbsp;stream&nbsp;{&nbsp;}&nbsp;}</code> |
+| Lifecycle cleanup | `Set<AnyCancellable>` + `cancellables = []` | Task cancellation (`task.cancel()`) |
+| Debounced search | `.debounce(for:scheduler:)` operator | `didSet` + `Task.sleep` with cancellation |
+| Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
+| ViewModel observation | `ObservableObject`<br>(**per-object invalidation**) | `@Observable`<br>(**per-property tracking**) |
+
+### Migration stats (UIKit+SwiftUI → Pure SwiftUI)
+
+| Metric | Value |
+|--------|-------|
+| Files added | 6 |
+| Files deleted | 17 (coordinators, VCs, UIKit extensions) |
+| Net reduction | **~880 lines** |
+| `import UIKit` remaining | 0 |
+
+### Migration stats (Combine → AsyncSequence)
+
+| Metric | Value |
+|--------|-------|
+| Files changed | 55 (49 modified + 1 new + 5 deleted) |
+| Lines added | 694 |
+| Lines removed | 591 |
+| `import Combine` remaining | 0 |
 
 ## Module Structure
 
@@ -40,7 +91,7 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 Fun-iOS/
 ├── FunApp/         # iOS app target (Xcode project)
 ├── Coordinator/    # Navigation coordinators
-├── UI/             # SwiftUI views
+├── UI/             # SwiftUI views & UIKit controllers
 ├── ViewModel/      # Business logic (MVVM)
 ├── Model/          # Data models & protocols
 ├── Services/       # Concrete service implementations
@@ -82,6 +133,7 @@ Modules only import from layers below them.
 ## Key Patterns
 
 ### MVVM + Coordinator
+- **Model**: Data models, protocols, domain logic
 - **ViewModel**: Business logic, state management
 - **View**: Pure UI (SwiftUI)
 - **Coordinator**: Navigation flow, screen transitions
@@ -109,9 +161,19 @@ protocol Session: AnyObject {
 ### Protocol-Oriented Design
 All services defined as protocols in `Model`, implementations in `Services`.
 
-### Single Coordinator
+### Coordinator Hierarchy
 
-A single `AppCoordinator: @Observable` replaces the UIKit branch's 8-class coordinator hierarchy. It owns `NavigationPath` per tab and manages login/main flow transitions with session lifecycle. ViewModels receive navigation closures instead of coordinator protocol references.
+```
+AppCoordinator
+├── LoginCoordinator
+├── HomeCoordinator (detail + profile screens)
+├── ItemsCoordinator (detail screens)
+└── SettingsCoordinator
+```
+
+3 tab coordinators handle all screens in their navigation stack directly. ViewModels communicate via closures (`onShowDetail`, `onShowProfile`, `onPop`, `onShare`, `onDismiss`, `onLogin`) — no coordinator protocols.
+
+`AppCoordinator` manages login/main flow transitions with session lifecycle.
 
 ### Deep Linking
 
@@ -132,7 +194,7 @@ Deep links received during login are queued and executed after authentication.
 ## Features
 
 - **Session-Scoped DI**: Clean service lifecycle per app flow — no stale state
-- **Reactive Data Flow**: `AsyncStream` + `StreamBroadcaster` for service events, `@Observable` for state
+- **Reactive Data Flow**: Combine framework with `@Published` properties
 - **Feature Toggles**: Runtime flags persisted via services
 - **AI Summary**: On-device LLM summarisation using Apple Intelligence / Foundation Models (iOS 26+)
 - **Error Handling**: Centralized `AppError` enum with toast notifications
@@ -140,85 +202,6 @@ Deep links received during login are queued and executed after authentication.
 - **Pull-to-Refresh**: Native SwiftUI `.refreshable`
 - **Dark Mode & Dynamic Type**: System-adaptive colors, semantic font styles, System/Light/Dark appearance picker
 - **iOS 17+ APIs**: Symbol effects, sensory feedback (backwards compatible)
-
-## What Changed vs `navigation-stack`
-
-This branch removes all Combine in favor of AsyncSequence + @Observable. See [PR #2](https://github.com/g-enius/Fun-iOS/pull/2) for the full diff, or [`main` README](https://github.com/g-enius/Fun-iOS) for the 3-branch comparison table.
-
-| Aspect | Before (Combine) | After (AsyncSequence) |
-|--------|-------------------|------------------------|
-| Service events | `AnyPublisher<T, Never>` + `Subject` | `AsyncStream<T>` + `StreamBroadcaster` |
-| Subscribe | `.sink { }.store(in: &cancellables)` | <code>Task&nbsp;{&nbsp;for&nbsp;await&nbsp;value&nbsp;in&nbsp;stream&nbsp;{&nbsp;}&nbsp;}</code> |
-| ViewModel | `ObservableObject` + `@Published` | `@Observable` macro |
-| View binding | `@ObservedObject` / `@StateObject` | `@Bindable` / `@State` |
-| Coordinator | `AppCoordinator: ObservableObject` | `AppCoordinator: @Observable` |
-| Lifecycle cleanup | `Set<AnyCancellable>` | Task cancellation |
-| Debounced search | `.debounce(for:scheduler:)` | `didSet` + `Task.sleep` with cancellation |
-| `import Combine` | Throughout | **None** |
-
-### Key patterns
-
-**StreamBroadcaster** — multi-consumer `AsyncStream` replacement for Combine Subjects:
-```swift
-let broadcaster = StreamBroadcaster<Set<String>>()
-let stream = broadcaster.makeStream()  // each consumer gets its own stream
-broadcaster.yield(newValue)            // delivers to all active consumers
-```
-
-**Retain-safe observation** — capture stream before Task, guard inside loop:
-```swift
-let stream = favoritesService.favoritesChanges
-observation = Task { [weak self] in
-    for await newFavorites in stream {
-        guard let self else { break }
-        self.favoriteIds = newFavorites
-    }
-}
-```
-
-### Migration pitfalls
-
-Things discovered during the Combine → AsyncSequence migration that aren't obvious:
-
-**1. `guard let self` before `for await` creates a retain cycle.** The `guard` captures `self` strongly, and that strong reference persists for the entire duration of the `for await` suspension — the ViewModel can never deallocate.
-
-```swift
-// BAD — retains self forever during suspension
-Task { [weak self] in
-    guard let self else { return }
-    for await value in stream { self.property = value }
-}
-
-// GOOD — guard inside the loop, break if nil
-Task { [weak self] in
-    for await value in stream {
-        guard let self else { break }
-        self.property = value
-    }
-}
-```
-
-**2. AsyncStream doesn't auto-emit the current value.** Unlike `@Published` (which emits immediately on subscribe), `AsyncStream` only delivers future values. Read the current value directly at init time:
-```swift
-// Must initialize manually — stream won't deliver the current state
-favoriteIds = favoritesService.favorites     // read current
-let stream = favoritesService.favoritesChanges  // observe future
-```
-
-**3. `@Observable` transforms stored properties into computed ones.** This means `@Service` (a property wrapper) can't be applied directly — it conflicts with `@Observable`'s generated accessors. Fix: mark service properties with `@ObservationIgnored`:
-```swift
-@ObservationIgnored @Service(.network) private var networkService: NetworkService
-```
-
-**4. `@StateObject` doesn't work with `@Observable`.** `@StateObject` requires `ObservableObject` conformance. Use `@State` instead for ownership, `@Bindable` for two-way binding (replaces `@ObservedObject`).
-
-**5. Capture service references before suspension points.** If a shared singleton (like `ServiceLocator`) can be reset during `await`, your `@Service` property wrapper may resolve to a different (or nil) instance after resuming:
-```swift
-// Capture before the suspension point
-let toast = toastService
-try? await Task.sleep(nanoseconds: delay)
-toast.showToast(message: "Error", type: .error)  // uses captured reference
-```
 
 ## Testing
 
@@ -231,7 +214,7 @@ toast.showToast(message: "Error", type: .error)  // uses captured reference
 
 ### Requirements
 - Xcode 16.0+
-- iOS 17.0+
+- iOS 15.0+
 - Swift 6.0
 
 ### Installation
