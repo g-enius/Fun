@@ -27,7 +27,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 
 | | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
 |---|---|---|---|
-| **Deployment** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
+| **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
 | **Navigation** | **UIKit** (`UINavController`) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | **SwiftUI**&nbsp;[![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) |
 | Coordinator | Protocol hierarchy (8 classes) | **Single `AppCoordinator: ObservableObject`** | **Single `AppCoordinator: @Observable`** |
 | App entry | `AppDelegate` + `SceneDelegate` | **SwiftUI `@main App`** | **SwiftUI `@main App`** |
@@ -40,7 +40,6 @@ Three branches demonstrate progressive modernization — same app, three archite
 | DI | Session-Scoped + @Service | ← same | ← same |
 | LLM | Foundation Models (iOS 26+) | ← same | ← same |
 | Testing | Swift Testing, swift-snapshot-testing | ← same | ← same |
-| **Best for** | **iOS 15+, full transition control** | **iOS 16+, −30 files / −1,100 lines** | **iOS 17+, modern Swift Concurrency** |
 | PR | — | [#3](https://github.com/g-enius/Fun-iOS/pull/3) | [#4](https://github.com/g-enius/Fun-iOS/pull/4) |
 
 ### Navigation: UIKit vs SwiftUI
