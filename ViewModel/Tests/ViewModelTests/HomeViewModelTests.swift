@@ -67,7 +67,7 @@ struct HomeViewModelTests {
     @Test("Initial hasError is false on creation")
     func testInitialHasErrorOnCreation() async {
         setupServices()
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         // hasError should always start false
         #expect(viewModel.hasError == false)
@@ -76,7 +76,7 @@ struct HomeViewModelTests {
     @Test("Initial currentCarouselIndex is 0 on creation")
     func testInitialCarouselIndexOnCreation() async {
         setupServices()
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         #expect(viewModel.currentCarouselIndex == 0)
     }
@@ -86,7 +86,7 @@ struct HomeViewModelTests {
     @Test("loadFeaturedItems populates data")
     func testLoadFeaturedItemsPopulatesData() async {
         setupServices()
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         await viewModel.loadFeaturedItems()
 
@@ -106,7 +106,7 @@ struct HomeViewModelTests {
         ServiceLocator.shared.register(MockFeatureToggleService(featuredCarousel: true, simulateErrors: true), for: .featureToggles)
         ServiceLocator.shared.register(mockToast, for: .toast)
 
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         // Explicitly call loadFeaturedItems and wait for it
         await viewModel.loadFeaturedItems()
@@ -119,13 +119,15 @@ struct HomeViewModelTests {
 
     // MARK: - Coordinator Tests
 
-    @Test("didTapFeaturedItem calls coordinator showDetail")
-    func testDidTapFeaturedItemCallsCoordinator() async throws {
+    @Test("didTapFeaturedItem calls onShowDetail")
+    func testDidTapFeaturedItemCallsOnShowDetail() async throws {
         setupServices()
-        let mockCoordinator = MockHomeCoordinator()
-        let viewModel = HomeViewModel(coordinator: mockCoordinator)
+        let viewModel = HomeViewModel()
 
-        // Wait for data to load
+        var showDetailCalled = false
+        var showDetailItem: FeaturedItem?
+        viewModel.onShowDetail = { item in showDetailCalled = true; showDetailItem = item }
+
         await viewModel.loadFeaturedItems()
 
         let firstSet = try #require(viewModel.featuredItems.first)
@@ -133,19 +135,21 @@ struct HomeViewModelTests {
 
         viewModel.didTapFeaturedItem(item)
 
-        #expect(mockCoordinator.showDetailCalled == true)
-        #expect(mockCoordinator.showDetailItem?.id == item.id)
+        #expect(showDetailCalled == true)
+        #expect(showDetailItem?.id == item.id)
     }
 
-    @Test("didTapProfile calls coordinator showProfile")
-    func testDidTapProfileCallsCoordinator() async {
+    @Test("didTapProfile calls onShowProfile")
+    func testDidTapProfileCallsOnShowProfile() async {
         setupServices()
-        let mockCoordinator = MockHomeCoordinator()
-        let viewModel = HomeViewModel(coordinator: mockCoordinator)
+        let viewModel = HomeViewModel()
+
+        var showProfileCalled = false
+        viewModel.onShowProfile = { showProfileCalled = true }
 
         viewModel.didTapProfile()
 
-        #expect(mockCoordinator.showProfileCalled == true)
+        #expect(showProfileCalled == true)
     }
 
     // MARK: - Favorites Tests
@@ -153,7 +157,7 @@ struct HomeViewModelTests {
     @Test("isFavorited returns false for unfavorited item")
     func testIsFavoritedReturnsFalse() async {
         setupServices(initialFavorites: [])
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         #expect(viewModel.isFavorited("unfavorited_item") == false)
     }
@@ -161,7 +165,7 @@ struct HomeViewModelTests {
     @Test("isFavorited returns true for favorited item")
     func testIsFavoritedReturnsTrue() async {
         setupServices(initialFavorites: ["test_item"])
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -169,7 +173,7 @@ struct HomeViewModelTests {
     @Test("toggleFavorite updates favorites")
     func testToggleFavoriteUpdates() async {
         setupServices(initialFavorites: [])
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         #expect(viewModel.isFavorited("test_item") == false)
 
@@ -184,7 +188,7 @@ struct HomeViewModelTests {
     @Test("toggleFavorite removes favorited item")
     func testToggleFavoriteRemoves() async {
         setupServices(initialFavorites: ["test_item"])
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         #expect(viewModel.isFavorited("test_item") == true)
 
@@ -201,7 +205,7 @@ struct HomeViewModelTests {
     @Test("Carousel visibility matches feature toggle", arguments: FeatureScenario.carouselScenarios)
     func testCarouselVisibility(scenario: FeatureScenario) async {
         setupServices(scenario: scenario)
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         #expect(viewModel.isCarouselEnabled == scenario.carousel)
     }
@@ -222,7 +226,7 @@ struct HomeViewModelTests {
     @Test("Loading behavior based on error simulation", arguments: FeatureScenario.errorScenarios)
     func testLoadingBehavior(scenario: FeatureScenario) async {
         setupServices(scenario: scenario)
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         await viewModel.loadFeaturedItems()
 
@@ -236,7 +240,7 @@ struct HomeViewModelTests {
     @Test("refresh reloads featured items")
     func testRefreshReloadsItems() async {
         setupServices()
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         await viewModel.refresh()
 
@@ -250,7 +254,7 @@ struct HomeViewModelTests {
     @Test("retry calls loadFeaturedItems")
     func testRetryCallsLoad() async {
         setupServices(simulateErrors: false)
-        let viewModel = HomeViewModel(coordinator: nil)
+        let viewModel = HomeViewModel()
 
         // Clear items
         viewModel.hasError = true

@@ -122,9 +122,9 @@ public enum TechnologyDescriptions {
 
         Structure:
         AppCoordinator
-        ├── HomeCoordinatorImpl (detail + profile screens)
-        ├── ItemsCoordinatorImpl (detail screens)
-        └── SettingsCoordinatorImpl
+        ├── HomeCoordinator (detail + profile screens)
+        ├── ItemsCoordinator (detail screens)
+        └── SettingsCoordinator
         """
 
     private static let mvvmDescription = """

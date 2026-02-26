@@ -14,10 +14,6 @@ import FunModel
 @MainActor
 public class SettingsViewModel: ObservableObject {
 
-    // MARK: - Coordinator
-
-    private weak var coordinator: SettingsCoordinator?
-
     // MARK: - Services
 
     @Service(.logger) private var logger: LoggerService
@@ -43,8 +39,7 @@ public class SettingsViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(coordinator: SettingsCoordinator?) {
-        self.coordinator = coordinator
+    public init() {
         _appearanceMode = Published(initialValue: featureToggleService.appearanceMode)
         _featuredCarouselEnabled = Published(initialValue: featureToggleService.featuredCarousel)
         _simulateErrorsEnabled = Published(initialValue: featureToggleService.simulateErrors)

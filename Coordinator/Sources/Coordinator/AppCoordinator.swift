@@ -30,10 +30,10 @@ public final class AppCoordinator: BaseCoordinator {
 
     // MARK: - Child Coordinators
 
-    private var loginCoordinator: LoginCoordinatorImpl?
-    private var homeCoordinator: HomeCoordinatorImpl?
-    private var itemsCoordinator: ItemsCoordinatorImpl?
-    private var settingsCoordinator: SettingsCoordinatorImpl?
+    private var loginCoordinator: LoginCoordinator?
+    private var homeCoordinator: HomeCoordinator?
+    private var itemsCoordinator: ItemsCoordinator?
+    private var settingsCoordinator: SettingsCoordinator?
 
     // Store tab bar view model for tab switching
     private var tabBarViewModel: HomeTabBarViewModel?
@@ -75,7 +75,7 @@ public final class AppCoordinator: BaseCoordinator {
         // Clear any existing main flow coordinators
         clearMainFlowCoordinators()
 
-        let loginCoordinator = LoginCoordinatorImpl(navigationController: navigationController)
+        let loginCoordinator = LoginCoordinator(navigationController: navigationController)
         loginCoordinator.onLoginSuccess = { [weak self] in
             self?.transitionToMainFlow()
         }
@@ -124,13 +124,13 @@ public final class AppCoordinator: BaseCoordinator {
         self.tabBarViewModel = tabBarViewModel
 
         // Create and store coordinators for each tab
-        let homeCoordinator = HomeCoordinatorImpl(
+        let homeCoordinator = HomeCoordinator(
             navigationController: homeNavController
         )
-        let itemsCoordinator = ItemsCoordinatorImpl(
+        let itemsCoordinator = ItemsCoordinator(
             navigationController: itemsNavController
         )
-        let settingsCoordinator = SettingsCoordinatorImpl(
+        let settingsCoordinator = SettingsCoordinator(
             navigationController: settingsNavController
         )
 

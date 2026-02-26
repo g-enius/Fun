@@ -41,19 +41,19 @@ public enum PreviewHelper {
     /// Creates a HomeViewModel configured for previews
     public static func makeHomeViewModel() -> HomeViewModel {
         configureMockServices()
-        return HomeViewModel(coordinator: nil)
+        return HomeViewModel()
     }
 
     /// Creates an ItemsViewModel configured for previews
     public static func makeItemsViewModel() -> ItemsViewModel {
         configureMockServices()
-        return ItemsViewModel(coordinator: nil)
+        return ItemsViewModel()
     }
 
     /// Creates a SettingsViewModel configured for previews
     public static func makeSettingsViewModel() -> SettingsViewModel {
         configureMockServices()
-        return SettingsViewModel(coordinator: nil)
+        return SettingsViewModel()
     }
 
     /// Creates a ProfileViewModel configured for previews
@@ -71,7 +71,7 @@ public enum PreviewHelper {
     /// Creates a LoginViewModel configured for previews
     public static func makeLoginViewModel() -> LoginViewModel {
         configureMockServices()
-        return LoginViewModel(coordinator: nil)
+        return LoginViewModel()
     }
 }
 

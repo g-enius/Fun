@@ -14,9 +14,9 @@ import FunModel
 @MainActor
 public class ItemsViewModel: ObservableObject {
 
-    // MARK: - Coordinator
+    // MARK: - Navigation Closures
 
-    private weak var coordinator: ItemsCoordinator?
+    public var onShowDetail: ((FeaturedItem) -> Void)?
 
     // MARK: - Services
 
@@ -52,8 +52,7 @@ public class ItemsViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(coordinator: ItemsCoordinator?) {
-        self.coordinator = coordinator
+    public init() {
         observeFavoritesChanges()
         setupSearchBinding()
 
@@ -244,6 +243,6 @@ public class ItemsViewModel: ObservableObject {
 
     public func didSelectItem(_ item: FeaturedItem) {
         logger.log("Item selected: \(item.title)")
-        coordinator?.showDetail(for: item)
+        onShowDetail?(item)
     }
 }

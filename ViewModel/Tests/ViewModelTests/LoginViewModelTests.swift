@@ -31,7 +31,7 @@ struct LoginViewModelTests {
 
     @Test("Initial state has isLoggingIn false")
     func testInitialStateIsNotLoggingIn() async {
-        let viewModel = LoginViewModel(coordinator: nil)
+        let viewModel = LoginViewModel()
 
         #expect(viewModel.isLoggingIn == false)
     }
@@ -40,31 +40,35 @@ struct LoginViewModelTests {
 
     @Test("Login sets isLoggingIn to true")
     func testLoginSetsIsLoggingIn() async {
-        let viewModel = LoginViewModel(coordinator: nil)
+        let viewModel = LoginViewModel()
 
         viewModel.login()
 
         #expect(viewModel.isLoggingIn == true)
     }
 
-    @Test("Login calls coordinator didLogin after network request")
-    func testLoginCallsCoordinator() async {
-        let coordinator = MockLoginCoordinator()
-        let viewModel = LoginViewModel(coordinator: coordinator)
+    @Test("Login calls onLogin after network request")
+    func testLoginCallsOnLogin() async {
+        let viewModel = LoginViewModel()
+
+        var loginCalled = false
+        viewModel.onLogin = { loginCalled = true }
 
         viewModel.login()
 
         // Mock network service returns instantly, so yield to let the Task complete
         await Task.yield()
 
-        #expect(coordinator.didLoginCalled == true)
+        #expect(loginCalled == true)
         #expect(viewModel.isLoggingIn == false)
     }
 
     @Test("Login prevents multiple simultaneous logins")
     func testLoginPreventsMultipleLogins() async {
-        let coordinator = MockLoginCoordinator()
-        let viewModel = LoginViewModel(coordinator: coordinator)
+        let viewModel = LoginViewModel()
+
+        var loginCallCount = 0
+        viewModel.onLogin = { loginCallCount += 1 }
 
         viewModel.login()
         #expect(viewModel.isLoggingIn == true)
@@ -76,12 +80,12 @@ struct LoginViewModelTests {
         // Yield to let the Task complete
         await Task.yield()
 
-        #expect(coordinator.didLoginCallCount == 1)
+        #expect(loginCallCount == 1)
     }
 
     @Test("Login with nil coordinator completes without crash")
     func testLoginWithNilCoordinatorDoesNotCrash() async {
-        let viewModel = LoginViewModel(coordinator: nil)
+        let viewModel = LoginViewModel()
 
         viewModel.login()
         #expect(viewModel.isLoggingIn == true)

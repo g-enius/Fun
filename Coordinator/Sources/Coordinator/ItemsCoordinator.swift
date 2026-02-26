@@ -1,8 +1,8 @@
 //
-//  ItemsCoordinatorImpl.swift
+//  ItemsCoordinator.swift
 //  Coordinator
 //
-//  Coordinator implementation for Items tab
+//  Coordinator for Items tab
 //
 
 import UIKit
@@ -11,20 +11,19 @@ import FunModel
 import FunUI
 import FunViewModel
 
-public final class ItemsCoordinatorImpl: BaseCoordinator {
+public final class ItemsCoordinator: BaseCoordinator {
 
     private var isShowingDetail = false
 
     override public func start() {
-        let viewModel = ItemsViewModel(coordinator: self)
+        let viewModel = ItemsViewModel()
+        viewModel.onShowDetail = { [weak self] item in self?.showDetail(for: item) }
+
         let viewController = ItemsViewController(viewModel: viewModel)
         navigationController.setViewControllers([viewController], animated: false)
     }
-}
 
-// MARK: - ItemsCoordinator
-
-extension ItemsCoordinatorImpl: ItemsCoordinator {
+    // MARK: - Navigation
 
     public func showDetail(for item: FeaturedItem) {
         guard !isShowingDetail else { return }

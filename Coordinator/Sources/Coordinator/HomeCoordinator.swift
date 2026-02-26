@@ -1,8 +1,8 @@
 //
-//  HomeCoordinatorImpl.swift
+//  HomeCoordinator.swift
 //  Coordinator
 //
-//  Coordinator implementation for Home tab
+//  Coordinator for Home tab
 //
 
 import UIKit
@@ -11,7 +11,7 @@ import FunModel
 import FunUI
 import FunViewModel
 
-public final class HomeCoordinatorImpl: BaseCoordinator {
+public final class HomeCoordinator: BaseCoordinator {
 
     // MARK: - Properties
 
@@ -21,15 +21,15 @@ public final class HomeCoordinatorImpl: BaseCoordinator {
     private var isShowingDetail = false
 
     override public func start() {
-        let viewModel = HomeViewModel(coordinator: self)
+        let viewModel = HomeViewModel()
+        viewModel.onShowDetail = { [weak self] item in self?.showDetail(for: item) }
+        viewModel.onShowProfile = { [weak self] in self?.showProfile() }
+
         let viewController = HomeViewController(viewModel: viewModel)
         navigationController.setViewControllers([viewController], animated: false)
     }
-}
 
-// MARK: - HomeCoordinator
-
-extension HomeCoordinatorImpl: HomeCoordinator {
+    // MARK: - Navigation
 
     public func showDetail(for item: FeaturedItem) {
         guard !isShowingDetail else { return }

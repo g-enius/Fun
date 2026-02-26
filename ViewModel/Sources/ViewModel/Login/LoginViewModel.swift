@@ -14,9 +14,9 @@ import FunModel
 @MainActor
 public class LoginViewModel: ObservableObject {
 
-    // MARK: - Coordinator
+    // MARK: - Navigation Closures
 
-    private weak var coordinator: LoginCoordinator?
+    public var onLogin: (() -> Void)?
 
     // MARK: - Services
 
@@ -33,9 +33,7 @@ public class LoginViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(coordinator: LoginCoordinator?) {
-        self.coordinator = coordinator
-    }
+    public init() {}
 
     deinit {
         loginTask?.cancel()
@@ -54,7 +52,7 @@ public class LoginViewModel: ObservableObject {
             guard let self else { return }
             defer { self.isLoggingIn = false }
             try? await self.networkService.login()
-            self.coordinator?.didLogin()
+            self.onLogin?()
         }
     }
 }

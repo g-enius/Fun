@@ -31,7 +31,7 @@ final class ItemsViewSnapshotTests: XCTestCase {
     private var recording: Bool { false }
 
     func testItemsView_defaultState() async {
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         let view = ItemsView(viewModel: viewModel)
@@ -42,7 +42,7 @@ final class ItemsViewSnapshotTests: XCTestCase {
     }
 
     func testItemsView_withSearchText() async {
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
         viewModel.searchText = "swift"
 
@@ -54,7 +54,7 @@ final class ItemsViewSnapshotTests: XCTestCase {
     }
 
     func testItemsView_darkMode() async {
-        let viewModel = ItemsViewModel(coordinator: nil)
+        let viewModel = ItemsViewModel()
         await viewModel.loadItems()
 
         let view = ItemsView(viewModel: viewModel)

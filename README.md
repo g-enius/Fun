@@ -5,9 +5,9 @@
 A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
 
 Three branches show progressive modernization:
-- UIKit + Combine (iOS 15+) — [`main`](https://github.com/g-enius/Fun-iOS/tree/main)
-- SwiftUI Navigation (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack)
-- AsyncSequence + @Observable (iOS 17+) — [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence)
+- UIKit + SwiftUI + Combine (iOS 15+) — [`main`](https://github.com/g-enius/Fun-iOS/tree/main)
+- Pure SwiftUI + Combine (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack)
+- Pure SwiftUI + AsyncSequence (iOS 17+) — [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence)
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
@@ -28,7 +28,9 @@ Three branches demonstrate progressive modernization — same app, three archite
 | | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
 |---|---|---|---|
 | **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
-| **Navigation** | **UIKit** + 3 tab coordinators | **SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
+| **UI framework** | **UIKit + SwiftUI** | **Pure SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
+| **Navigation** | **UIKit** + 3 tab coordinators | **SwiftUI** `NavigationStack` | ← same |
+| **Coordinator → ViewModel** | Closures | ← same | ← same |
 | **Reactive** | **Combine** | ← same | **AsyncSequence** [![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
 | **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
 | **View binding** | `@ObservedObject` | ← same | **@Bindable** / **@State** |
@@ -40,18 +42,21 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Testing | Swift Testing, swift-snapshot-testing | ← same | ← same |
 | PR | — | [#3](https://github.com/g-enius/Fun-iOS/pull/3) | [#4](https://github.com/g-enius/Fun-iOS/pull/4) |
 
-### Navigation: UIKit vs SwiftUI
+### UIKit + SwiftUI vs Pure SwiftUI
 
-| Aspect | `main` (UIKit) | `navigation-stack` / `async-sequence` (SwiftUI) |
-|--------|---------------|--------------------------------------------------------------|
+| Aspect | `main` (UIKit + SwiftUI) | `navigation-stack` / `async-sequence` (Pure SwiftUI) |
+|--------|--------------------------|------------------------------------------------------|
 | App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
 | Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
 | Navigation stack | `UINavigationController` | `NavigationStack` + `NavigationPath` |
 | Push navigation | `pushViewController(_:animated:)` | `path.append(item)` |
 | Modal presentation | `present(_:animated:)` | `.sheet(isPresented:)` |
-| Coordinator → ViewModel | `weak var coordinator` + closures | Closures only |
+| Views | SwiftUI hosted in `UIHostingController` | Native SwiftUI views |
+| View controllers | UIKit VCs wrap SwiftUI views | None |
+| Coordinators | `HomeCoordinator`, `ItemsCoordinator`, `SettingsCoordinator` | Single `AppCoordinator` (ObservableObject) |
 | Deep links | `scene(_:openURLContexts:)` | `.onOpenURL { }` |
 | Transition control | Full (`UINavigationControllerDelegate`) | Limited (no custom transition API) |
+| `import UIKit` | Coordinators + VCs | None |
 
 ### Reactive State: Combine vs AsyncSequence
 
@@ -144,7 +149,7 @@ AppCoordinator
 └── SettingsCoordinator
 ```
 
-3 tab coordinators handle all screens in their navigation stack directly. ViewModels use closures (`onPop`, `onShare`, `onDismiss`) instead of coordinator protocols.
+3 tab coordinators handle all screens in their navigation stack directly. ViewModels communicate via closures (`onShowDetail`, `onShowProfile`, `onPop`, `onShare`, `onDismiss`, `onLogin`) — no coordinator protocols.
 
 `AppCoordinator` manages login/main flow transitions with session lifecycle.
 
