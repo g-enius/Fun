@@ -49,10 +49,34 @@ Fun-iOS/
 All modules except `FunApp` are Swift packages. `FunApp` is the Xcode project that consumes them.
 
 **Dependency Hierarchy:**
+
+Modules only import from layers below them.
+
 ```
-FunApp → Coordinator → UI → ViewModel → Model → Core
-  └────→ Services ─────────────────────→┘
+┌─────────────────────────────────────────┐
+│               FunApp                    │
+├──────────┬──────────────────────────────┤
+│          │       Coordinator            │
+│          ├──────────────────────────────┤
+│ Services │            UI                │
+│          ├──────────────────────────────┤
+│          │         ViewModel            │
+├──────────┴──────────────────────────────┤
+│                 Model                   │
+├─────────────────────────────────────────┤
+│                 Core                    │
+└─────────────────────────────────────────┘
 ```
+
+| Module | Direct Dependencies |
+|--------|-------------------|
+| Core | — |
+| Model | Core |
+| ViewModel | Model, Core |
+| Services | Model, Core |
+| UI | ViewModel, Model, Core |
+| Coordinator | UI, ViewModel, Model, Core |
+| FunApp | All 6 |
 
 ## Key Patterns
 
