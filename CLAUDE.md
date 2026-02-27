@@ -37,7 +37,7 @@ Coordinator → UI → ViewModel → Model → Core
 Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT import Services.
 
 ## Anti-Patterns (Red Flags)
-- `import UIKit` in ViewModel or Model packages — UIKit belongs in UI and Coordinator only
+- `import UIKit` anywhere — this branch is pure SwiftUI, zero UIKit
 - Coordinator references in ViewModels (except weak optional closures) — retain cycle risk
 - `print()` anywhere — use LoggerService
 - `UserDefaults.standard` outside Services — use FeatureToggleService
@@ -45,12 +45,15 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - Navigation logic in Views — navigation decisions belong in Coordinators only
 - Protocol definitions in Services — domain protocols go in Model, reusable abstractions in Core
 
-## Architecture (this branch: main)
-- **Entry point**: UIKit `AppDelegate` + `SceneDelegate` (scene-based lifecycle)
-- **Navigation**: 6 UIKit coordinators — `AppCoordinator`, `BaseCoordinator`, `LoginCoordinator`, `HomeCoordinator`, `ItemsCoordinator`, `SettingsCoordinator`
-- **Views**: SwiftUI views embedded in UIHostingController via UIViewControllers
-- **Reactive**: Combine (`@Published`, `CurrentValueSubject`, `.sink`)
-- **ViewModel → Coordinator**: Optional closures (`onShowDetail`, `onShowProfile`, etc.)
+## Architecture (this branch: feature/navigation-stack)
+- **Entry point**: SwiftUI `@main App` struct (`FunApp.swift`) — no AppDelegate or SceneDelegate
+- **Navigation**: Single `AppCoordinator: ObservableObject` with per-tab `NavigationPath`
+- **Views**: Pure SwiftUI views, no UIHostingController or UIViewControllers
+- **Reactive**: Combine (`@Published`, `@StateObject`, `@ObservedObject`, `.sink`)
+- **ViewModel → Coordinator**: Optional closures wired in tab content wrappers via `.task { viewModel.onShowDetail = { ... } }`
+- **Tab bar**: SwiftUI `TabView(selection: $coordinator.selectedTab)`
+- **Push nav**: `coordinator.homePath.append(item)` via NavigationPath
+- **Modals**: `.sheet(isPresented: $coordinator.isProfilePresented)`
 - **DI**: ServiceLocator with `@Service` property wrapper, session-scoped (LoginSession / AuthenticatedSession)
 
 ## Rule Index
@@ -62,10 +65,11 @@ Consult these files for detailed guidance (not auto-loaded — read on demand):
 ## Code Style
 - Swift 6 strict concurrency, iOS 17+
 - Pure SwiftUI (NavigationStack), MVVM-C with Combine
-- Navigation closures on ViewModels, wired by single AppCoordinator: ObservableObject
+- Single AppCoordinator: ObservableObject with @Published NavigationPath per tab
+- ViewModels use closures for navigation, wired in tab content wrappers
 - Navigation logic ONLY in Coordinators, never in Views
 - Protocol placement: Core = reusable abstractions, Model = domain-specific
-- ServiceLocator with @Service property wrapper (assertionFailure, not fatalError)
+- ServiceLocator with @Service property wrapper
 - Combine over NotificationCenter for reactive state
 
 ## Testing
