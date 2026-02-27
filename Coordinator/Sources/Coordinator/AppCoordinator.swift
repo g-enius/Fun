@@ -51,13 +51,17 @@ public final class AppCoordinator: SessionProvider {
     // MARK: - Dark Mode
 
     public var appearanceMode: AppearanceMode = .system
-    @ObservationIgnored private var darkModeCancellable: AnyCancellable?
+    @ObservationIgnored private var darkModeObservation: Task<Void, Never>?
 
     // MARK: - Init
 
     public init(sessionFactory: SessionFactory) {
         self.sessionFactory = sessionFactory
         self.session = sessionFactory.makeSession(for: .login)
+    }
+
+    deinit {
+        darkModeObservation?.cancel()
     }
 
     // MARK: - Start
@@ -146,6 +150,8 @@ public final class AppCoordinator: SessionProvider {
         currentFlow = .login
         pendingDeepLink = nil
         activateSession(for: .login)
+        subscribeToDarkMode()
+        toastObservation?.cancel()
 
         // Reset navigation state
         popToRoot()
@@ -200,10 +206,14 @@ public final class AppCoordinator: SessionProvider {
     // MARK: - Dark Mode Observation
 
     private func subscribeToDarkMode() {
-        darkModeCancellable?.cancel()
-        darkModeCancellable = featureToggleService.appearanceModePublisher
-            .sink { [weak self] mode in
-                self?.appearanceMode = mode
+        darkModeObservation?.cancel()
+        appearanceMode = featureToggleService.appearanceMode
+        let stream = featureToggleService.appearanceModeChanges
+        darkModeObservation = Task { [weak self] in
+            for await mode in stream {
+                guard let self else { break }
+                self.appearanceMode = mode
             }
+        }
     }
 }
