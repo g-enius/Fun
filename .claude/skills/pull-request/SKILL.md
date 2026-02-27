@@ -19,6 +19,7 @@ Create a draft PR following the team's quality standards.
    - `git diff main...HEAD` to review all changes
    - Verify package dependency direction isn't violated
    - Check for any `print()`, `UserDefaults.standard`, or other anti-patterns
+   - Verify zero UIKit imports (this branch is pure SwiftUI)
 
 3. **Accessibility checklist** (for UI changes)
    - Dynamic Type: Do text elements scale with user font size preference?
