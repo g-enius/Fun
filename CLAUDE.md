@@ -1,5 +1,10 @@
 # Fun-iOS
 
+## Multi-Branch Workflow
+- 3 worktrees: `Fun-iOS` (main), `Fun-iOS-NavigationStack` (feature/navigation-stack), `Fun-iOS-NavigationStack-Async-Sequence` (feature/async-sequence)
+- **Always commit shared changes to main first**, push, then rebase feature branches onto main
+- Never make the same change independently on multiple branches
+
 ## Quality Standards
 - Production-quality Swift 6 with strict concurrency. Think about actor isolation and Sendable before writing code.
 - Clarify before coding when requirements are ambiguous. Don't guess — ask.
@@ -69,3 +74,4 @@ Consult these files for detailed guidance (not auto-loaded — read on demand):
 - Consolidate thin init tests into a single test when they test the same concern
 - Centralized mocks in `Model/Sources/ModelTestSupport/Mocks/`
 - Snapshot tests with swift-snapshot-testing
+- Avoid polling in tests — use `Task.sleep` at suspension points, never spin-loops checking state
