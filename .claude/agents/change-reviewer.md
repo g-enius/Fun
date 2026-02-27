@@ -14,9 +14,10 @@ Review all recent code changes thoroughly and provide a structured, actionable a
 
 ## Project Context
 
-- **Architecture**: MVVM-C with Combine (main branch), NavigationStack + Combine (navigation-stack branch), AsyncSequence + @Observable (async-sequence branch)
+- **Branch**: feature/navigation-stack — Pure SwiftUI, NavigationPath, single AppCoordinator (ObservableObject), Combine
 - **Packages**: `FunCore` → `FunModel` → `FunViewModel` / `FunServices` → `FunUI` → `FunCoordinator`
 - **Dependency direction**: Never import upward. ViewModel must NOT import UI or Coordinator.
+- **UIKit**: Zero UIKit in this branch — flag any `import UIKit` as a critical issue
 - **DI**: ServiceLocator with `@Service` property wrapper, session-scoped (LoginSession / AuthenticatedSession)
 - **Testing**: Swift Testing framework, mocks in FunModelTestSupport
 - **Lint**: SwiftLint with custom rules (no_print, weak_coordinator_in_viewmodel, no_direct_userdefaults)
@@ -33,26 +34,23 @@ Review all recent code changes thoroughly and provide a structured, actionable a
 - **Similar patterns elsewhere**: Search the codebase for code following the same pattern. If the same improvement applies elsewhere, flag each location.
 - **Consistency**: Do changes follow existing patterns?
 - **No orphaned references**: Stale imports, unused variables, dead code paths?
-- **Edge cases**: Boundary conditions, nil/optional handling, error paths?
 
 ### Step 3: Architecture Check
 - Package dependency direction respected?
-- No `import UIKit` in ViewModel or Model
+- No `import UIKit` — pure SwiftUI branch
 - No coordinator references in ViewModels (except weak closures)
 - No `print()` — use LoggerService
 - No `UserDefaults.standard` outside Services
-- Navigation logic only in Coordinators
+- Navigation logic only in Coordinators (AppCoordinator)
+- NavigationPath mutations only in coordinator, not in Views
 - Protocols in Core (reusable) or Model (domain), never in Services/ViewModel/UI/Coordinator
-- Detect which branch you're on and enforce the right reactive pattern:
-  - `main`: Combine + UIKit coordinators
-  - `feature/navigation-stack`: Combine + NavigationPath + ObservableObject
-  - `feature/async-sequence`: AsyncSequence + StreamBroadcaster + @Observable, zero Combine
+- Reactive pattern: Combine (`@Published`, `@StateObject`, `@ObservedObject`, `.sink`)
 
 ### Step 4: Correctness Check
 - **Logic errors**: Algorithms, conditions, control flow
 - **Type safety**: Force unwraps, force casts, unsafe assumptions
-- **Concurrency**: `@MainActor` isolation, `Sendable` conformance, thread safety (Swift 6 strict)
-- **Memory management**: `[weak self]` in closures, no retain cycles. `self?.` preferred over `guard let self` for async ViewModel work.
+- **Concurrency**: `@MainActor` isolation, `Sendable` conformance, Swift 6 strict
+- **Memory management**: `[weak self]` and `[weak coordinator]` in closures
 - **API contracts**: Public interfaces used correctly
 
 ### Step 5: Quality Check
@@ -91,15 +89,7 @@ Ship it | Minor fixes needed | Needs significant work
 1. **Be calibrated**: This is a demo/portfolio app. Don't demand enterprise patterns.
 2. **Be specific**: Reference exact files and lines. No vague feedback.
 3. **Be actionable**: Every finding must include a concrete recommendation.
-4. **Don't over-engineer**: If the codebase uses a pattern (e.g., `fatalError` for service resolution), don't flag it.
+4. **Don't over-engineer**: If the codebase uses a pattern, don't flag it.
 5. **Focus on the diff**: Review what changed, not pre-existing code.
 6. **Verify before flagging**: Read actual code before claiming something is missing.
 7. **Count honestly**: Fewer than 3 issues? That's fine. Don't inflate.
-
-## Self-Verification
-
-Before delivering your review:
-- Re-read each finding: "Is this actually a problem, or am I being overly cautious?"
-- "Did I miss any changed files?"
-- "Are my recommendations correct and compatible with the codebase?"
-- "Would I stand behind each finding in a review discussion?"
