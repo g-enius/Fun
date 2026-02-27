@@ -17,6 +17,8 @@ public final class AppCoordinator: ObservableObject {
     // MARK: - Services
 
     @Service(.logger) private var logger: LoggerService
+    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    @Service(.toast) private var toastService: ToastServiceProtocol
 
     // MARK: - Session Management
 
@@ -134,7 +136,6 @@ public final class AppCoordinator: ObservableObject {
     // MARK: - Toast
 
     private func observeToastEvents() {
-        @Service(.toast) var toastService: ToastServiceProtocol
         toastService.toastPublisher
             .sink { [weak self] event in
                 self?.activeToast = event
@@ -159,7 +160,6 @@ public final class AppCoordinator: ObservableObject {
 
     private func subscribeToDarkMode() {
         darkModeCancellable?.cancel()
-        @Service(.featureToggles) var featureToggleService: FeatureToggleServiceProtocol
         darkModeCancellable = featureToggleService.appearanceModePublisher
             .sink { [weak self] mode in
                 self?.appearanceMode = mode
