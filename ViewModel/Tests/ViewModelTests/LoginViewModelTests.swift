@@ -93,13 +93,13 @@ struct LoginViewModelTests {
         #expect(viewModel.isLoggingIn == false)
     }
 
-    @Test("Login failure does not call onLogin and shows error toast")
-    func testLoginFailureDoesNotCallOnLogin() async {
+    @Test("Login failure does not call onLoginSuccess and shows error toast")
+    func testLoginFailureDoesNotCallOnLoginSuccess() async {
         ServiceLocator.shared.register(MockNetworkService(shouldThrowError: true), for: .network)
 
         let viewModel = LoginViewModel()
         var loginCalled = false
-        viewModel.onLogin = { loginCalled = true }
+        viewModel.onLoginSuccess = { loginCalled = true }
 
         viewModel.login()
         await Task.yield()
