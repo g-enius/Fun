@@ -86,13 +86,9 @@ public final class AppCoordinator: ObservableObject, SessionProvider {
         observeToastEvents()
         subscribeToDarkMode()
 
-        // Execute pending deep link after main flow is ready
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(nanoseconds: 100_000_000)
-                self?.executeDeepLink(deepLink)
-            }
+            executeDeepLink(deepLink)
         }
     }
 
