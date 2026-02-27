@@ -12,7 +12,9 @@ import Foundation
 @testable import FunCore
 import FunModelTestSupport
 
-@Suite("ItemsViewModel Tests", .serialized)
+extension ViewModelTestSuite {
+
+@Suite("ItemsViewModel Tests")
 @MainActor
 struct ItemsViewModelTests {
 
@@ -389,4 +391,5 @@ struct ItemsViewModelTests {
         // (even though the search is async)
         #expect(viewModel.hasError == false)
     }
+}
 }

@@ -12,7 +12,9 @@ import Foundation
 @testable import FunCore
 import FunModelTestSupport
 
-@Suite("HomeTabBarViewModel Tests", .serialized)
+extension ViewModelTestSuite {
+
+@Suite("HomeTabBarViewModel Tests")
 @MainActor
 struct HomeTabBarViewModelTests {
 
@@ -108,4 +110,5 @@ struct HomeTabBarViewModelTests {
         }
     }
 
+}
 }

@@ -12,7 +12,9 @@ import Foundation
 @testable import FunCore
 import FunModelTestSupport
 
-@Suite("DetailViewModel Tests", .serialized)
+extension ViewModelTestSuite {
+
+@Suite("DetailViewModel Tests")
 @MainActor
 struct DetailViewModelTests {
 
@@ -246,4 +248,5 @@ struct DetailViewModelTests {
 
         #expect(viewModel.isSummarizing == false)
     }
+}
 }

@@ -12,7 +12,9 @@ import Foundation
 @testable import FunCore
 import FunModelTestSupport
 
-@Suite("SettingsViewModel Tests", .serialized)
+extension ViewModelTestSuite {
+
+@Suite("SettingsViewModel Tests")
 @MainActor
 struct SettingsViewModelTests {
 
@@ -144,4 +146,5 @@ struct SettingsViewModelTests {
         #expect(mockService.aiSummary == false)
     }
 
+}
 }

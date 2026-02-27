@@ -35,7 +35,9 @@ struct FeatureScenario: CustomTestStringConvertible, Sendable {
     ]
 }
 
-@Suite("HomeViewModel Tests", .serialized)
+extension ViewModelTestSuite {
+
+@Suite("HomeViewModel Tests")
 @MainActor
 struct HomeViewModelTests {
 
@@ -268,4 +270,5 @@ struct HomeViewModelTests {
         #expect(viewModel.hasError == false)
     }
 
+}
 }

@@ -12,8 +12,10 @@ import Foundation
 @testable import FunCore
 import FunModelTestSupport
 
+extension ViewModelTestSuite {
+
+@Suite("LoginViewModel Tests")
 @MainActor
-@Suite("LoginViewModel Tests", .serialized)
 struct LoginViewModelTests {
 
     // MARK: - Setup
@@ -113,4 +115,5 @@ struct LoginViewModelTests {
         #expect(toastService.showToastCalled == true)
         #expect(toastService.lastType == .error)
     }
+}
 }

@@ -12,7 +12,9 @@ import Foundation
 @testable import FunCore
 import FunModelTestSupport
 
-@Suite("ProfileViewModel Tests", .serialized)
+extension ViewModelTestSuite {
+
+@Suite("ProfileViewModel Tests")
 @MainActor
 struct ProfileViewModelTests {
 
@@ -92,4 +94,5 @@ struct ProfileViewModelTests {
 
         #expect(goToItemsCalled == true)
     }
+}
 }
