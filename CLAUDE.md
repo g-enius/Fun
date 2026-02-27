@@ -46,6 +46,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 
 ## Anti-Patterns (Red Flags)
 - `import UIKit` anywhere — this branch is pure SwiftUI, zero UIKit
+- `import Combine` anywhere — this branch uses AsyncSequence, zero Combine
 - Coordinator references in ViewModels (except weak optional closures) — retain cycle risk
 - `print()` anywhere — use LoggerService
 - `UserDefaults.standard` outside Services — use FeatureToggleService
@@ -54,11 +55,12 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - Protocol definitions in Services — domain protocols go in Model, reusable abstractions in Core
 - Wrong ownership annotations — tab content wrappers must use `@StateObject` to own ViewModels (not `@ObservedObject`). `@ObservedObject` on a ViewModel means it gets recreated on every re-render. Conversely, the coordinator must be `let` or `@ObservedObject` (not `@StateObject`) since the wrapper doesn't own it.
 
-## Architecture (this branch: feature/navigation-stack)
+## Architecture (this branch: feature/async-sequence)
 - **Entry point**: SwiftUI `@main App` struct (`FunApp.swift`) — no AppDelegate or SceneDelegate
-- **Navigation**: Single `AppCoordinator: ObservableObject` with per-tab `NavigationPath`
+- **Navigation**: Single `@Observable AppCoordinator` with per-tab `NavigationPath`
 - **Views**: Pure SwiftUI views, no UIHostingController or UIViewControllers
-- **Reactive**: Combine (`@Published`, `@StateObject`, `@ObservedObject`, `.sink`)
+- **Reactive**: AsyncSequence + `StreamBroadcaster` (zero Combine). Services yield events via `StreamBroadcaster.yield()`, consumers iterate with `for await event in stream`
+- **Observation**: `@Observable` (not ObservableObject), `@ObservationIgnored` for non-observed state, `@State` (not @StateObject) in app entry
 - **ViewModel → Coordinator**: Optional closures wired in tab content wrappers via `.task { viewModel.onShowDetail = { ... } }`
 - **Tab bar**: SwiftUI `TabView(selection: $coordinator.selectedTab)`
 - **Push nav**: `coordinator.showDetail(item, in: .home)` — named methods on AppCoordinator
@@ -70,7 +72,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 ## Rule Index
 Consult these files for detailed guidance (not auto-loaded — read on demand):
 - `ai-rules/general.md` — Architecture deep-dive, MVVM-C patterns, DI, sessions, testing
-- `ai-rules/swift-style.md` — Swift 6 concurrency, naming, Combine patterns, SwiftLint rules
+- `ai-rules/swift-style.md` — Swift 6 concurrency, naming, AsyncSequence patterns, SwiftLint rules
 - `ai-rules/ci-cd.md` — GitHub Actions CI workflow patterns
 
 ## Code Style
