@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodebuild *)",
+      "Bash(swiftlint *)",
+      "Bash(swift *)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(cd * && xcodebuild *)",
+      "mcp__XcodeBuildMCP__*",
+      "mcp__code-index__*"
+    ]
+  }
+}
