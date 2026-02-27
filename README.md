@@ -245,17 +245,38 @@ xcodebuild test -workspace Fun.xcworkspace -scheme FunApp \
 
 ## AI-Assisted Development
 
-This project demonstrates **AI-assisted iOS development** using Claude Code with MCP integration.
+This project demonstrates **AI-assisted iOS development** using [Claude Code](https://claude.ai/code) with project-level configuration for team-shareable guardrails, branch-aware rules, and custom workflows.
 
 ![Claude Code Demo](assets/claude-code-demo.gif)
 
-Architecture and patterns designed by developer. Claude assisted with:
-- Feature implementation
-- Bug fixes
-- Test coverage
-- Documentation
+Architecture and patterns designed by developer. Claude Code assists with feature implementation, bug fixes, testing, cross-platform parity checks, and code review — guided by project-level rules that enforce the architecture.
 
 Commits with AI assistance include `Co-Authored-By: Claude` attribution.
+
+### Claude Code Project Configuration
+
+```
+.claude/
+├── settings.json                  # Team-shared permissions (auto-approve build/test/lint)
+├── skills/
+│   ├── review/SKILL.md            # /review — architecture + similar-pattern search
+│   ├── fix-issue/SKILL.md         # /fix-issue — end-to-end GitHub issue workflow
+│   ├── cross-platform/SKILL.md    # /cross-platform — iOS vs Android parity check
+│   └── pull-request/SKILL.md      # /pull-request — draft PR with tests + accessibility
+└── agents/
+    └── change-reviewer.md         # Branch-aware code review agent
+CLAUDE.md                          # Architecture rules, anti-patterns, build commands
+ai-rules/
+├── general.md                     # MVVM-C patterns, DI, sessions, testing reference
+├── swift-style.md                 # Swift 6 concurrency, naming, reactive patterns
+└── ci-cd.md                       # GitHub Actions CI workflow patterns
+```
+
+**Branch-aware**: Each branch has its own `CLAUDE.md` and `ai-rules/` adapted for that branch's architecture. The change-reviewer agent knows which patterns to enforce — e.g., flagging `import Combine` on the `async-sequence` branch, or `import UIKit` on the SwiftUI branches.
+
+**Multi-branch workflow**: Shared changes commit to `main` first, then feature branches rebase — enforced via project-level rules.
+
+**Cross-platform**: The `/cross-platform` skill compares iOS and Android implementations to catch unintentional UI/behavior divergences.
 
 ---
 
