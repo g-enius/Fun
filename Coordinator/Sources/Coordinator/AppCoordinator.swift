@@ -50,7 +50,6 @@ public final class AppCoordinator {
     // MARK: - Dark Mode
 
     public var appearanceMode: AppearanceMode = .system
-    @ObservationIgnored private var registrationObservation: Task<Void, Never>?
     @ObservationIgnored private var darkModeObservation: Task<Void, Never>?
 
     // MARK: - Init
@@ -61,7 +60,6 @@ public final class AppCoordinator {
 
     deinit {
         toastObservation?.cancel()
-        registrationObservation?.cancel()
         darkModeObservation?.cancel()
     }
 
@@ -70,7 +68,7 @@ public final class AppCoordinator {
     public func start() {
         activateSession(for: currentFlow)
         observeToastEvents()
-        observeDarkMode()
+        subscribeToDarkMode()
     }
 
     // MARK: - Session Lifecycle
@@ -131,6 +129,8 @@ public final class AppCoordinator {
     public func transitionToMainFlow() {
         currentFlow = .main
         activateSession(for: .main)
+        subscribeToDarkMode()
+        observeToastEvents()
 
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
@@ -142,6 +142,8 @@ public final class AppCoordinator {
         currentFlow = .login
         pendingDeepLink = nil
         activateSession(for: .login)
+        subscribeToDarkMode()
+        toastObservation?.cancel()
 
         // Reset navigation state
         popToRoot()
@@ -198,20 +200,9 @@ public final class AppCoordinator {
 
     // MARK: - Dark Mode Observation
 
-    private func observeDarkMode() {
-        let stream = ServiceLocator.shared.serviceRegistrations
-        registrationObservation = Task { [weak self] in
-            for await key in stream {
-                guard let self else { break }
-                if key == .featureToggles {
-                    self.subscribeToDarkMode()
-                }
-            }
-        }
-    }
-
     private func subscribeToDarkMode() {
         darkModeObservation?.cancel()
+        appearanceMode = featureToggleService.appearanceMode
         let stream = featureToggleService.appearanceModeChanges
         darkModeObservation = Task { [weak self] in
             for await mode in stream {
