@@ -38,7 +38,7 @@ Services is a sibling to the UI stack — it depends on Model and Core but NOT o
 ## MVVM-C Architecture (NavigationStack Variant)
 
 ### Single AppCoordinator
-Unlike the main branch (6 UIKit coordinators), this branch uses a **single `AppCoordinator: ObservableObject, ServiceLocatorProvider`** that manages all navigation state:
+Unlike the main branch (6 UIKit coordinators), this branch uses a **single `AppCoordinator: ObservableObject, SessionProvider`** that manages all navigation state:
 
 ```swift
 @MainActor
