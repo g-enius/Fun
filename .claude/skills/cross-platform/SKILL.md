@@ -10,7 +10,7 @@ args: "<feature-name>"
 Compare the implementation of a feature across Fun-iOS and Fun-Android to find unintentional divergences.
 
 ## Project Paths
-- **iOS**: `~/Documents/Source/Fun-iOS-NavigationStack/`
+- **iOS**: `~/Documents/Source/Fun-iOS-NavigationStack-Async-Sequence/`
 - **Android**: `~/Documents/Source/Fun-Android/`
 
 ## Steps
