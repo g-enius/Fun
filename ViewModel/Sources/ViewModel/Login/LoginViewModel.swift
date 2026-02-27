@@ -22,6 +22,7 @@ public class LoginViewModel: ObservableObject {
 
     @Service(.logger) private var logger: LoggerService
     @Service(.network) private var networkService: NetworkService
+    @Service(.toast) private var toastService: ToastServiceProtocol
 
     // MARK: - Published State
 
@@ -51,8 +52,13 @@ public class LoginViewModel: ObservableObject {
         loginTask = Task { [weak self] in
             guard let self else { return }
             defer { self.isLoggingIn = false }
-            try? await self.networkService.login()
-            self.onLogin?()
+            do {
+                try await self.networkService.login()
+                self.onLogin?()
+            } catch {
+                self.logger.log("Login failed: \(error)", level: .error, category: .general)
+                self.toastService.showToast(message: L10n.Error.networkError, type: .error)
+            }
         }
     }
 }

@@ -77,12 +77,20 @@ public struct ToastView: View {
         guard !isDismissed else { return }
         isDismissed = true
 
-        withAnimation(.easeOut(duration: 0.25)) {
-            isVisible = false
-        }
-        Task {
-            try? await Task.sleep(nanoseconds: 250_000_000)
-            onDismiss()
+        if #available(iOS 17.0, *) {
+            withAnimation(.easeOut(duration: 0.25)) {
+                isVisible = false
+            } completion: {
+                onDismiss()
+            }
+        } else {
+            withAnimation(.easeOut(duration: 0.25)) {
+                isVisible = false
+            }
+            Task {
+                try? await Task.sleep(nanoseconds: 250_000_000)
+                onDismiss()
+            }
         }
     }
 

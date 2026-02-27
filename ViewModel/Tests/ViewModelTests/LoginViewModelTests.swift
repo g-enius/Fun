@@ -94,4 +94,23 @@ struct LoginViewModelTests {
 
         #expect(viewModel.isLoggingIn == false)
     }
+
+    @Test("Login failure does not call onLogin and shows error toast")
+    func testLoginFailureDoesNotCallOnLogin() async {
+        ServiceLocator.shared.register(MockNetworkService(shouldThrowError: true), for: .network)
+
+        let viewModel = LoginViewModel()
+        var loginCalled = false
+        viewModel.onLogin = { loginCalled = true }
+
+        viewModel.login()
+        await Task.yield()
+
+        #expect(loginCalled == false)
+        #expect(viewModel.isLoggingIn == false)
+
+        let toastService: MockToastService = ServiceLocator.shared.resolve(for: .toast)
+        #expect(toastService.showToastCalled == true)
+        #expect(toastService.lastType == .error)
+    }
 }

@@ -94,7 +94,12 @@ private struct ItemsContentView: View {
     var isSearchFocused: FocusState<Bool>.Binding
 
     var body: some View {
-        if viewModel.isSearching {
+        if viewModel.isLoading {
+            Spacer()
+            ProgressView()
+                .progressViewStyle(.circular)
+            Spacer()
+        } else if viewModel.isSearching {
             Spacer()
             ProgressView(L10n.Search.searching)
                 .progressViewStyle(.circular)

@@ -37,6 +37,7 @@ public class ItemsViewModel: ObservableObject {
     @Published public var isSearching: Bool = false
     @Published public var needsMoreCharacters: Bool = false
     @Published public var hasError: Bool = false
+    @Published public private(set) var isLoading: Bool = false
 
     // MARK: - Configuration
 
@@ -137,6 +138,8 @@ public class ItemsViewModel: ObservableObject {
     // MARK: - Data Loading
 
     public func loadItems() async {
+        isLoading = true
+        defer { isLoading = false }
         allItems = (try? await networkService.fetchAllItems()) ?? []
         let cats = Set(allItems.map { $0.category })
         categories = [L10n.Items.categoryAll] + cats.sorted()
