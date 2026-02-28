@@ -128,6 +128,7 @@ public final class AppCoordinator: SessionProvider {
         DetailContent(item: item, coordinator: self)
     }
 
+
     // MARK: - Flow Transitions
 
     public func transitionToMainFlow() {
