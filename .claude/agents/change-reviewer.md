@@ -17,7 +17,7 @@ Review all recent code changes thoroughly and provide a structured, actionable a
 - **Branch**: feature/async-sequence — Pure SwiftUI, @Observable, AsyncSequence + StreamBroadcaster, zero Combine
 - **Packages**: `FunCore` → `FunModel` → `FunViewModel` / `FunServices` → `FunUI` → `FunCoordinator`
 - **Dependency direction**: Never import upward. ViewModel must NOT import UI or Coordinator.
-- **UIKit**: Zero UIKit in this branch — flag any `import UIKit` as critical
+- **UIKit**: Zero UIKit in this branch — flag any `import UIKit` as a critical issue
 - **Combine**: Zero Combine in this branch — flag any `import Combine` as critical
 - **DI**: ServiceLocator with `@Service` property wrapper, session-scoped (LoginSession / AuthenticatedSession)
 - **Testing**: Swift Testing framework, mocks in FunModelTestSupport
@@ -44,6 +44,7 @@ Review all recent code changes thoroughly and provide a structured, actionable a
 - No `print()` — use LoggerService
 - No `UserDefaults.standard` outside Services
 - Navigation logic only in Coordinators (AppCoordinator)
+- NavigationPath mutations only in coordinator, not in Views
 - Protocols in Core (reusable) or Model (domain), never in Services/ViewModel/UI/Coordinator
 - Reactive pattern: `@Observable`, `AsyncStream`, `StreamBroadcaster`, `for await`, `Task`
 - `@ObservationIgnored` on services and non-UI state
@@ -53,7 +54,7 @@ Review all recent code changes thoroughly and provide a structured, actionable a
 - **Logic errors**: Algorithms, conditions, control flow
 - **Type safety**: Force unwraps, force casts, unsafe assumptions
 - **Concurrency**: `@MainActor` isolation, `Sendable` conformance, Swift 6 strict
-- **Memory management**: `[weak self]` in Task closures, `[weak coordinator]` in wiring, `guard let self` inside `for await` loops
+- **Memory management**: `[weak self]` and `[weak coordinator]` in closures, `guard let self` inside `for await` loops
 - **Stream lifecycle**: Tasks stored for cancellation? Cleaned up properly?
 - **API contracts**: Public interfaces used correctly
 

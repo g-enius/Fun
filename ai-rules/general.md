@@ -97,9 +97,13 @@ FunApp (@main, uses @State not @StateObject)
        ├─ LoginTabContent (when currentFlow == .login)
        └─ MainTabView (when currentFlow == .main)
             ├─ homeTab: NavigationStack(path: $coordinator.homePath)
+            │    └─ HomeTabContent → .navigationDestination(for: FeaturedItem.self)
             ├─ itemsTab: NavigationStack(path: $coordinator.itemsPath)
+            │    └─ ItemsTabContent
             └─ settingsTab: NavigationStack(path: $coordinator.settingsPath)
+                 └─ SettingsTabContent
             + .sheet(isPresented: $coordinator.isProfilePresented)
+                 └─ ProfileTabContent
 ```
 
 ### View Wiring Pattern (this branch)
@@ -137,12 +141,15 @@ Service events use `StreamBroadcaster` instead of Combine publishers.
 | `LoginSession` | logger, network, featureToggles, toast | Login screen |
 | `AuthenticatedSession` | logger, network, favorites, toast, featureToggles, ai | Main app |
 
+- `AppSessionFactory` creates the right session for each `AppFlow` case
+- App entry (`FunApp.swift`) creates coordinator with `@State` and calls `.start()` in `.task`
+
 ## Protocol Placement
 
 | Package | What goes here | Example |
 |---|---|---|
 | Core | Reusable abstractions not tied to domain | `Session`, `ServiceLocator`, `@Service`, `StreamBroadcaster` |
-| Model | Domain-specific protocols and types | `LoggerService`, `FavoritesServiceProtocol`, `SessionFactory`, `DeepLink`, `AppFlow`, `TabIndex` |
+| Model | Domain-specific protocols and types | `LoggerService`, `FavoritesServiceProtocol`, `NetworkService`, `SessionFactory`, `DeepLink`, `AppFlow`, `TabIndex` |
 | Services | Concrete implementations only | `DefaultLoggerService`, `LoginSession`, `AuthenticatedSession` |
 
 Never define a protocol in Services — protocols go in Model (domain) or Core (infrastructure).
@@ -154,7 +161,9 @@ URL scheme: `funapp://`
 - `funapp://item/<id>`
 - `funapp://profile`
 
-Handled by `AppCoordinator.handleDeepLink(_:)`. Queued during login, executed after auth.
+Parsed by `DeepLink(url:)` in Model. Handled by `AppCoordinator.handleDeepLink(_:)`.
+If received during login, stored as `pendingDeepLink` and executed after `transitionToMainFlow()`.
+App entry uses `.onOpenURL { url in coordinator.handleDeepLink(DeepLink(url: url)) }`.
 
 ## Testing
 
@@ -165,6 +174,10 @@ Handled by `AppCoordinator.handleDeepLink(_:)`. Queued during login, executed af
 - **Snapshots**: swift-snapshot-testing in UI package tests
 
 ## Key Differences from Other Branches
+- No UIKit, no UIViewControllers, no UIHostingController, no BaseCoordinator
+- Single coordinator (not 6 separate ones)
+- Navigation via NavigationPath (declarative) instead of safePush/safePop (imperative)
+- App entry via SwiftUI @main, not SceneDelegate
 - `@Observable` instead of `ObservableObject` — no `@Published`, SwiftUI tracks property access automatically
 - `@ObservationIgnored` for services and private state that shouldn't trigger view updates
 - `@State` instead of `@StateObject` for coordinator and viewmodel ownership
