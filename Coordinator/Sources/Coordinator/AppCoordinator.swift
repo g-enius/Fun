@@ -76,6 +76,34 @@ public final class AppCoordinator: ObservableObject, ServiceLocatorProvider {
         currentSession = session
     }
 
+    // MARK: - Navigation
+
+    public func showDetail(_ item: FeaturedItem, in tab: TabIndex) {
+        switch tab {
+        case .home: homePath.append(item)
+        case .items: itemsPath.append(item)
+        default: break
+        }
+    }
+
+    public func showProfile() {
+        isProfilePresented = true
+    }
+
+    public func dismissProfile() {
+        isProfilePresented = false
+    }
+
+    public func selectTab(_ tab: TabIndex) {
+        selectedTab = tab
+    }
+
+    public func popToRoot() {
+        homePath = NavigationPath()
+        itemsPath = NavigationPath()
+        settingsPath = NavigationPath()
+    }
+
     // MARK: - Flow Transitions
 
     public func transitionToMainFlow() {
@@ -96,11 +124,9 @@ public final class AppCoordinator: ObservableObject, ServiceLocatorProvider {
         activateSession(for: .login)
 
         // Reset navigation state
-        homePath = NavigationPath()
-        itemsPath = NavigationPath()
-        settingsPath = NavigationPath()
-        selectedTab = .home
-        isProfilePresented = false
+        popToRoot()
+        selectTab(.home)
+        dismissProfile()
         activeToast = nil
     }
 
@@ -117,19 +143,19 @@ public final class AppCoordinator: ObservableObject, ServiceLocatorProvider {
     private func executeDeepLink(_ deepLink: DeepLink) {
         switch deepLink {
         case .tab(let tabIndex):
-            selectedTab = tabIndex
+            selectTab(tabIndex)
 
         case .item(let id):
-            selectedTab = .home
+            selectTab(.home)
             if let item = FeaturedItem.all.first(where: { $0.id == id }) {
-                homePath.append(item)
+                showDetail(item, in: .home)
             } else {
                 logger.log("Deep link item not found: \(id)", level: .warning, category: .general)
             }
 
         case .profile:
-            selectedTab = .home
-            isProfilePresented = true
+            selectTab(.home)
+            showProfile()
         }
     }
 
