@@ -122,7 +122,6 @@ public final class AppCoordinator {
         currentFlow = .main
         activateSession(for: .main)
         subscribeToDarkMode()
-        observeToastEvents()
 
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
@@ -176,6 +175,18 @@ public final class AppCoordinator {
     // MARK: - Toast
 
     private func observeToastEvents() {
+        toastObservation?.cancel()
+        let registrations = ServiceLocator.shared.serviceRegistrations
+        toastObservation = Task { [weak self] in
+            for await key in registrations {
+                guard let self else { break }
+                guard key == .toast else { continue }
+                self.subscribeToToasts()
+            }
+        }
+    }
+
+    private func subscribeToToasts() {
         toastObservation?.cancel()
         let stream = toastService.toastEvents
         toastObservation = Task { [weak self] in
