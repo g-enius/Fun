@@ -1,14 +1,19 @@
 #!/bin/bash
 set -euo pipefail
 
-# Sync feature branches onto main after pushing main.
+# Sync feature branches in PR-chain order after pushing main.
+# Chain: main → navigation-stack → async-sequence
+# (navigation-stack rebases onto main, async-sequence rebases onto navigation-stack)
 # Run from the main worktree (Fun-iOS/).
 # On conflict: aborts rebase, restores state, exits non-zero.
 
 MAIN_WORKTREE="$(cd "$(dirname "$0")/.." && pwd)"
-FEATURE_WORKTREES=(
-  "/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack"
-  "/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack-Async-Sequence"
+
+# Ordered pairs: worktree_path:rebase_target
+# navigation-stack rebases onto main, async-sequence rebases onto navigation-stack
+SYNC_CHAIN=(
+  "/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack:main"
+  "/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack-Async-Sequence:feature/navigation-stack"
 )
 
 RED='\033[0;31m'
@@ -54,7 +59,10 @@ fi
 FAILED_BRANCHES=()
 SYNCED_BRANCHES=()
 
-for WORKTREE in "${FEATURE_WORKTREES[@]}"; do
+for ENTRY in "${SYNC_CHAIN[@]}"; do
+  WORKTREE="${ENTRY%%:*}"
+  REBASE_TARGET="${ENTRY##*:}"
+
   if [[ ! -d "$WORKTREE" ]]; then
     warn "Worktree not found: $WORKTREE — skipping"
     continue
@@ -62,7 +70,7 @@ for WORKTREE in "${FEATURE_WORKTREES[@]}"; do
 
   cd "$WORKTREE"
   BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  info "Syncing $BRANCH ($WORKTREE)..."
+  info "Syncing $BRANCH onto $REBASE_TARGET ($WORKTREE)..."
 
   # Auto-stash if dirty
   STASHED=false
@@ -72,7 +80,7 @@ for WORKTREE in "${FEATURE_WORKTREES[@]}"; do
     STASHED=true
   fi
 
-  # Rebase onto main with retry for index.lock contention (Xcode, file watchers)
+  # Rebase with retry for index.lock contention (Xcode, file watchers)
   WORKTREE_NAME=$(basename "$WORKTREE")
   LOCK_FILE="$MAIN_WORKTREE/.git/worktrees/$WORKTREE_NAME/index.lock"
   MAX_RETRIES=3
@@ -85,7 +93,7 @@ for WORKTREE in "${FEATURE_WORKTREES[@]}"; do
       rm -f "$LOCK_FILE"
     fi
 
-    REBASE_OUTPUT=$(git rebase main 2>&1) && { REBASE_OK=true; break; }
+    REBASE_OUTPUT=$(git rebase "$REBASE_TARGET" 2>&1) && { REBASE_OK=true; break; }
 
     if echo "$REBASE_OUTPUT" | grep -q "index.lock"; then
       warn "  Lock contention (attempt $ATTEMPT/$MAX_RETRIES), retrying..."

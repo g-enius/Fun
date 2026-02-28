@@ -1,12 +1,16 @@
 ---
 name: sync
-description: Sync feature branches onto main — rebase, push, and resolve conflicts if needed
+description: Sync feature branches in PR-chain order — rebase, push, and resolve conflicts if needed
 user_invocable: true
 ---
 
 # /sync — Multi-Branch Sync
 
-Rebase all feature branch worktrees onto main and force-push. If conflicts arise, resolve them intelligently.
+Rebase feature branches in PR-chain order and force-push. If conflicts arise, resolve them intelligently.
+
+**Chain:** `main` → `navigation-stack` → `async-sequence`
+- `navigation-stack` rebases onto `main`
+- `async-sequence` rebases onto `navigation-stack` (matches PR #4 target)
 
 ## Steps
 
@@ -23,10 +27,10 @@ Rebase all feature branch worktrees onto main and force-push. If conflicts arise
    - Parse the output to identify which branch(es) failed
    - For each failed branch:
      a. `cd` to the worktree directory
-     b. Run `git rebase main` to restart the rebase
+     b. Run `git rebase <target>` to restart the rebase (main for navigation-stack, feature/navigation-stack for async-sequence)
      c. When conflicts occur, read the conflicted files
      d. Resolve conflicts intelligently:
-        - For CLAUDE.md / README.md / docs: keep both sides' content, merge logically
+        - For CLAUDE.md / README.md / docs: keep the current branch's version for branch-specific content, merge shared content
         - For code: understand both branches' intent, produce correct merged result
         - For generated files (Package.resolved, etc.): regenerate rather than merge
      e. `git add` resolved files, `git rebase --continue`
@@ -38,14 +42,14 @@ Rebase all feature branch worktrees onto main and force-push. If conflicts arise
    - If any branch still failed after AI resolution, explain what went wrong
 
 ## Worktree Paths
-| Branch | Path |
-|--------|------|
-| main | `/Users/charleswang/Documents/Source/Fun-iOS` |
-| feature/navigation-stack | `/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack` |
-| feature/async-sequence | `/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack-Async-Sequence` |
+| Branch | Rebase onto | Path |
+|--------|-------------|------|
+| main | — | `/Users/charleswang/Documents/Source/Fun-iOS` |
+| feature/navigation-stack | main | `/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack` |
+| feature/async-sequence | feature/navigation-stack | `/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack-Async-Sequence` |
 
 ## Important
 - Always push main first before rebasing feature branches
-- Use `git rebase main` (not `origin/main`) — worktrees share the same `.git`, so local main is already current
+- Rebase order matters: navigation-stack first (onto main), then async-sequence (onto navigation-stack)
+- Use local branch refs (not `origin/`) — worktrees share the same `.git`, so local refs are already current
 - Use `--force-with-lease` (not `--force`) for safety
-- Feature branches rebase in order: navigation-stack first, then async-sequence (since async-sequence may depend on navigation-stack changes)
