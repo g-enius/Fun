@@ -17,6 +17,7 @@ public final class LoginSession: Session {
         locator.register(DefaultLoggerService(), for: .logger)
         locator.register(NetworkServiceImpl(), for: .network)
         locator.register(DefaultFeatureToggleService(), for: .featureToggles)
+        locator.register(DefaultToastService(), for: .toast)
     }
 
     public func teardown() {
