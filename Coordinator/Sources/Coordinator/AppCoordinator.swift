@@ -116,7 +116,8 @@ public final class AppCoordinator: SessionProvider {
 
     // Centralised routing table — called from both homeTab and itemsTab
     // .navigationDestination closures, so destination logic lives in one place.
-    // As destination types grow, expand with a switch:
+    // @ViewBuilder not required for a single expression today, but keeps
+    // this method ready for switch/if-else routing as destination types grow.
     //
     //   switch item.category {
     //   case .article: ArticleDetailView(item: item)
