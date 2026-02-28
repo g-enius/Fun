@@ -76,6 +76,41 @@ The three branches are **visually identical**, but architectural differences pro
 | Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
 | ViewModel observation | `ObservableObject`<br>(**per-object invalidation**) | `@Observable`<br>(**per-property tracking**) |
 
+#### StreamBroadcaster vs Combine Subjects
+
+`StreamBroadcaster` is a custom `@MainActor`-isolated multi-consumer broadcaster that replaces Combine's `CurrentValueSubject` and `PassthroughSubject` for async/await code. Each consumer gets an independent `AsyncStream`.
+
+| | `CurrentValueSubject` | `PassthroughSubject` | `StreamBroadcaster` |
+|---|---|---|---|
+| **Create** | `CurrentValueSubject(initial)` | `PassthroughSubject()` | `StreamBroadcaster()` |
+| **Get stream** | `.eraseToAnyPublisher()` | `.eraseToAnyPublisher()` | `.makeStream()` (new stream per caller) |
+| **Send** | `.send(value)` | `.send(value)` | `.yield(value)` |
+| **Finish** | `.send(completion: .finished)` | `.send(completion: .finished)` | `.finish()` |
+| **Initial value** | Yes — emits on subscribe | No | No |
+| **Late subscriber** | Receives current value | Misses past values | Misses past values |
+| **Thread safety** | Internal locks | Internal locks | `@MainActor` isolation |
+| **Cleanup** | Manual `AnyCancellable` | Manual `AnyCancellable` | Automatic on Task cancellation |
+
+#### Migration Pitfall: `guard let self` in async loops
+
+`guard let self` **before** `for await` creates a retain cycle — the strong local ref survives across every suspension point, preventing deallocation:
+
+```swift
+// BAD — retains self forever during suspension
+Task { [weak self] in
+    guard let self else { return }
+    for await value in stream { self.property = value }
+}
+
+// GOOD — guard inside the loop, break if nil
+Task { [weak self] in
+    for await value in stream {
+        guard let self else { break }
+        self.property = value
+    }
+}
+```
+
 ### Migration stats (UIKit+SwiftUI → Pure SwiftUI)
 
 | Metric | Value |
