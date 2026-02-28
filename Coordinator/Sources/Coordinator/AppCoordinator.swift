@@ -112,19 +112,11 @@ public final class AppCoordinator: ServiceLocatorProvider {
 
     // MARK: - Routing
 
-    // Centralised routing table — called from both homeTab and itemsTab
-    // .navigationDestination closures, so destination logic lives in one place.
-    // As destination types grow, expand with a switch:
-    //
-    //   switch item.category {
-    //   case .article: ArticleDetailView(item: item)
-    //   case .video:   VideoPlayerView(item: item)
-    //   default:       DetailTabContent(item: item)
-    //   }
     @ViewBuilder
     func destinationView(for item: FeaturedItem) -> some View {
         DetailTabContent(item: item, coordinator: self)
     }
+
 
     // MARK: - Flow Transitions
 
