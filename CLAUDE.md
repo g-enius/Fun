@@ -50,7 +50,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - `print()` anywhere — use LoggerService
 - `UserDefaults.standard` outside Services — use FeatureToggleService
 - Adding `fatalError()` for missing services — ServiceLocator.resolve() already crashes with `fatalError` if a service isn't registered; don't add redundant guards
-- Navigation logic in Views — navigation decisions belong in Coordinators only
+- Navigation logic in Views — all navigation (push, pop, tab switch, modal present/dismiss) must go through named AppCoordinator methods (`showDetail`, `selectTab`, `showProfile`, etc.), never inline property manipulation like `coordinator.homePath.append(item)` or `coordinator.isProfilePresented = true`
 - Protocol definitions in Services — domain protocols go in Model, reusable abstractions in Core
 
 ## Architecture (this branch: feature/navigation-stack)
