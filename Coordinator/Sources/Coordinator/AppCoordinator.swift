@@ -110,6 +110,8 @@ public final class AppCoordinator {
 
     // MARK: - Routing
 
+    // @ViewBuilder not required for a single expression today, but keeps
+    // this method ready for switch/if-else routing as destination types grow.
     @ViewBuilder
     func destinationView(for item: FeaturedItem) -> some View {
         DetailTabContent(item: item)
