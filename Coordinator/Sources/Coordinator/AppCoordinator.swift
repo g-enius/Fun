@@ -115,7 +115,6 @@ public final class AppCoordinator {
         DetailTabContent(item: item)
     }
 
-
     // MARK: - Flow Transitions
 
     public func transitionToMainFlow() {
