@@ -102,6 +102,13 @@ public final class AppCoordinator: ObservableObject {
         settingsPath = NavigationPath()
     }
 
+    // MARK: - Routing
+
+//    @ViewBuilder
+    func destinationView(for item: FeaturedItem) -> some View {
+        DetailTabContent(item: item)
+    }
+
     // MARK: - Flow Transitions
 
     public func transitionToMainFlow() {
