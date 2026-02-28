@@ -43,12 +43,8 @@ struct MainTabView: View {
         NavigationStack(path: $coordinator.homePath) {
             HomeTabContent(coordinator: coordinator)
                 .navigationDestination(for: FeaturedItem.self) { item in
-                    DetailTabContent(item: item, coordinator: coordinator)
+                    coordinator.destinationView(for: item)
                 }
-                // To push additional types, register more destinations:
-                // .navigationDestination(for: UserProfile.self) { profile in
-                //     ProfileDetailView(profile: profile)
-                // }
         }
         .tabItem {
             Label(L10n.Tabs.home, systemImage: "house")
@@ -61,12 +57,8 @@ struct MainTabView: View {
         NavigationStack(path: $coordinator.itemsPath) {
             ItemsTabContent(coordinator: coordinator)
                 .navigationDestination(for: FeaturedItem.self) { item in
-                    DetailTabContent(item: item, coordinator: coordinator)
+                    coordinator.destinationView(for: item)
                 }
-                // To push additional types, register more destinations:
-                // .navigationDestination(for: UserProfile.self) { profile in
-                //     ProfileDetailView(profile: profile)
-                // }
         }
         .tabItem {
             Label(L10n.Tabs.items, systemImage: "list.bullet")
