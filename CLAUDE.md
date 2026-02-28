@@ -60,7 +60,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - **Reactive**: Combine (`@Published`, `@StateObject`, `@ObservedObject`, `.sink`)
 - **ViewModel → Coordinator**: Optional closures wired in tab content wrappers via `.task { viewModel.onShowDetail = { ... } }`
 - **Tab bar**: SwiftUI `TabView(selection: $coordinator.selectedTab)`
-- **Push nav**: `coordinator.homePath.append(item)` via NavigationPath
+- **Push nav**: `coordinator.showDetail(item, in: .home)` — named methods on AppCoordinator
 - **Modals**: `.sheet(isPresented: $coordinator.isProfilePresented)`
 - **DI**: Session-scoped ServiceLocator — no `.shared` singleton. Each `Session` creates and owns its own `ServiceLocator`. On session transition, the old ServiceLocator is released with the session (no stale services). `@Service` property wrapper resolves via `static subscript(_enclosingInstance:)` from the enclosing type's `serviceLocator` (requires `ServiceLocatorProvider` conformance). Coordinators and ViewModels receive the current session via constructor injection.
 
