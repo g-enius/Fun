@@ -20,9 +20,15 @@ info()  { echo -e "${GREEN}[sync]${NC} $1"; }
 warn()  { echo -e "${YELLOW}[sync]${NC} $1"; }
 error() { echo -e "${RED}[sync]${NC} $1"; }
 
-# --- Preflight: must be on main, must be clean or pushable ---
+# --- Preflight ---
 
 cd "$MAIN_WORKTREE"
+
+# Warn if Xcode is running (its source control creates index.lock during rebase)
+if pgrep -q Xcode; then
+  warn "Xcode is running — its git integration may cause index.lock conflicts."
+  warn "If rebase fails, close Xcode or disable Source Control in Xcode settings."
+fi
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [[ "$CURRENT_BRANCH" != "main" ]]; then
@@ -66,14 +72,42 @@ for WORKTREE in "${FEATURE_WORKTREES[@]}"; do
     STASHED=true
   fi
 
-  # Rebase onto main (shared .git means local main ref is current)
-  if git rebase main; then
+  # Rebase onto main with retry for index.lock contention (Xcode, file watchers)
+  WORKTREE_NAME=$(basename "$WORKTREE")
+  LOCK_FILE="$MAIN_WORKTREE/.git/worktrees/$WORKTREE_NAME/index.lock"
+  MAX_RETRIES=3
+  REBASE_OK=false
+
+  for ATTEMPT in $(seq 1 $MAX_RETRIES); do
+    # Clear stale lock before attempt
+    if [[ -f "$LOCK_FILE" ]]; then
+      warn "  Removing stale index.lock (attempt $ATTEMPT)..."
+      rm -f "$LOCK_FILE"
+    fi
+
+    REBASE_OUTPUT=$(git rebase main 2>&1) && { REBASE_OK=true; break; }
+
+    if echo "$REBASE_OUTPUT" | grep -q "index.lock"; then
+      warn "  Lock contention (attempt $ATTEMPT/$MAX_RETRIES), retrying..."
+      git rebase --abort 2>/dev/null || true
+      rm -f "$LOCK_FILE"
+      sleep 1
+    else
+      # Real conflict, not a lock issue
+      break
+    fi
+  done
+
+  if [[ "$REBASE_OK" == true ]]; then
     info "  Rebase successful. Force-pushing..."
     git push --force-with-lease origin "$BRANCH"
     SYNCED_BRANCHES+=("$BRANCH")
   else
-    error "  Rebase conflict on $BRANCH!"
-    git rebase --abort
+    error "  Rebase failed on $BRANCH!"
+    if echo "$REBASE_OUTPUT" | grep -q "index.lock"; then
+      error "  Persistent index.lock contention — close Xcode and retry."
+    fi
+    git rebase --abort 2>/dev/null || true
     FAILED_BRANCHES+=("$BRANCH")
   fi
 
