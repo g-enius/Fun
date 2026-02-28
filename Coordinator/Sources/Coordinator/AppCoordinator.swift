@@ -42,16 +42,19 @@ public final class AppCoordinator {
 
     @ObservationIgnored private var pendingDeepLink: DeepLink?
 
+    // MARK: - Service Observation
+
+    @ObservationIgnored private var registrationObservation: Task<Void, Never>?
+    @ObservationIgnored private var toastObservation: Task<Void, Never>?
+    @ObservationIgnored private var darkModeObservation: Task<Void, Never>?
+
     // MARK: - Toast
 
     public var activeToast: ToastEvent?
-    @ObservationIgnored private var registrationObservation: Task<Void, Never>?
-    @ObservationIgnored private var toastObservation: Task<Void, Never>?
 
     // MARK: - Dark Mode
 
     public var appearanceMode: AppearanceMode = .system
-    @ObservationIgnored private var darkModeObservation: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -69,8 +72,7 @@ public final class AppCoordinator {
 
     public func start() {
         activateSession(for: currentFlow)
-        observeToastEvents()
-        subscribeToDarkMode()
+        observeServiceRegistrations()
     }
 
     // MARK: - Session Lifecycle
@@ -131,7 +133,6 @@ public final class AppCoordinator {
     public func transitionToMainFlow() {
         currentFlow = .main
         activateSession(for: .main)
-        subscribeToDarkMode()
 
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
@@ -143,8 +144,6 @@ public final class AppCoordinator {
         currentFlow = .login
         pendingDeepLink = nil
         activateSession(for: .login)
-        subscribeToDarkMode()
-        registrationObservation?.cancel()
         toastObservation?.cancel()
 
         // Reset navigation state
@@ -183,19 +182,24 @@ public final class AppCoordinator {
         }
     }
 
-    // MARK: - Toast
+    // MARK: - Service Registration Observation
 
-    private func observeToastEvents() {
+    private func observeServiceRegistrations() {
         registrationObservation?.cancel()
         let registrations = ServiceLocator.shared.serviceRegistrations
         registrationObservation = Task { [weak self] in
             for await key in registrations {
                 guard let self else { break }
-                guard key == .toast else { continue }
-                self.subscribeToToasts()
+                switch key {
+                case .toast: self.subscribeToToasts()
+                case .featureToggles: self.subscribeToDarkMode()
+                default: break
+                }
             }
         }
     }
+
+    // MARK: - Toast
 
     private func subscribeToToasts() {
         toastObservation?.cancel()
