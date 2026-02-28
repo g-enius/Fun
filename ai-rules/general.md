@@ -81,10 +81,10 @@ struct HomeTabContent: View {
         HomeView(viewModel: viewModel)
             .task {
                 viewModel.onShowDetail = { [weak coordinator] item in
-                    coordinator?.homePath.append(item)
+                    coordinator?.showDetail(item, in: .home)
                 }
                 viewModel.onShowProfile = { [weak coordinator] in
-                    coordinator?.isProfilePresented = true
+                    coordinator?.showProfile()
                 }
             }
     }
