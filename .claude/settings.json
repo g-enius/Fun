@@ -8,7 +8,8 @@
       "Bash(gh *)",
       "Bash(cd * && xcodebuild *)",
       "mcp__XcodeBuildMCP__*",
-      "mcp__code-index__*"
+      "mcp__code-index__*",
+      "Bash(*/sync-branches.sh)"
     ]
   }
 }

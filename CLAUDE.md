@@ -4,6 +4,11 @@
 - 3 worktrees: `Fun-iOS` (main), `Fun-iOS-NavigationStack` (feature/navigation-stack), `Fun-iOS-NavigationStack-Async-Sequence` (feature/async-sequence)
 - **Always commit shared changes to main first**, push, then rebase feature branches onto main
 - Never make the same change independently on multiple branches
+- Sync tool: `scripts/sync-branches.sh` or `/sync` in Claude Code
+
+## Proactive Automation
+- When something is done repetitively (3+ times), proactively suggest automating it — as a script, skill, agent, or project rule, whichever fits best
+- After adding new features or capabilities, always consider updating the project README if it's user-visible
 
 ## Quality Standards
 - Production-quality Swift 6 with strict concurrency. Think about actor isolation and Sendable before writing code.
