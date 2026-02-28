@@ -52,6 +52,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - Adding `fatalError()` for missing services — ServiceLocator.resolve() already crashes with `fatalError` if a service isn't registered; don't add redundant guards
 - Navigation logic in Views — all navigation (push, pop, tab switch, modal present/dismiss) must go through named AppCoordinator methods (`showDetail`, `selectTab`, `showProfile`, etc.), never inline property manipulation like `coordinator.homePath.append(item)` or `coordinator.isProfilePresented = true`
 - Protocol definitions in Services — domain protocols go in Model, reusable abstractions in Core
+- Wrong ownership annotations — tab content wrappers must use `@StateObject` to own ViewModels (not `@ObservedObject`). `@ObservedObject` on a ViewModel means it gets recreated on every re-render. Conversely, the coordinator must be `let` or `@ObservedObject` (not `@StateObject`) since the wrapper doesn't own it.
 
 ## Architecture (this branch: feature/navigation-stack)
 - **Entry point**: SwiftUI `@main App` struct (`FunApp.swift`) — no AppDelegate or SceneDelegate
@@ -64,6 +65,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - **Modals**: `.sheet(isPresented: $coordinator.isProfilePresented)`
 - **DI**: ServiceLocator with `@Service` property wrapper, session-scoped (LoginSession / AuthenticatedSession)
 - **Coordinator-owned views**: `AppRootView`, `MainTabView`, and tab content wrappers live in `Coordinator` (not `FunUI`) because they depend on `AppCoordinator`. Moving them to `FunUI` would create a circular dependency (`Coordinator → UI → Coordinator`). Pure reusable views (`HomeView`, `DetailView`, etc.) stay in `FunUI`.
+- **Ownership wrappers**: Tab content wrappers (`HomeTabContent`, `ItemsTabContent`, etc.) use `@StateObject` to **own** their ViewModel and `@ObservedObject` (or `let`) for the coordinator passed from the parent. `@StateObject` ensures the ViewModel survives re-renders; `@ObservedObject` means the wrapper doesn't own the coordinator. Pure views in `FunUI` take `@ObservedObject var viewModel` since the wrapper owns it.
 
 ## Rule Index
 Consult these files for detailed guidance (not auto-loaded — read on demand):
