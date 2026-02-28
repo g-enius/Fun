@@ -39,7 +39,7 @@ struct SessionTests {
             #expect(ServiceLocator.shared.isRegistered(for: .network))
             #expect(ServiceLocator.shared.isRegistered(for: .featureToggles))
             #expect(!ServiceLocator.shared.isRegistered(for: .favorites))
-            #expect(!ServiceLocator.shared.isRegistered(for: .toast))
+            #expect(ServiceLocator.shared.isRegistered(for: .toast))
 
             session.teardown()
         }
@@ -152,7 +152,7 @@ struct SessionTests {
             #expect(ServiceLocator.shared.isRegistered(for: .network))
             #expect(ServiceLocator.shared.isRegistered(for: .featureToggles))
             #expect(!ServiceLocator.shared.isRegistered(for: .favorites))
-            #expect(!ServiceLocator.shared.isRegistered(for: .toast))
+            #expect(ServiceLocator.shared.isRegistered(for: .toast))
 
             login.teardown()
         }
@@ -181,7 +181,7 @@ struct SessionTests {
             #expect(ServiceLocator.shared.isRegistered(for: .network))
             #expect(ServiceLocator.shared.isRegistered(for: .featureToggles))
             #expect(!ServiceLocator.shared.isRegistered(for: .favorites))
-            #expect(!ServiceLocator.shared.isRegistered(for: .toast))
+            #expect(ServiceLocator.shared.isRegistered(for: .toast))
 
             login2.teardown()
         }
