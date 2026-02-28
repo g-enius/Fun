@@ -61,6 +61,7 @@ public final class AppCoordinator: ObservableObject {
 
     public func start() {
         activateSession(for: currentFlow)
+        observeToastEvents()
         observeDarkMode()
     }
 
@@ -106,7 +107,6 @@ public final class AppCoordinator: ObservableObject {
     public func transitionToMainFlow() {
         currentFlow = .main
         activateSession(for: .main)
-        observeToastEvents()
 
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
@@ -158,6 +158,15 @@ public final class AppCoordinator: ObservableObject {
     // MARK: - Toast
 
     private func observeToastEvents() {
+        ServiceLocator.shared.serviceDidRegisterPublisher
+            .filter { $0 == .toast }
+            .sink { [weak self] _ in
+                self?.subscribeToToasts()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func subscribeToToasts() {
         toastService.toastPublisher
             .sink { [weak self] event in
                 self?.activeToast = event
