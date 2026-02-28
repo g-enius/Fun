@@ -17,6 +17,7 @@
 
 ### Sendable Types
 - All enums in Model are `Sendable` (`AppFlow`, `TabIndex`, `DeepLink`, `AppearanceMode`, etc.)
+- Protocols that cross isolation boundaries include `Sendable` conformance
 - `StreamBroadcaster<Element: Sendable>` — element type must be Sendable
 
 ## @Observable Patterns (this branch)
@@ -33,13 +34,19 @@ This branch uses Swift Observation framework, NOT Combine's ObservableObject:
 - `@MainActor @Observable` class
 - Regular `var` properties for view state (SwiftUI auto-tracks)
 - `@ObservationIgnored` for services (`@Service` properties) and non-UI state
-- Optional closures for navigation
+- Optional closures for navigation: `var onShowDetail: ((FeaturedItem) -> Void)?`
 - `Task` for stream observation, stored as `@ObservationIgnored private var observationTask: Task<Void, Never>?`
+- No UIKit imports. No coordinator references.
+
+### Views (Pure SwiftUI)
+- Never make navigation decisions — call ViewModel methods which invoke closures
+- No `import UIKit` anywhere in this branch
 
 ### AppCoordinator
 - `@MainActor @Observable` with per-tab NavigationPath
 - `@ObservationIgnored` for sessionFactory, currentSession, pendingDeepLink, observation Tasks
 - Created with `@State` in the app entry point
+- Tab content wrappers wire ViewModel closures using `[weak coordinator]`
 
 ## AsyncSequence Patterns (this branch — zero Combine)
 
@@ -83,10 +90,14 @@ Task { [weak self] in
 
 ### Types
 - AppCoordinator (single, @Observable)
-- Tab content wrappers: `HomeTabContent`, `ItemsTabContent`, etc.
-- ViewModels: `HomeViewModel`, `ItemsViewModel` (@Observable)
-- Views: `HomeView`, `ItemsView` (pure SwiftUI)
+- Tab content wrappers: `HomeTabContent`, `ItemsTabContent`, `SettingsTabContent`, `ProfileTabContent`, `LoginTabContent`
+- ViewModels: `HomeViewModel`, `ItemsViewModel`, `DetailViewModel` (@Observable)
+- Views: `HomeView`, `ItemsView`, `DetailView` (pure SwiftUI)
 - Services: protocol `FavoritesServiceProtocol`, impl `DefaultFavoritesService`
+
+### Navigation Closures
+- `onShowDetail`, `onShowProfile`, `onLoginSuccess`, `onLogout`, `onPop`, `onShare`, `onDismiss`, `onGoToItems`
+- Always optional, wired in tab content wrapper `.task` blocks
 
 ### Task Properties
 - `private var toastObservation: Task<Void, Never>?`
@@ -115,6 +126,16 @@ Zero-tolerance — CI fails on any violation.
 - `assertionFailure()` for programmer errors that shouldn't crash in production
 - `fatalError()` only in ServiceLocator.resolve()
 - Never silently swallow errors — log via LoggerService
+
+## Protocol Placement Rules
+
+| If the protocol... | Put it in... |
+|---|---|
+| Is a reusable abstraction (DI, lifecycle) | `Core` |
+| Defines domain behavior (services, factories) | `Model` |
+| Is only needed by one implementation | Probably don't need a protocol |
+
+Never define protocols in `Services`, `ViewModel`, `UI`, or `Coordinator`.
 
 ## Things That Don't Belong in This Branch
 - `import Combine` — use AsyncSequence/StreamBroadcaster instead
