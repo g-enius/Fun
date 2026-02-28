@@ -104,6 +104,12 @@ public final class AppCoordinator: ObservableObject, ServiceLocatorProvider {
         settingsPath = NavigationPath()
     }
 
+    // MARK: - Routing
+
+    func destinationView(for item: FeaturedItem) -> some View {
+        DetailTabContent(item: item, coordinator: self)
+    }
+
     // MARK: - Flow Transitions
 
     public func transitionToMainFlow() {
