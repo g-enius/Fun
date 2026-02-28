@@ -67,6 +67,15 @@ Three branches demonstrate progressive modernization — same app, three archite
 | Initial value | `@Published` emits on subscribe | Read property directly, stream emits future changes |
 | ViewModel observation | `ObservableObject`<br>(**per-object invalidation**) | `@Observable`<br>(**per-property tracking**) |
 
+### Known Behavioural Differences
+
+The three branches are **visually identical**, but architectural differences produce minor behavioural variations:
+
+| Behaviour | `main` (UIKit) | `navigation-stack` / `async-sequence` (SwiftUI) | Why |
+|-----------|----------------|--------------------------------------------------|-----|
+| Items tab first load | No loading spinner — data ready before tab appears | Brief loading spinner on first tap | UIKit coordinators are classes created eagerly at launch; SwiftUI view structs (and their `@StateObject`/`@State` ViewModels) are created lazily on first render |
+| Share sheet position | Bottom sheet (native `UIActivityViewController`) | Popover anchored to toolbar button | `ShareLink` in a `ToolbarItem` presents as a popover on iPhone — Apple controls this internally; no SwiftUI modifier can force bottom-sheet without `import UIKit` |
+
 ### Migration stats (UIKit+SwiftUI → Pure SwiftUI)
 
 | Metric | Value |
