@@ -63,6 +63,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - **Push nav**: `coordinator.showDetail(item, in: .home)` — named methods on AppCoordinator
 - **Modals**: `.sheet(isPresented: $coordinator.isProfilePresented)`
 - **DI**: Session-scoped ServiceLocator — no `.shared` singleton. Each `Session` creates and owns its own `ServiceLocator`. On session transition, the old ServiceLocator is released with the session (no stale services). `@Service` property wrapper resolves via `static subscript(_enclosingInstance:)` from the enclosing type's `serviceLocator` (requires `ServiceLocatorProvider` conformance). Coordinators and ViewModels receive the current session via constructor injection.
+- **Coordinator-owned views**: `AppRootView`, `MainTabView`, and tab content wrappers live in `Coordinator` (not `FunUI`) because they depend on `AppCoordinator`. Moving them to `FunUI` would create a circular dependency (`Coordinator → UI → Coordinator`). Pure reusable views (`HomeView`, `DetailView`, etc.) stay in `FunUI`.
 
 ## Rule Index
 Consult these files for detailed guidance (not auto-loaded — read on demand):

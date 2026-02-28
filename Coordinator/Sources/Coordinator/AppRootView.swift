@@ -2,7 +2,9 @@
 //  AppRootView.swift
 //  Coordinator
 //
-//  Root SwiftUI view that switches between login and main tab flow
+//  Root SwiftUI view that switches between login and main tab flow.
+//  Lives in Coordinator (not FunUI) because it depends on AppCoordinator.
+//  Moving to FunUI would create a circular dependency: Coordinator → UI → Coordinator.
 //
 
 import SwiftUI
