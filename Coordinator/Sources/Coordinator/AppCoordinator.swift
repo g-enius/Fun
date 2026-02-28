@@ -5,7 +5,6 @@
 //  SwiftUI-based coordinator managing navigation state and app flow
 //
 
-import Combine
 import Observation
 import SwiftUI
 
@@ -46,7 +45,7 @@ public final class AppCoordinator: SessionProvider {
     // MARK: - Toast
 
     public var activeToast: ToastEvent?
-    @ObservationIgnored private var toastCancellable: AnyCancellable?
+    @ObservationIgnored private var toastObservation: Task<Void, Never>?
 
     // MARK: - Dark Mode
 
@@ -61,6 +60,7 @@ public final class AppCoordinator: SessionProvider {
     }
 
     deinit {
+        toastObservation?.cancel()
         darkModeObservation?.cancel()
     }
 
@@ -193,11 +193,14 @@ public final class AppCoordinator: SessionProvider {
     // MARK: - Toast
 
     private func observeToastEvents() {
-        toastCancellable?.cancel()
-        toastCancellable = toastService.toastPublisher
-            .sink { [weak self] event in
-                self?.activeToast = event
+        toastObservation?.cancel()
+        let stream = toastService.toastEvents
+        toastObservation = Task { [weak self] in
+            for await event in stream {
+                guard let self else { break }
+                self.activeToast = event
             }
+        }
     }
 
     public func dismissToast() {
