@@ -48,8 +48,7 @@ Rebase feature branches in PR-chain order and force-push. If conflicts arise, re
 | feature/navigation-stack | main | `/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack` |
 | feature/async-sequence | feature/navigation-stack | `/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack-Async-Sequence` |
 
-## Important
-- Always push main first before rebasing feature branches
-- Rebase order matters: navigation-stack first (onto main), then async-sequence (onto navigation-stack)
-- Use local branch refs (not `origin/`) — worktrees share the same `.git`, so local refs are already current
-- Use `--force-with-lease` (not `--force`) for safety
+## Notes
+- The script auto-pushes main if it's ahead of origin, auto-stashes dirty worktrees, and retries on index.lock contention
+- Rebase order is hardcoded in the script: navigation-stack onto main, then async-sequence onto navigation-stack
+- Uses `--force-with-lease` (not `--force`) for safety
