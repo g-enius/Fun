@@ -45,6 +45,10 @@ struct MainTabView: View {
                 .navigationDestination(for: FeaturedItem.self) { item in
                     DetailTabContent(item: item)
                 }
+                // To push additional types, register more destinations:
+                // .navigationDestination(for: UserProfile.self) { profile in
+                //     ProfileDetailView(profile: profile)
+                // }
         }
         .tabItem {
             Label(L10n.Tabs.home, systemImage: "house")
@@ -59,6 +63,10 @@ struct MainTabView: View {
                 .navigationDestination(for: FeaturedItem.self) { item in
                     DetailTabContent(item: item)
                 }
+                // To push additional types, register more destinations:
+                // .navigationDestination(for: UserProfile.self) { profile in
+                //     ProfileDetailView(profile: profile)
+                // }
         }
         .tabItem {
             Label(L10n.Tabs.items, systemImage: "list.bullet")
@@ -90,10 +98,10 @@ struct HomeTabContent: View {
         HomeView(viewModel: viewModel)
             .task {
                 viewModel.onShowDetail = { [weak coordinator] item in
-                    coordinator?.homePath.append(item)
+                    coordinator?.showDetail(item, in: .home)
                 }
                 viewModel.onShowProfile = { [weak coordinator] in
-                    coordinator?.isProfilePresented = true
+                    coordinator?.showProfile()
                 }
             }
     }
@@ -108,7 +116,7 @@ struct ItemsTabContent: View {
         ItemsView(viewModel: viewModel)
             .task {
                 viewModel.onShowDetail = { [weak coordinator] item in
-                    coordinator?.itemsPath.append(item)
+                    coordinator?.showDetail(item, in: .items)
                 }
             }
     }
@@ -145,15 +153,15 @@ struct ProfileTabContent: View {
         ProfileView(viewModel: viewModel)
             .task {
                 viewModel.onDismiss = { [weak coordinator] in
-                    coordinator?.isProfilePresented = false
+                    coordinator?.dismissProfile()
                 }
                 viewModel.onLogout = { [weak coordinator] in
-                    coordinator?.isProfilePresented = false
+                    coordinator?.dismissProfile()
                     coordinator?.transitionToLoginFlow()
                 }
                 viewModel.onGoToItems = { [weak coordinator] in
-                    coordinator?.isProfilePresented = false
-                    coordinator?.selectedTab = .items
+                    coordinator?.dismissProfile()
+                    coordinator?.selectTab(.items)
                 }
             }
     }
