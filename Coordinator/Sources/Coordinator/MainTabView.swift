@@ -47,7 +47,6 @@ struct MainTabView: View {
                 .navigationDestination(for: FeaturedItem.self) { item in
                     coordinator.destinationView(for: item)
                 }
-                // Chain more .navigationDestination(for:) to handle additional pushable types.
         }
         .tabItem {
             Label(L10n.Tabs.home, systemImage: "house")
@@ -62,7 +61,6 @@ struct MainTabView: View {
                 .navigationDestination(for: FeaturedItem.self) { item in
                     coordinator.destinationView(for: item)
                 }
-                // Chain more .navigationDestination(for:) to handle additional pushable types.
         }
         .tabItem {
             Label(L10n.Tabs.items, systemImage: "list.bullet")

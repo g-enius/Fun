@@ -117,7 +117,6 @@ public final class AppCoordinator: ServiceLocatorProvider {
         DetailTabContent(item: item, coordinator: self)
     }
 
-
     // MARK: - Flow Transitions
 
     public func transitionToMainFlow() {
