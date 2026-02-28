@@ -45,6 +45,7 @@ public final class AppCoordinator {
     // MARK: - Toast
 
     public var activeToast: ToastEvent?
+    @ObservationIgnored private var registrationObservation: Task<Void, Never>?
     @ObservationIgnored private var toastObservation: Task<Void, Never>?
 
     // MARK: - Dark Mode
@@ -59,6 +60,7 @@ public final class AppCoordinator {
     }
 
     deinit {
+        registrationObservation?.cancel()
         toastObservation?.cancel()
         darkModeObservation?.cancel()
     }
@@ -142,6 +144,7 @@ public final class AppCoordinator {
         pendingDeepLink = nil
         activateSession(for: .login)
         subscribeToDarkMode()
+        registrationObservation?.cancel()
         toastObservation?.cancel()
 
         // Reset navigation state
@@ -183,9 +186,9 @@ public final class AppCoordinator {
     // MARK: - Toast
 
     private func observeToastEvents() {
-        toastObservation?.cancel()
+        registrationObservation?.cancel()
         let registrations = ServiceLocator.shared.serviceRegistrations
-        toastObservation = Task { [weak self] in
+        registrationObservation = Task { [weak self] in
             for await key in registrations {
                 guard let self else { break }
                 guard key == .toast else { continue }
