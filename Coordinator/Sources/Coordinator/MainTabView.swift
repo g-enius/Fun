@@ -2,7 +2,9 @@
 //  MainTabView.swift
 //  Coordinator
 //
-//  Main tab view with NavigationStack per tab, profile sheet, and toast overlay
+//  Main tab view with NavigationStack per tab, profile sheet, and toast overlay.
+//  Lives in Coordinator (not FunUI) because it depends on AppCoordinator.
+//  Moving to FunUI would create a circular dependency: Coordinator → UI → Coordinator.
 //
 
 import SwiftUI
