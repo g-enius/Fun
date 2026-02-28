@@ -144,7 +144,6 @@ public final class AppCoordinator {
         currentFlow = .login
         pendingDeepLink = nil
         activateSession(for: .login)
-        toastObservation?.cancel()
 
         // Reset navigation state
         popToRoot()
