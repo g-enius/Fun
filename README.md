@@ -271,7 +271,8 @@ Commits with AI assistance include `Co-Authored-By: Claude` attribution.
 │   ├── review/SKILL.md            # /review — architecture + similar-pattern search
 │   ├── fix-issue/SKILL.md         # /fix-issue — end-to-end GitHub issue workflow
 │   ├── cross-platform/SKILL.md    # /cross-platform — iOS vs Android parity check
-│   └── pull-request/SKILL.md      # /pull-request — draft PR with tests + accessibility
+│   ├── pull-request/SKILL.md      # /pull-request — draft PR with tests + accessibility
+│   └── sync/SKILL.md              # /sync — rebase feature branches onto main with AI conflict resolution
 └── agents/
     └── change-reviewer.md         # Branch-aware code review agent
 CLAUDE.md                          # Architecture rules, anti-patterns, build commands
@@ -283,7 +284,7 @@ ai-rules/
 
 **Branch-aware**: Each branch has its own `CLAUDE.md` and `ai-rules/` adapted for that branch's architecture. The change-reviewer agent knows which patterns to enforce — e.g., flagging `import Combine` on the `async-sequence` branch, or `import UIKit` on the SwiftUI branches.
 
-**Multi-branch workflow**: Shared changes commit to `main` first, then feature branches rebase — enforced via project-level rules.
+**Multi-branch workflow**: Shared changes commit to `main` first, then feature branches rebase — enforced via project-level rules. The `/sync` skill and `scripts/sync-branches.sh` automate this: push main, rebase both feature branches, force-push, with retry logic for Xcode index.lock contention. When conflicts arise, `/sync` resolves them with AI.
 
 **Cross-platform**: The `/cross-platform` skill compares iOS and Android implementations to catch unintentional UI/behavior divergences.
 
