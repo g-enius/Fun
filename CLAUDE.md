@@ -52,7 +52,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - **Reactive**: Combine (`@Published`, `@StateObject`, `@ObservedObject`, `.sink`)
 - **ViewModel → Coordinator**: Optional closures wired in tab content wrappers via `.task { viewModel.onShowDetail = { ... } }`
 - **Tab bar**: SwiftUI `TabView(selection: $coordinator.selectedTab)`
-- **Push nav**: `coordinator.homePath.append(item)` via NavigationPath
+- **Push nav**: `coordinator.showDetail(item, in: .home)` — named methods on AppCoordinator
 - **Modals**: `.sheet(isPresented: $coordinator.isProfilePresented)`
 - **DI**: ServiceLocator with `@Service` property wrapper, session-scoped (LoginSession / AuthenticatedSession)
 
