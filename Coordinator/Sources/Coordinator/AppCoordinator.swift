@@ -191,7 +191,7 @@ public final class AppCoordinator: ServiceLocatorProvider {
 
     private func observeToastEvents() {
         toastObservation?.cancel()
-        let stream = toastService.toastEvents
+        let stream = toastService.toastStream
         toastObservation = Task { [weak self] in
             for await event in stream {
                 guard let self else { break }

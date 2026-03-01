@@ -36,5 +36,5 @@ public protocol ToastServiceProtocol {
     func showToast(message: String, type: ToastType)
 
     /// Stream for toast events
-    var toastEvents: AsyncStream<ToastEvent> { get }
+    var toastStream: AsyncStream<ToastEvent> { get }
 }
