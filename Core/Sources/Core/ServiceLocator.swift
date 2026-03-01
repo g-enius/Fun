@@ -10,6 +10,12 @@ import Foundation
 // MARK: - Service Key
 
 /// Enum defining all available services
+///
+/// `Sendable` conformance is required because `ServiceKey` is used as the element type of
+/// `StreamBroadcaster<ServiceKey>`, which enforces `Element: Sendable`. `AsyncStream` values
+/// flow across actor/concurrency boundaries between producer and consumer, so Swift 6 strict
+/// concurrency requires the element type to be `Sendable`. Combine's `PassthroughSubject` had
+/// no such requirement.
 public enum ServiceKey: Sendable {
     case network
     case logger
