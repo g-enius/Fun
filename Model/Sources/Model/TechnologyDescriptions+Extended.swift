@@ -82,19 +82,17 @@ extension TechnologyDescriptions {
 
         2. AsyncStream (makeStream + continuation):
         ```swift
-        let (stream, continuation) = AsyncStream.makeStream(of: [Item].self)
-        for _ in 0..<3 {
-            Task {
-                let items = await dataSource.fetchItems()
-                continuation.yield(items)
-            }
+        let (stream, continuation) = AsyncStream.makeStream(of: (Int, [Item]).self)
+        for page in 0..<3 {
+            Task { continuation.yield((page, await fetchPage(page))) }
         }
-        var items: [Item] = []
+        var results: [(Int, [Item])] = []
         for await result in stream {
-            items.append(contentsOf: result)
-            if items.count >= expectedTotal { break }
+            results.append(result)
+            if results.count == 3 { break }
         }
         continuation.finish()
+        let items = results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
         ```
         Zero Combine — this branch uses AsyncStream for all reactive patterns.
 
