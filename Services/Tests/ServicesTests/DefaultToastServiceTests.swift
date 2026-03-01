@@ -22,7 +22,7 @@ struct DefaultToastServiceTests {
         var receivedEvent: ToastEvent?
 
         let task = Task {
-            for await event in service.toastEvents {
+            for await event in service.toastStream {
                 receivedEvent = event
                 break
             }
@@ -46,7 +46,7 @@ struct DefaultToastServiceTests {
         var receivedEvent: ToastEvent?
 
         let task = Task {
-            for await event in service.toastEvents {
+            for await event in service.toastStream {
                 receivedEvent = event
                 break
             }
@@ -69,7 +69,7 @@ struct DefaultToastServiceTests {
         var receivedEvent: ToastEvent?
 
         let task = Task {
-            for await event in service.toastEvents {
+            for await event in service.toastStream {
                 receivedEvent = event
                 break
             }
@@ -93,7 +93,7 @@ struct DefaultToastServiceTests {
         var receivedEvents: [ToastEvent] = []
 
         let task = Task {
-            for await event in service.toastEvents {
+            for await event in service.toastStream {
                 receivedEvents.append(event)
                 if receivedEvents.count >= 3 { break }
             }
@@ -126,7 +126,7 @@ struct DefaultToastServiceTests {
 
         var receivedEvents: [ToastEvent] = []
         let task = Task {
-            for await event in service.toastEvents {
+            for await event in service.toastStream {
                 receivedEvents.append(event)
                 break
             }
