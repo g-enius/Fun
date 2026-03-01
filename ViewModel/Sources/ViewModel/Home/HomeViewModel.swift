@@ -134,8 +134,7 @@ public class HomeViewModel: ObservableObject {
         logger.log("Simulating network error...")
 
         // Simulate network delay
-        let delay = UInt64.random(in: 1_000_000_000...2_000_000_000)
-        try? await Task.sleep(nanoseconds: delay)
+        try? await Task.sleep(for: .milliseconds(.random(in: 1000...2000)))
 
         hasError = true
         isLoading = false

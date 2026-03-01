@@ -13,24 +13,21 @@ public actor NetworkServiceImpl: NetworkService {
     public init() {}
 
     public func login() async throws {
-        try await Task.sleep(nanoseconds: 500_000_000)
+        try await Task.sleep(for: .milliseconds(500))
     }
 
     public func fetchFeaturedItems() async throws -> [[FeaturedItem]] {
-        let delay = UInt64.random(in: 1_000_000_000...2_000_000_000)
-        try await Task.sleep(nanoseconds: delay)
+        try await Task.sleep(for: .milliseconds(.random(in: 1000...2000)))
         return FeaturedItem.allCarouselSets.shuffled().map { $0.shuffled() }
     }
 
     public func fetchAllItems() async throws -> [FeaturedItem] {
-        let delay = UInt64.random(in: 500_000_000...1_000_000_000)
-        try await Task.sleep(nanoseconds: delay)
+        try await Task.sleep(for: .milliseconds(.random(in: 500...1000)))
         return FeaturedItem.all
     }
 
     public func searchItems(query: String, category: String) async throws -> [FeaturedItem] {
-        let delay = UInt64.random(in: 300_000_000...800_000_000)
-        try await Task.sleep(nanoseconds: delay)
+        try await Task.sleep(for: .milliseconds(.random(in: 300...800)))
 
         var results = FeaturedItem.all
 
