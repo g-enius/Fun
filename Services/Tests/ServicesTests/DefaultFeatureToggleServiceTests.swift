@@ -52,21 +52,12 @@ struct DefaultFeatureToggleServiceTests {
     func testFeaturedCarouselEmitsViaStream() async {
         clearUserDefaults()
         let service = DefaultFeatureToggleService()
-        var receivedValue: Bool?
 
-        let task = Task {
-            for await value in service.featuredCarouselStream {
-                receivedValue = value
-                break
-            }
-        }
-
-        await Task.yield()
-
+        let stream = service.featuredCarouselStream
         service.featuredCarousel = false
 
-        await Task.yield()
-        task.cancel()
+        var iterator = stream.makeAsyncIterator()
+        let receivedValue = await iterator.next()
 
         #expect(receivedValue == false)
     }
@@ -137,21 +128,12 @@ struct DefaultFeatureToggleServiceTests {
     func testAppearanceModeEmitsViaStream() async {
         clearUserDefaults()
         let service = DefaultFeatureToggleService()
-        var receivedValue: AppearanceMode?
 
-        let task = Task {
-            for await value in service.appearanceModeStream {
-                receivedValue = value
-                break
-            }
-        }
-
-        try? await Task.sleep(for: .milliseconds(50))
-
+        let stream = service.appearanceModeStream
         service.appearanceMode = .dark
 
-        try? await Task.sleep(for: .milliseconds(50))
-        task.cancel()
+        var iterator = stream.makeAsyncIterator()
+        let receivedValue = await iterator.next()
 
         #expect(receivedValue == .dark)
     }
