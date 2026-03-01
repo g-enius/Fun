@@ -1,4 +1,4 @@
-# Swift Style Guide — Fun-iOS (feature/async-sequence)
+# Swift Style Guide — Fun-iOS (feature/observation)
 
 ## Swift 6 Strict Concurrency
 

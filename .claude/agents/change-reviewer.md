@@ -14,7 +14,7 @@ Review all recent code changes thoroughly and provide a structured, actionable a
 
 ## Project Context
 
-- **Branch**: feature/async-sequence — Pure SwiftUI, @Observable, AsyncSequence + StreamBroadcaster, zero Combine
+- **Branch**: feature/observation — Pure SwiftUI, @Observable, AsyncSequence + StreamBroadcaster, zero Combine
 - **Packages**: `FunCore` → `FunModel` → `FunViewModel` / `FunServices` → `FunUI` → `FunCoordinator`
 - **Dependency direction**: Never import upward. ViewModel must NOT import UI or Coordinator.
 - **UIKit**: Zero UIKit in this branch — flag any `import UIKit` as a critical issue
