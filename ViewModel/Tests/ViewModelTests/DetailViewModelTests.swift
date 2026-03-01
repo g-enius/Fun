@@ -77,16 +77,12 @@ struct DetailViewModelTests {
         ServiceLocator.shared.register(mockFavorites, for: .favorites)
         let viewModel = DetailViewModel(item: testItem)
 
-        // Let observation tasks subscribe to streams
-        try? await Task.sleep(for: .milliseconds(50))
-
         #expect(viewModel.isFavorited == false)
 
-        // Mutate via the same mock the observation task is listening to
         mockFavorites.toggleFavorite(testItem.id)
 
-        // Wait for AsyncStream to deliver
-        try? await Task.sleep(for: .milliseconds(50))
+        // Let the observation task process the buffered stream value
+        try? await Task.sleep(for: .milliseconds(10))
 
         #expect(viewModel.isFavorited == true)
     }
@@ -99,16 +95,12 @@ struct DetailViewModelTests {
         ServiceLocator.shared.register(mockFavorites, for: .favorites)
         let viewModel = DetailViewModel(item: item)
 
-        // Let observation tasks subscribe to streams
-        try? await Task.sleep(for: .milliseconds(50))
-
         #expect(viewModel.isFavorited == true)
 
-        // Mutate via the same mock the observation task is listening to
         mockFavorites.toggleFavorite(item.id)
 
-        // Wait for AsyncStream to deliver
-        try? await Task.sleep(for: .milliseconds(50))
+        // Let the observation task process the buffered stream value
+        try? await Task.sleep(for: .milliseconds(10))
 
         #expect(viewModel.isFavorited == false)
     }
@@ -124,16 +116,12 @@ struct DetailViewModelTests {
         let item = testItem
         let viewModel = DetailViewModel(item: item)
 
-        // Let observation tasks subscribe to streams
-        try? await Task.sleep(for: .milliseconds(50))
-
         #expect(viewModel.isFavorited == false)
 
-        // Change favorites externally
         mockFavorites.addFavorite(item.id)
 
-        // Wait for AsyncStream to deliver
-        try? await Task.sleep(for: .milliseconds(50))
+        // Let the observation task process the buffered stream value
+        try? await Task.sleep(for: .milliseconds(10))
 
         #expect(viewModel.isFavorited == true)
     }

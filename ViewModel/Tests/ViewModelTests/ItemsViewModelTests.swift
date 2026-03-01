@@ -163,15 +163,12 @@ struct ItemsViewModelTests {
         setupServices(initialFavorites: [])
         let viewModel = ItemsViewModel()
 
-        // Let observation tasks subscribe to streams
-        try? await Task.sleep(for: .milliseconds(50))
-
         #expect(viewModel.isFavorited("test_item") == false)
 
         viewModel.toggleFavorite(for: "test_item")
 
-        // Wait for AsyncStream to deliver
-        try? await Task.sleep(for: .milliseconds(50))
+        // Let the observation task process the buffered stream value
+        try? await Task.sleep(for: .milliseconds(10))
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -181,15 +178,12 @@ struct ItemsViewModelTests {
         setupServices(initialFavorites: ["test_item"])
         let viewModel = ItemsViewModel()
 
-        // Let observation tasks subscribe to streams
-        try? await Task.sleep(for: .milliseconds(50))
-
         #expect(viewModel.isFavorited("test_item") == true)
 
         viewModel.toggleFavorite(for: "test_item")
 
-        // Wait for AsyncStream to deliver
-        try? await Task.sleep(for: .milliseconds(50))
+        // Let the observation task process the buffered stream value
+        try? await Task.sleep(for: .milliseconds(10))
 
         #expect(viewModel.isFavorited("test_item") == false)
     }
@@ -204,16 +198,12 @@ struct ItemsViewModelTests {
 
         let viewModel = ItemsViewModel()
 
-        // Let observation tasks subscribe to streams
-        try? await Task.sleep(for: .milliseconds(50))
-
         #expect(viewModel.favoriteIds.isEmpty)
 
-        // Add favorite directly on the service
         mockFavorites.addFavorite("new_item")
 
-        // Wait for AsyncStream to deliver
-        try? await Task.sleep(for: .milliseconds(50))
+        // Let the observation task process the buffered stream value
+        try? await Task.sleep(for: .milliseconds(10))
 
         #expect(viewModel.favoriteIds.contains("new_item"))
     }
