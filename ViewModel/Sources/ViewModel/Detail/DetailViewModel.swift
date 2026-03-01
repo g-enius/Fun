@@ -64,7 +64,7 @@ public class DetailViewModel {
     // MARK: - Setup
 
     private func observeFavoritesChanges() {
-        let stream = favoritesService.favoritesChanges
+        let stream = favoritesService.favoritesStream
         let itemId = self.itemId
         favoritesObservation = Task { [weak self] in
             for await favorites in stream {
