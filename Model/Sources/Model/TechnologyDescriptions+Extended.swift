@@ -89,15 +89,14 @@ extension TechnologyDescriptions {
         var results: [(Int, [Item])] = []
         for await result in stream {
             results.append(result)
-            if results.count == 3 { break }
+            if results.count == 3 { continuation.finish() }
         }
-        continuation.finish()
         let items = results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
         ```
         Zero Combine — this branch uses AsyncStream for all reactive patterns.
-        Note: AsyncStream needs manual counting (`if results.count == 3 { break }`) \
-        because the stream has no concept of "all producers finished" — unlike TaskGroup \
-        which tracks its children automatically.
+        Note: AsyncStream needs manual termination (`continuation.finish()` when count \
+        reached) because the stream has no concept of "all producers finished" — unlike \
+        TaskGroup which tracks its children automatically.
 
         3. async/await (TaskGroup) — preferred for parallel work:
         ```swift
