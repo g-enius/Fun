@@ -95,8 +95,11 @@ extension TechnologyDescriptions {
         let items = results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
         ```
         Zero Combine — this branch uses AsyncStream for all reactive patterns.
+        Note: AsyncStream needs manual counting (`if results.count == 3 { break }`) \
+        because the stream has no concept of "all producers finished" — unlike TaskGroup \
+        which tracks its children automatically.
 
-        3. async/await (TaskGroup):
+        3. async/await (TaskGroup) — preferred for parallel work:
         ```swift
         let items = await withTaskGroup(of: (Int, [Item]).self) { group in
             for page in 0..<3 {
@@ -107,7 +110,9 @@ extension TechnologyDescriptions {
             return results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
         }
         ```
-
-        All three produce identical results. async/await is the cleanest syntax.
+        TaskGroup is structured concurrency: all children are scoped to the group, \
+        cancelling the parent cancels all children, and `for await` ends automatically \
+        when all children complete. Prefer TaskGroup for parallel work you own end-to-end; \
+        use AsyncStream for bridging event/callback APIs or reactive service streams.
         """
 }
