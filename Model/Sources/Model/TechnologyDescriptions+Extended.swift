@@ -46,8 +46,6 @@ extension TechnologyDescriptions {
         iOS 17 unlocks:
         • @Observable macro (Observation framework) — per-property tracking
         • @Bindable for two-way bindings with @Observable classes
-        • Full NavigationStack + NavigationPath API maturity
-        • Symbol effects and sensory feedback
 
         Three branches demonstrate progressive iOS version requirements:
         • main: iOS 15+ (UIKit navigation + Combine)
