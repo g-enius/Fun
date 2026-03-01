@@ -13,7 +13,7 @@ public final class MockToastService: ToastServiceProtocol {
 
     private let toastBroadcaster = StreamBroadcaster<ToastEvent>()
 
-    public var toastEvents: AsyncStream<ToastEvent> {
+    public var toastStream: AsyncStream<ToastEvent> {
         toastBroadcaster.makeStream()
     }
 

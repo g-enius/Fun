@@ -134,6 +134,6 @@ private final class PreviewNetworkService: NetworkServiceProtocol {
 @MainActor
 private final class PreviewToastService: ToastServiceProtocol {
     private let broadcaster = StreamBroadcaster<ToastEvent>()
-    var toastEvents: AsyncStream<ToastEvent> { broadcaster.makeStream() }
+    var toastStream: AsyncStream<ToastEvent> { broadcaster.makeStream() }
     func showToast(message: String, type: ToastType) { broadcaster.yield(ToastEvent(message: message, type: type)) }
 }
