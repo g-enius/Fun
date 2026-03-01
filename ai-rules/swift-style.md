@@ -38,7 +38,11 @@ This branch uses Swift Observation framework, NOT Combine's ObservableObject:
 - `Task` for stream observation, stored as `@ObservationIgnored private var observationTask: Task<Void, Never>?`
 - No UIKit imports. No coordinator references.
 
-### Views (Pure SwiftUI)
+### Views — Passing @Observable Objects
+- **`let` / `var`** — when you only **read** properties (e.g. `coordinator.currentFlow`)
+- **`@Bindable`** — when you need **`$` bindings** (e.g. `$coordinator.selectedTab`, `$coordinator.isProfilePresented`)
+- **`@State`** — when the view **owns** the object (e.g. tab content wrappers owning their ViewModel)
+- Rule of thumb: if you see a `$` in the body, you need `@Bindable`. Otherwise plain property.
 - Never make navigation decisions — call ViewModel methods which invoke closures
 - No `import UIKit` anywhere in this branch
 

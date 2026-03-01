@@ -15,6 +15,7 @@ import FunUI
 import FunViewModel
 
 public struct AppRootView: View {
+    // Plain var — only reads coordinator properties, no $ bindings needed
     var coordinator: AppCoordinator
 
     public init(coordinator: AppCoordinator) {
