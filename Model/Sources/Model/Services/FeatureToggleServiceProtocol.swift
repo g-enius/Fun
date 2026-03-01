@@ -14,6 +14,6 @@ public protocol FeatureToggleServiceProtocol: AnyObject {
     var aiSummary: Bool { get set }
     var appearanceMode: AppearanceMode { get set }
 
-    var featuredCarouselChanges: AsyncStream<Bool> { get }
-    var appearanceModeChanges: AsyncStream<AppearanceMode> { get }
+    var featuredCarouselStream: AsyncStream<Bool> { get }
+    var appearanceModeStream: AsyncStream<AppearanceMode> { get }
 }

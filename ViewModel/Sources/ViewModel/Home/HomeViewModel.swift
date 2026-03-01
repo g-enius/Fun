@@ -5,7 +5,6 @@
 //  ViewModel for Home screen
 //
 
-import Combine
 import Foundation
 import Observation
 
@@ -36,19 +35,23 @@ public class HomeViewModel: SessionProvider {
     public var currentCarouselIndex: Int = 0
     public var isLoading: Bool = false
     public var isCarouselEnabled: Bool = true
-    public private(set) var favoriteIds: Set<String> = []
+    public var favoriteIds: Set<String> = []
     public var hasError: Bool = false
 
     // MARK: - Private Properties
 
-    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
     @ObservationIgnored private var loadTask: Task<Void, Never>?
+    @ObservationIgnored private var carouselObservation: Task<Void, Never>?
+    @ObservationIgnored private var favoritesObservation: Task<Void, Never>?
     @ObservationIgnored private var hasLoadedInitialData: Bool = false
 
     // MARK: - Initialization
 
     public init(session: Session) {
         self.session = session
+
+        // Initialize from current service values (AsyncStream only emits future changes)
+        isCarouselEnabled = featureToggleService.featuredCarousel
 
         observeFeatureToggleChanges()
         observeFavoritesChanges()
@@ -61,28 +64,37 @@ public class HomeViewModel: SessionProvider {
 
     deinit {
         loadTask?.cancel()
+        carouselObservation?.cancel()
+        favoritesObservation?.cancel()
     }
 
-    // MARK: - Feature Toggle Observation (Combine)
+    // MARK: - Feature Toggle Observation
 
     private func observeFeatureToggleChanges() {
-        featureToggleService.featuredCarouselPublisher
-            .sink { [weak self] newValue in
-                self?.isCarouselEnabled = newValue
-                self?.logger.log("Carousel visibility changed to: \(newValue)")
+        let stream = featureToggleService.featuredCarouselStream
+        carouselObservation = Task { [weak self] in
+            for await newValue in stream {
+                guard let self else { break }
+                self.isCarouselEnabled = newValue
+                self.logger.log("Carousel visibility changed to: \(newValue)")
             }
-            .store(in: &cancellables)
+        }
     }
 
     // MARK: - Favorites Observation
 
     private func observeFavoritesChanges() {
-        // CurrentValueSubject replays current value on subscribe — no manual init needed
-        favoritesService.favoritesDidChange
-            .sink { [weak self] newFavorites in
-                self?.favoriteIds = newFavorites
+        // Initialize with current favorites
+        favoriteIds = favoritesService.favorites
+
+        // Observe future changes
+        let stream = favoritesService.favoritesStream
+        favoritesObservation = Task { [weak self] in
+            for await newFavorites in stream {
+                guard let self else { break }
+                self.favoriteIds = newFavorites
             }
-            .store(in: &cancellables)
+        }
     }
 
     // MARK: - Favorites

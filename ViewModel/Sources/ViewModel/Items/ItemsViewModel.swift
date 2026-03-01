@@ -5,7 +5,6 @@
 //  ViewModel for Items screen - combines search, filter, and items list
 //
 
-import Combine
 import Foundation
 import Observation
 
@@ -32,10 +31,12 @@ public class ItemsViewModel: SessionProvider {
     // MARK: - State
 
     public var items: [FeaturedItem] = []
-    public private(set) var favoriteIds: Set<String> = []
+    public var favoriteIds: Set<String> = []
 
     // Search & Filter State
-    public var searchText: String = ""
+    public var searchText: String = "" {
+        didSet { handleSearchTextChanged() }
+    }
     public var selectedCategory: String = L10n.Items.categoryAll
     public var isSearching: Bool = false
     public var needsMoreCharacters: Bool = false
@@ -49,10 +50,11 @@ public class ItemsViewModel: SessionProvider {
 
     // MARK: - Private Properties
 
-    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
     @ObservationIgnored private var allItems: [FeaturedItem] = []
     @ObservationIgnored private var loadTask: Task<Void, Never>?
     @ObservationIgnored private var searchTask: Task<Void, Never>?
+    @ObservationIgnored private var debounceTask: Task<Void, Never>?
+    @ObservationIgnored private var favoritesObservation: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -60,7 +62,6 @@ public class ItemsViewModel: SessionProvider {
         self.session = session
 
         observeFavoritesChanges()
-        setupSearchBinding()
 
         loadTask = Task { [weak self] in
             await self?.loadItems()
@@ -70,71 +71,51 @@ public class ItemsViewModel: SessionProvider {
     deinit {
         loadTask?.cancel()
         searchTask?.cancel()
+        debounceTask?.cancel()
+        favoritesObservation?.cancel()
     }
 
     // MARK: - Setup
 
-    private func setupSearchBinding() {
-        // Debounce search text with minimum character requirement
-        // Note: withObservationTracking doesn't provide a publisher, so we keep
-        // this Combine pipeline for debounced search. The searchText property is
-        // still @Observable for SwiftUI binding; we observe it via a Task.
-        observeSearchTextChanges()
+    private func handleSearchTextChanged() {
+        debounceTask?.cancel()
+        debounceTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(600))
+            guard !Task.isCancelled, let self else { return }
+            self.processSearchText()
+        }
     }
 
-    private func observeSearchTextChanges() {
-        // Use a recurring observation loop to bridge @Observable → Combine-style debounce
-        // This replaces $searchText which is unavailable without @Published
-        let subject = PassthroughSubject<String, Never>()
+    private func processSearchText() {
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        subject
-            .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
-            .removeDuplicates()
-            .sink { [weak self] text in
-                guard let self else { return }
-                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-
-                if trimmed.isEmpty {
-                    // Empty search - show all items
-                    self.needsMoreCharacters = false
-                    self.performSearch()
-                } else if trimmed.count < self.minimumSearchCharacters {
-                    // Below minimum - show "keep typing" unless in error state
-                    if !self.hasError {
-                        self.needsMoreCharacters = true
-                        self.items = []
-                    }
-                    self.isSearching = false
-                } else {
-                    // Meets minimum - perform search
-                    self.needsMoreCharacters = false
-                    self.performSearch()
-                }
+        if trimmed.isEmpty {
+            needsMoreCharacters = false
+            performSearch()
+        } else if trimmed.count < minimumSearchCharacters {
+            if !hasError {
+                needsMoreCharacters = true
+                items = []
             }
-            .store(in: &cancellables)
-
-        // Bridge @Observable searchText changes into the subject
-        func observe() {
-            withObservationTracking {
-                _ = self.searchText
-            } onChange: { [weak self] in
-                Task { @MainActor [weak self] in
-                    guard let self else { return }
-                    subject.send(self.searchText)
-                    observe()
-                }
-            }
+            isSearching = false
+        } else {
+            needsMoreCharacters = false
+            performSearch()
         }
-        observe()
     }
 
     private func observeFavoritesChanges() {
-        // CurrentValueSubject replays current value on subscribe — no manual init needed
-        favoritesService.favoritesDidChange
-            .sink { [weak self] newFavorites in
-                self?.favoriteIds = newFavorites
+        // Initialize with current favorites
+        favoriteIds = favoritesService.favorites
+
+        // Observe future changes
+        let stream = favoritesService.favoritesStream
+        favoritesObservation = Task { [weak self] in
+            for await newFavorites in stream {
+                guard let self else { break }
+                self.favoriteIds = newFavorites
             }
-            .store(in: &cancellables)
+        }
     }
 
     // MARK: - Data Loading
@@ -222,6 +203,7 @@ public class ItemsViewModel: SessionProvider {
 
     public func clearSearch() {
         searchText = ""
+        debounceTask?.cancel()
         searchTask?.cancel()
         isSearching = false
         hasError = false

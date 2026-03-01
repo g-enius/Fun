@@ -212,7 +212,7 @@ public final class AppCoordinator: SessionProvider {
     private func subscribeToDarkMode() {
         darkModeObservation?.cancel()
         appearanceMode = featureToggleService.appearanceMode
-        let stream = featureToggleService.appearanceModeChanges
+        let stream = featureToggleService.appearanceModeStream
         darkModeObservation = Task { [weak self] in
             for await mode in stream {
                 guard let self else { break }
