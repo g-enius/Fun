@@ -168,14 +168,14 @@ struct DefaultFavoritesServiceTests {
 
     // MARK: - Stream Tests
 
-    @Test("favoritesChanges emits when favorites change")
+    @Test("favoritesStream emits when favorites change")
     func testFavoritesChangesStream() async {
         clearUserDefaults()
         let service = DefaultFavoritesService()
 
         var receivedFavorites: Set<String>?
         let task = Task {
-            for await favorites in service.favoritesChanges {
+            for await favorites in service.favoritesStream {
                 receivedFavorites = favorites
                 break
             }
@@ -193,14 +193,14 @@ struct DefaultFavoritesServiceTests {
         #expect(receivedFavorites?.contains("item2") == true)
     }
 
-    @Test("favoritesChanges emits on toggle")
+    @Test("favoritesStream emits on toggle")
     func testFavoritesChangesOnToggle() async {
         clearUserDefaults()
         let service = DefaultFavoritesService()
 
         var emitCount = 0
         let task = Task {
-            for await _ in service.favoritesChanges {
+            for await _ in service.favoritesStream {
                 emitCount += 1
                 if emitCount >= 2 { break }
             }
@@ -248,7 +248,7 @@ struct DefaultFavoritesServiceTests {
 
         var receivedFavorites: Set<String>?
         let task = Task {
-            for await favorites in service.favoritesChanges {
+            for await favorites in service.favoritesStream {
                 receivedFavorites = favorites
                 // We want to capture the reset emission, skip the addFavorite one
                 if favorites == Set(["item1"]) { break }

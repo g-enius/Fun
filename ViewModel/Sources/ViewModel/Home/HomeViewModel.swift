@@ -74,7 +74,7 @@ public class HomeViewModel {
     // MARK: - Feature Toggle Observation
 
     private func observeFeatureToggleChanges() {
-        let stream = featureToggleService.featuredCarouselChanges
+        let stream = featureToggleService.featuredCarouselStream
         carouselObservation = Task { [weak self] in
             for await newValue in stream {
                 guard let self else { break }
@@ -91,7 +91,7 @@ public class HomeViewModel {
         favoriteIds = favoritesService.favorites
 
         // Observe future changes
-        let stream = favoritesService.favoritesChanges
+        let stream = favoritesService.favoritesStream
         favoritesObservation = Task { [weak self] in
             for await newFavorites in stream {
                 guard let self else { break }

@@ -107,7 +107,7 @@ public class ItemsViewModel {
         favoriteIds = favoritesService.favorites
 
         // Observe future changes
-        let stream = favoritesService.favoritesChanges
+        let stream = favoritesService.favoritesStream
         favoritesObservation = Task { [weak self] in
             for await newFavorites in stream {
                 guard let self else { break }
