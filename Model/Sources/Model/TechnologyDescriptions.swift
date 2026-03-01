@@ -9,7 +9,7 @@ import Foundation
 
 public enum TechnologyItem: String, CaseIterable, Sendable {
     case asyncAwait = "asyncawait"
-    case combine = "combine"
+    case asyncSequence = "asyncsequence"
     case swiftUI = "swiftui"
     case coordinator = "coordinator"
     case mvvm = "mvvm"
@@ -40,7 +40,7 @@ public enum TechnologyDescriptions {
 
     private static let descriptions: [TechnologyItem: String] = [
         .asyncAwait: asyncAwaitDescription,
-        .combine: combineDescription,
+        .asyncSequence: asyncSequenceDescription,
         .swiftUI: swiftUIDescription,
         .coordinator: coordinatorDescription,
         .mvvm: mvvmDescription,
@@ -76,7 +76,7 @@ public enum TechnologyDescriptions {
         ```
         """
 
-    private static let combineDescription = """
+    private static let asyncSequenceDescription = """
         This branch replaced Combine entirely with Swift Concurrency:
 
         • AsyncStream for service event delivery
