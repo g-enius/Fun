@@ -70,7 +70,7 @@ public enum TechnologyDescriptions {
         Example from HomeViewModel:
         ```swift
         public func loadFeaturedItems() async {
-            try? await Task.sleep(nanoseconds: delay)
+            try? await Task.sleep(for: .milliseconds(delay))
             featuredItems = FeaturedItem.allCarouselSets
         }
         ```
