@@ -58,10 +58,10 @@ struct DeepLinkTests {
 
     @Test("Parse item deep link with different ID")
     func parseItemWithDifferentId() {
-        let url = URL(string: "funapp://item/combine")!
+        let url = URL(string: "funapp://item/asyncsequence")!
         let deepLink = DeepLink(url: url)
 
-        #expect(deepLink == DeepLink.item(id: "combine"))
+        #expect(deepLink == DeepLink.item(id: "asyncsequence"))
     }
 
     // MARK: - Profile Deep Link

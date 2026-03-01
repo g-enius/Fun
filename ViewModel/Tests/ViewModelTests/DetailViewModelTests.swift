@@ -156,7 +156,7 @@ struct DetailViewModelTests {
     func testDifferentItems() async {
         let locator = makeServiceLocator()
 
-        let items: [FeaturedItem] = [.swiftUI, .combine, .mvvm, .coordinator]
+        let items: [FeaturedItem] = [.swiftUI, .asyncSequence, .mvvm, .coordinator]
         for item in items {
             let viewModel = DetailViewModel(item: item, serviceLocator: locator)
             #expect(viewModel.itemTitle == item.title)
