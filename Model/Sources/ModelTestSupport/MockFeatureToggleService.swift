@@ -23,11 +23,11 @@ public final class MockFeatureToggleService: FeatureToggleServiceProtocol {
     private let carouselBroadcaster = StreamBroadcaster<Bool>()
     private let appearanceBroadcaster = StreamBroadcaster<AppearanceMode>()
 
-    public var featuredCarouselChanges: AsyncStream<Bool> {
+    public var featuredCarouselStream: AsyncStream<Bool> {
         carouselBroadcaster.makeStream()
     }
 
-    public var appearanceModeChanges: AsyncStream<AppearanceMode> {
+    public var appearanceModeStream: AsyncStream<AppearanceMode> {
         appearanceBroadcaster.makeStream()
     }
 
