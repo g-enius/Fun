@@ -55,7 +55,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - Protocol definitions in Services — domain protocols go in Model, reusable abstractions in Core
 - Wrong ownership annotations — tab content wrappers must use `@State` to own ViewModels (not bare `var`). `@State` ensures the ViewModel survives re-renders. The coordinator must be `let` (not `@Bindable` or `@State`) since the wrapper doesn't own it.
 
-## Architecture (this branch: feature/async-sequence)
+## Architecture (this branch: feature/observation)
 - **Entry point**: SwiftUI `@main App` struct (`FunApp.swift`) — no AppDelegate or SceneDelegate
 - **Navigation**: Single `@Observable AppCoordinator` with per-tab `NavigationPath`
 - **Views**: Pure SwiftUI views, no UIHostingController or UIViewControllers
