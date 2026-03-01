@@ -5,6 +5,8 @@
 - **Always commit shared changes to main first**, push, then rebase feature branches onto main
 - Never make the same change independently on multiple branches
 - **PR discipline**: Each PR's diff must only contain changes necessary for that branch's migration. Don't delete or rewrite general rules (architecture, naming, protocol placement, etc.) that still apply — only add branch-specific content on top. If a general rule needs changing, do it on the base branch first and rebase.
+- **Always `git pull` before making changes or force pushing** — remote may have commits from Claude bot (GitHub PR suggestions, CI fixes). Force pushing without pulling first will silently destroy those commits. After every rebase, `git fetch` the remote ref before `--force-with-lease`.
+- **After every rebase, diff against the base branch** to verify no content was silently dropped (comments, renames, doc comments). Rebase conflict resolution with `--theirs`/`--ours` can lose changes from the other side.
 - Sync tool: `scripts/sync-branches.sh` or `/sync` in Claude Code
 
 ## Proactive Automation
