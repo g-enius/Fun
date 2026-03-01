@@ -234,7 +234,7 @@ public enum TechnologyDescriptions {
 
         Usage:
         ```swift
-        let stream = featureToggleService.featuredCarouselChanges
+        let stream = featureToggleService.featuredCarouselStream
         Task { for await newValue in stream {
             self.isCarouselEnabled = newValue
         }}

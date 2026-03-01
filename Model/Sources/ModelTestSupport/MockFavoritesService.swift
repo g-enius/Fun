@@ -15,7 +15,7 @@ public final class MockFavoritesService: FavoritesServiceProtocol {
 
     private let favoritesBroadcaster = StreamBroadcaster<Set<String>>()
 
-    public var favoritesChanges: AsyncStream<Set<String>> {
+    public var favoritesStream: AsyncStream<Set<String>> {
         favoritesBroadcaster.makeStream()
     }
 

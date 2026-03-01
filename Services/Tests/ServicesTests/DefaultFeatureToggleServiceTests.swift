@@ -55,7 +55,7 @@ struct DefaultFeatureToggleServiceTests {
         var receivedValue: Bool?
 
         let task = Task {
-            for await value in service.featuredCarouselChanges {
+            for await value in service.featuredCarouselStream {
                 receivedValue = value
                 break
             }
@@ -140,7 +140,7 @@ struct DefaultFeatureToggleServiceTests {
         var receivedValue: AppearanceMode?
 
         let task = Task {
-            for await value in service.appearanceModeChanges {
+            for await value in service.appearanceModeStream {
                 receivedValue = value
                 break
             }

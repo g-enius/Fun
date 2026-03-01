@@ -5,7 +5,6 @@
 //  ViewModel for Detail screen
 //
 
-import Combine
 import Foundation
 import Observation
 
@@ -45,7 +44,7 @@ public class DetailViewModel: ServiceLocatorProvider {
 
     // MARK: - Private Properties
 
-    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var favoritesObservation: Task<Void, Never>?
     @ObservationIgnored private var itemId: String
 
     // MARK: - Initialization
@@ -61,15 +60,21 @@ public class DetailViewModel: ServiceLocatorProvider {
         observeFavoritesChanges()
     }
 
+    deinit {
+        favoritesObservation?.cancel()
+    }
+
     // MARK: - Setup
 
     private func observeFavoritesChanges() {
-        favoritesService.favoritesDidChange
-            .sink { [weak self] favorites in
-                guard let self else { return }
-                self.isFavorited = favorites.contains(self.itemId)
+        let stream = favoritesService.favoritesStream
+        let itemId = self.itemId
+        favoritesObservation = Task { [weak self] in
+            for await favorites in stream {
+                guard let self else { break }
+                self.isFavorited = favorites.contains(itemId)
             }
-            .store(in: &cancellables)
+        }
     }
 
     // MARK: - Actions

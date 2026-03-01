@@ -77,7 +77,7 @@ private final class PreviewLoggerService: LoggerService {
 private final class PreviewFavoritesService: FavoritesServiceProtocol {
     var favorites: Set<String>
     private let broadcaster = StreamBroadcaster<Set<String>>()
-    var favoritesChanges: AsyncStream<Set<String>> { broadcaster.makeStream() }
+    var favoritesStream: AsyncStream<Set<String>> { broadcaster.makeStream() }
 
     init(initialFavorites: Set<String> = []) {
         self.favorites = initialFavorites
@@ -102,8 +102,8 @@ private final class PreviewFeatureToggleService: FeatureToggleServiceProtocol {
     private let carouselBroadcaster = StreamBroadcaster<Bool>()
     private let appearanceBroadcaster = StreamBroadcaster<AppearanceMode>()
 
-    var featuredCarouselChanges: AsyncStream<Bool> { carouselBroadcaster.makeStream() }
-    var appearanceModeChanges: AsyncStream<AppearanceMode> { appearanceBroadcaster.makeStream() }
+    var featuredCarouselStream: AsyncStream<Bool> { carouselBroadcaster.makeStream() }
+    var appearanceModeStream: AsyncStream<AppearanceMode> { appearanceBroadcaster.makeStream() }
 }
 
 @MainActor
