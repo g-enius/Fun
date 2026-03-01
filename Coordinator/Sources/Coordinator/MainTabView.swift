@@ -15,6 +15,7 @@ import FunUI
 import FunViewModel
 
 struct MainTabView: View {
+    // @Bindable — needs $ bindings for TabView selection, NavigationStack paths, .sheet
     @Bindable var coordinator: AppCoordinator
 
     var body: some View {
