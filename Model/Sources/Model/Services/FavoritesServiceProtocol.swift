@@ -12,7 +12,7 @@ public protocol FavoritesServiceProtocol {
     var favorites: Set<String> { get }
 
     /// Stream that emits when favorites change
-    var favoritesChanges: AsyncStream<Set<String>> { get }
+    var favoritesStream: AsyncStream<Set<String>> { get }
 
     func isFavorited(_ itemId: String) -> Bool
     func toggleFavorite(_ itemId: String)
