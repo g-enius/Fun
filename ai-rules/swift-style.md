@@ -66,7 +66,7 @@
 - Services: protocol `FavoritesServiceProtocol`, impl `DefaultFavoritesService`
 
 ### Navigation Closures
-- `onShowDetail`, `onShowProfile`, `onLoginSuccess`, `onLogout`, `onPop`, `onShare`, `onDismiss`, `onGoToItems`
+- `onShowDetail`, `onShowProfile`, `onLoginSuccess`, `onLogout`, `onDismiss`, `onGoToItems`
 - Always optional, wired in tab content wrapper `.task` blocks
 
 ### Service Protocols
