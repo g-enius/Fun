@@ -61,23 +61,24 @@ extension TechnologyDescriptions {
 
         1. Callbacks (DispatchGroup + concurrent barrier queue):
         ```swift
-        let queue = DispatchQueue(label: "concurrent", attributes: .concurrent)
         let group = DispatchGroup()
-        var items: [Item] = []
+        let queue = DispatchQueue(label: "fetch", attributes: .concurrent)
+        var allItems: [[Item]] = Array(repeating: [], count: 3)
 
-        for _ in 0..<3 {
+        for page in 0..<3 {
             group.enter()
-            dataSource.fetchItems { result in
-                queue.asyncAndWait(flags: .barrier) {
-                    items.append(contentsOf: result)
+            queue.async {
+                let items = fetchPage(page)
+                queue.async(flags: .barrier) {
+                    allItems[page] = items
                     group.leave()
                 }
             }
         }
-        group.notify(queue: .main) { completion(items) }
+        group.notify(queue: .main) { completion(allItems.flatMap { $0 }) }
         ```
-        The concurrent queue runs all 3 fetches in parallel. asyncAndWait with \
-        barrier ensures thread-safe array mutations.
+        Note: A serial queue would execute fetches one at a time. The concurrent \
+        queue runs all 3 in parallel, and the barrier flag ensures thread-safe writes.
 
         2. AsyncStream (makeStream + continuation):
         ```swift
