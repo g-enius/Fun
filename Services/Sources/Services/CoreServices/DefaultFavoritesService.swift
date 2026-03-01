@@ -30,28 +30,6 @@ public final class DefaultFavoritesService: FavoritesServiceProtocol {
         favoritesBroadcaster.makeStream()
     }
 
-    // MARK: - Swift Concurrency Alternative (iOS 15+)
-    //
-    // Replace CurrentValueSubject with StreamBroadcaster (a multi-consumer AsyncStream utility):
-    //
-    //     private let favoritesBroadcaster = StreamBroadcaster<Set<String>>()
-    //
-    //     var favoritesChanges: AsyncStream<Set<String>> {
-    //         favoritesBroadcaster.makeStream()   // each consumer gets its own stream
-    //     }
-    //
-    //     // In didSet:
-    //     didSet {
-    //         saveFavorites()
-    //         favoritesBroadcaster.yield(favorites)  // delivers to all active consumers
-    //     }
-    //
-    // StreamBroadcaster.makeStream() returns a new AsyncStream per consumer — unlike
-    // CurrentValueSubject where all subscribers share one publisher. Each consumer's
-    // stream is cleaned up automatically when the consuming Task is cancelled.
-    //
-    // See Core/Sources/Core/StreamBroadcaster.swift on feature/async-sequence.
-
     public init() {
         let loaded: Set<String>
         if let data = UserDefaults.standard.data(forKey: .favorites) {
