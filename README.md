@@ -40,7 +40,7 @@ Three branches demonstrate progressive modernisation — same app, three archite
 | LLM | Foundation Models (iOS 26+) | ← same | ← same |
 | Testing | Swift Testing, swift-snapshot-testing | ← same | ← same |
 
-> **Why iOS 17?** The `async-sequence` branch replaces Combine with two independent technologies: **`@Observable`** (Observation framework, iOS 17) for ViewModel → View reactivity, and **`AsyncStream`** for service event streams. `AsyncSequence`/`AsyncStream` themselves are available since iOS 13, but [`AsyncStream.makeStream(of:)`](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0388-async-stream-factory.md) (SE-0388) — used for eager continuation registration in `StreamBroadcaster` — requires iOS 17. Neither depends on the other; they coincidentally share the same deployment target.
+> **Why iOS 17?** The `observation` branch replaces Combine with two independent technologies: **`@Observable`** (Observation framework, iOS 17) for ViewModel → View reactivity, and **`AsyncStream`** for service event streams. `AsyncSequence`/`AsyncStream` themselves are available since iOS 13, but [`AsyncStream.makeStream(of:)`](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0388-async-stream-factory.md) (SE-0388) — used for eager continuation registration in `StreamBroadcaster` — requires iOS 17. Neither depends on the other; they coincidentally share the same deployment target.
 
 ### UIKit + SwiftUI vs Pure SwiftUI
 
