@@ -173,21 +173,12 @@ struct DefaultFavoritesServiceTests {
         clearUserDefaults()
         let service = DefaultFavoritesService()
 
-        var receivedFavorites: Set<String>?
-        let task = Task {
-            for await favorites in service.favoritesStream {
-                receivedFavorites = favorites
-                break
-            }
-        }
-
-        // Give the task time to start listening
-        try? await Task.sleep(for: .milliseconds(50))
-
+        // Eager continuation: stream registered, values buffered before iteration
+        let stream = service.favoritesStream
         service.addFavorite("item2")
 
-        try? await Task.sleep(for: .milliseconds(50))
-        task.cancel()
+        var iterator = stream.makeAsyncIterator()
+        let receivedFavorites = await iterator.next()
 
         #expect(receivedFavorites != nil)
         #expect(receivedFavorites?.contains("item2") == true)
@@ -198,22 +189,17 @@ struct DefaultFavoritesServiceTests {
         clearUserDefaults()
         let service = DefaultFavoritesService()
 
+        let stream = service.favoritesStream
+        service.toggleFavorite("item1")
+        service.toggleFavorite("item1")
+
         var emitCount = 0
-        let task = Task {
-            for await _ in service.favoritesStream {
+        var iterator = stream.makeAsyncIterator()
+        for _ in 0..<2 {
+            if await iterator.next() != nil {
                 emitCount += 1
-                if emitCount >= 2 { break }
             }
         }
-
-        // Let the consumer task start and subscribe
-        try? await Task.sleep(for: .milliseconds(10))
-
-        service.toggleFavorite("item1")
-        service.toggleFavorite("item1")
-
-        try? await Task.sleep(for: .milliseconds(50))
-        task.cancel()
 
         #expect(emitCount == 2)
     }
@@ -246,21 +232,11 @@ struct DefaultFavoritesServiceTests {
 
         service.addFavorite("item2")
 
-        var receivedFavorites: Set<String>?
-        let task = Task {
-            for await favorites in service.favoritesStream {
-                receivedFavorites = favorites
-                // We want to capture the reset emission, skip the addFavorite one
-                if favorites == Set(["item1"]) { break }
-            }
-        }
-
-        await Task.yield()
-
+        let stream = service.favoritesStream
         service.resetFavorites()
 
-        await Task.yield()
-        task.cancel()
+        var iterator = stream.makeAsyncIterator()
+        let receivedFavorites = await iterator.next()
 
         #expect(receivedFavorites != nil)
         #expect(receivedFavorites == Set(["item1"]))
