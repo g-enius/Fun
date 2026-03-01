@@ -103,10 +103,7 @@ public class HomeViewModel: ObservableObject {
     // MARK: - Favorites Observation
 
     private func observeFavoritesChanges() {
-        // Initialize with current favorites
-        favoriteIds = favoritesService.favorites
-
-        // Observe future changes
+        // CurrentValueSubject replays current value on subscribe — no manual init needed
         favoritesService.favoritesDidChange
             .sink { [weak self] newFavorites in
                 self?.favoriteIds = newFavorites
