@@ -15,10 +15,18 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
 
     // MARK: - Feature Toggles
 
-    @Published public var featuredCarousel: Bool
-    @Published public var simulateErrors: Bool
-    @Published public var aiSummary: Bool
-    @Published public var appearanceMode: AppearanceMode
+    @Published public var featuredCarousel: Bool {
+        didSet { UserDefaults.standard.set(featuredCarousel, forKey: .featureCarousel) }
+    }
+    @Published public var simulateErrors: Bool {
+        didSet { UserDefaults.standard.set(simulateErrors, forKey: .simulateErrors) }
+    }
+    @Published public var aiSummary: Bool {
+        didSet { UserDefaults.standard.set(aiSummary, forKey: .aiSummary) }
+    }
+    @Published public var appearanceMode: AppearanceMode {
+        didSet { UserDefaults.standard.set(appearanceMode.rawValue, forKey: .appearanceMode) }
+    }
 
     // MARK: - Publishers
 
@@ -29,10 +37,6 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
     public var appearanceModePublisher: AnyPublisher<AppearanceMode, Never> {
         $appearanceMode.removeDuplicates().eraseToAnyPublisher()
     }
-
-    // MARK: - Private
-
-    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
@@ -50,22 +54,5 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
         aiSummary = defaults.bool(forKey: .aiSummary)
         appearanceMode = defaults.string(forKey: .appearanceMode)
             .flatMap(AppearanceMode.init) ?? .system
-
-        // Persist changes back to UserDefaults
-        $featuredCarousel.dropFirst().sink {
-            UserDefaults.standard.set($0, forKey: .featureCarousel)
-        }.store(in: &cancellables)
-
-        $simulateErrors.dropFirst().sink {
-            UserDefaults.standard.set($0, forKey: .simulateErrors)
-        }.store(in: &cancellables)
-
-        $aiSummary.dropFirst().sink {
-            UserDefaults.standard.set($0, forKey: .aiSummary)
-        }.store(in: &cancellables)
-
-        $appearanceMode.dropFirst().sink {
-            UserDefaults.standard.set($0.rawValue, forKey: .appearanceMode)
-        }.store(in: &cancellables)
     }
 }
