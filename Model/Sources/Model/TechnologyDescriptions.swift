@@ -85,13 +85,25 @@ public enum TechnologyDescriptions {
         • @Observable macro for ViewModel state
         • didSet + Task.sleep for debounced search
 
-        Example from HomeViewModel:
+        Example from ItemsViewModel (replacing .debounce):
         ```swift
-        let stream = favoritesService.favoritesChanges
-        Task { [weak self] in
-            for await favorites in stream {
-                guard let self else { break }
-                self.favoriteIds = favorites
+        // Before (Combine)
+        $searchText
+            .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
+            .sink { [weak self] query in self?.performSearch(with: query) }
+            .store(in: &cancellables)
+
+        // After (AsyncSequence)
+        var searchText: String = "" {
+            didSet { handleSearchTextChanged() }
+        }
+
+        private func handleSearchTextChanged() {
+            debounceTask?.cancel()
+            debounceTask = Task { [weak self] in
+                try? await Task.sleep(for: .milliseconds(600))
+                guard !Task.isCancelled, let self else { return }
+                self.processSearchText()
             }
         }
         ```
