@@ -1,4 +1,4 @@
-# Fun-iOS Architecture Reference (feature/async-sequence)
+# Fun-iOS Architecture Reference (feature/observation)
 
 ## SPM Package Structure
 
