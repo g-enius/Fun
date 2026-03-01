@@ -7,7 +7,7 @@ A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concur
 Three branches show progressive modernization:
 - UIKit + SwiftUI + Combine (iOS 15+) — [`main`](https://github.com/g-enius/Fun-iOS/tree/main)
 - Pure SwiftUI + Combine (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) - [PR](https://github.com/g-enius/Fun-iOS/pull/3)
-- Pure SwiftUI + AsyncSequence (iOS 17+) — [`observation`](https://github.com/g-enius/Fun-iOS/tree/feature/observation) - [PR](https://github.com/g-enius/Fun-iOS/pull/6)
+- Pure SwiftUI + @Observable + AsyncSequence (iOS 17+) — [`observation`](https://github.com/g-enius/Fun-iOS/tree/feature/observation) - [PR](https://github.com/g-enius/Fun-iOS/pull/6)
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
@@ -29,7 +29,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 |---|---|---|---|
 | **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
 | **UI framework** | **UIKit + SwiftUI** | **SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
-| **Reactive** | **Combine** | ← same | **AsyncSequence** [![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
+| **Reactive** | **Combine** | ← same | **@Observable** + **AsyncStream** [![🚫 Combine](https://img.shields.io/badge/🚫_Combine-blue)](#) |
 | **ViewModel** | `ObservableObject` + `@Published` | ← same | **@Observable** macro |
 | **View binding** | `@ObservedObject` | ← same | **@Bindable** / **@State** |
 | **Service events** | `AnyPublisher` + `Subject` | ← same | **AsyncStream** + **StreamBroadcaster** |
@@ -39,6 +39,8 @@ Three branches demonstrate progressive modernization — same app, three archite
 | DI | Session-Scoped + @Service | ← same | ← same |
 | LLM | Foundation Models (iOS 26+) | ← same | ← same |
 | Testing | Swift Testing, swift-snapshot-testing | ← same | ← same |
+
+> **Why iOS 17?** The `async-sequence` branch replaces Combine with two independent technologies: **`@Observable`** (Observation framework, iOS 17) for ViewModel → View reactivity, and **`AsyncStream`** for service event streams. `AsyncSequence`/`AsyncStream` themselves are available since iOS 13, but [`AsyncStream.makeStream(of:)`](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0388-async-stream-factory.md) (SE-0388) — used for eager continuation registration in `StreamBroadcaster` — requires iOS 17. Neither depends on the other; they coincidentally share the same deployment target.
 
 ### UIKit + SwiftUI vs Pure SwiftUI
 
@@ -185,7 +187,7 @@ Deep links received during login are queued and executed after authentication.
 ## Features
 
 - **Session-Scoped DI**: Clean service lifecycle per app flow — no stale state
-- **Reactive Data Flow**: Combine framework with `@Published` properties
+- **Reactive Data Flow**: `@Observable` for ViewModel state, `AsyncStream` + `StreamBroadcaster` for service events
 - **Feature Toggles**: Runtime flags persisted via services
 - **AI Summary**: On-device LLM summarisation using Apple Intelligence / Foundation Models (iOS 26+)
 - **Error Handling**: Centralized `AppError` enum with toast notifications
@@ -205,7 +207,7 @@ Deep links received during login are queued and executed after authentication.
 
 ### Requirements
 - Xcode 16.0+
-- iOS 15.0+
+- iOS 17.0+
 - Swift 6.0
 
 ### Installation
