@@ -142,7 +142,7 @@ App entry uses `.onOpenURL { url in coordinator.handleDeepLink(DeepLink(url: url
 - **Framework**: Swift Testing (`import Testing`, `@Test`, `#expect`, `@Suite`)
 - **Test command**: `xcodebuild test -workspace Fun.xcworkspace -scheme FunApp -skip-testing UITests -destination 'platform=iOS Simulator,name=iPhone 17 Pro' CODE_SIGNING_ALLOWED=NO`
 - **Mock location**: `Model/Sources/ModelTestSupport/Mocks/`
-- **Test support import**: `import FunModelTestSupport`
+- **Test support import**: `@testable import FunModelTestSupport`
 - **Snapshots**: swift-snapshot-testing in UI package tests
 
 ## Key Difference from Main Branch
