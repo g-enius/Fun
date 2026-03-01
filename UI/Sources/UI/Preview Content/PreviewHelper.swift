@@ -112,8 +112,6 @@ private final class PreviewFeatureToggleService: FeatureToggleServiceProtocol {
     @Published var aiSummary: Bool = true
     @Published var appearanceMode: AppearanceMode = .system
     var featuredCarouselPublisher: AnyPublisher<Bool, Never> { $featuredCarousel.eraseToAnyPublisher() }
-    var simulateErrorsPublisher: AnyPublisher<Bool, Never> { $simulateErrors.eraseToAnyPublisher() }
-    var aiSummaryPublisher: AnyPublisher<Bool, Never> { $aiSummary.eraseToAnyPublisher() }
     var appearanceModePublisher: AnyPublisher<AppearanceMode, Never> { $appearanceMode.eraseToAnyPublisher() }
 }
 

@@ -105,24 +105,6 @@ struct DefaultFeatureToggleServiceTests {
         #expect(UserDefaults.standard.bool(forKey: UserDefaultsKey.simulateErrors.rawValue) == false)
     }
 
-    @Test("SimulateErrors emits via publisher")
-    func testSimulateErrorsEmitsViaPublisher() async {
-        clearUserDefaults()
-        let service = DefaultFeatureToggleService()
-        var receivedValue: Bool?
-        var cancellables = Set<AnyCancellable>()
-
-        service.simulateErrorsPublisher
-            .sink { receivedValue = $0 }
-            .store(in: &cancellables)
-
-        service.simulateErrors = true
-
-        await Task.yield()
-
-        #expect(receivedValue == true)
-    }
-
     // MARK: - AppearanceMode Tests
 
     @Test("AppearanceMode defaults to system")
@@ -186,24 +168,6 @@ struct DefaultFeatureToggleServiceTests {
 
         service.aiSummary = true
         #expect(UserDefaults.standard.bool(forKey: UserDefaultsKey.aiSummary.rawValue) == true)
-    }
-
-    @Test("AI Summary emits via publisher")
-    func testAISummaryEmitsViaPublisher() async {
-        clearUserDefaults()
-        let service = DefaultFeatureToggleService()
-        var receivedValue: Bool?
-        var cancellables = Set<AnyCancellable>()
-
-        service.aiSummaryPublisher
-            .sink { receivedValue = $0 }
-            .store(in: &cancellables)
-
-        service.aiSummary = false
-
-        await Task.yield()
-
-        #expect(receivedValue == false)
     }
 
     // MARK: - State Restoration for All Properties

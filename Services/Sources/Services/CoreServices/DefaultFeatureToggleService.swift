@@ -26,14 +26,6 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
         $featuredCarousel.removeDuplicates().eraseToAnyPublisher()
     }
 
-    public var simulateErrorsPublisher: AnyPublisher<Bool, Never> {
-        $simulateErrors.removeDuplicates().eraseToAnyPublisher()
-    }
-
-    public var aiSummaryPublisher: AnyPublisher<Bool, Never> {
-        $aiSummary.removeDuplicates().eraseToAnyPublisher()
-    }
-
     public var appearanceModePublisher: AnyPublisher<AppearanceMode, Never> {
         $appearanceMode.removeDuplicates().eraseToAnyPublisher()
     }

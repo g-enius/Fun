@@ -16,7 +16,5 @@ public protocol FeatureToggleServiceProtocol: AnyObject {
     var appearanceMode: AppearanceMode { get set }
 
     var featuredCarouselPublisher: AnyPublisher<Bool, Never> { get }
-    var simulateErrorsPublisher: AnyPublisher<Bool, Never> { get }
-    var aiSummaryPublisher: AnyPublisher<Bool, Never> { get }
     var appearanceModePublisher: AnyPublisher<AppearanceMode, Never> { get }
 }
