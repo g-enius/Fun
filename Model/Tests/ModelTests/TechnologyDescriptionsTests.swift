@@ -64,10 +64,10 @@ struct TechnologyDescriptionsTests {
         #expect(description.lowercased().contains("async"))
     }
 
-    @Test("combine description mentions reactive")
-    func testCombineContent() {
-        let description = TechnologyDescriptions.description(for: TechnologyItem.combine.rawValue)
-        #expect(description.lowercased().contains("reactive") || description.lowercased().contains("combine"))
+    @Test("asyncSequence description mentions stream or observable")
+    func testAsyncSequenceContent() {
+        let description = TechnologyDescriptions.description(for: TechnologyItem.asyncSequence.rawValue)
+        #expect(description.lowercased().contains("asyncstream") || description.lowercased().contains("observable"))
     }
 
     // MARK: - Alignment with FeaturedItem Tests

@@ -166,7 +166,7 @@ struct DetailViewModelTests {
     func testDifferentItems() async {
         let session = makeSession()
 
-        let items: [FeaturedItem] = [.swiftUI, .combine, .mvvm, .coordinator]
+        let items: [FeaturedItem] = [.swiftUI, .asyncSequence, .mvvm, .coordinator]
         for item in items {
             let viewModel = DetailViewModel(item: item, session: session)
             #expect(viewModel.itemTitle == item.title)

@@ -62,8 +62,8 @@ public extension FeaturedItem {
         category: "Concurrency"
     )
 
-    static let combine = FeaturedItem(
-        id: TechnologyItem.combine.rawValue,
+    static let asyncSequence = FeaturedItem(
+        id: TechnologyItem.asyncSequence.rawValue,
         title: "AsyncSequence",
         subtitle: "Reactive streams (zero Combine)",
         iconName: "arrow.triangle.merge",
@@ -205,7 +205,7 @@ public extension FeaturedItem {
     )
 
     // Carousel sets (2 items per page)
-    private static let carouselSet1: [FeaturedItem] = [.asyncAwait, .combine]
+    private static let carouselSet1: [FeaturedItem] = [.asyncAwait, .asyncSequence]
     private static let carouselSet2: [FeaturedItem] = [.swiftUI, .coordinator]
     private static let carouselSet3: [FeaturedItem] = [.mvvm, .spmModules]
     private static let carouselSet4: [FeaturedItem] = [.serviceLocator, .protocolOriented]
