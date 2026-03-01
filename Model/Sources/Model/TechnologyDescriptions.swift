@@ -90,7 +90,7 @@ public enum TechnologyDescriptions {
         // Before (Combine)
         $searchText
             .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
-            .sink { [weak self] query in self?.performSearch(with: query) }
+            .sink { self.performSearch() }
             .store(in: &cancellables)
 
         // After (AsyncSequence)
