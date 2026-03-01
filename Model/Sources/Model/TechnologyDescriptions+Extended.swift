@@ -100,18 +100,14 @@ extension TechnologyDescriptions {
 
         3. async/await (TaskGroup):
         ```swift
-        var items: [Item] = []
-        await withTaskGroup { group in
-            for _ in 0..<3 {
-                group.addTask {
-                    await self.dataSource.fetchItems()
-                }
+        let items = await withTaskGroup(of: (Int, [Item]).self) { group in
+            for page in 0..<3 {
+                group.addTask { (page, await fetchPage(page)) }
             }
-            for await result in group {
-                items.append(contentsOf: result)
-            }
+            var results: [(Int, [Item])] = []
+            for await result in group { results.append(result) }
+            return results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
         }
-        return items
         ```
 
         All three produce identical results. async/await is the cleanest syntax.
