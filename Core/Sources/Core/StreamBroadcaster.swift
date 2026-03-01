@@ -23,7 +23,7 @@ public final class StreamBroadcaster<Element: Sendable> {
         let (stream, continuation) = AsyncStream.makeStream(of: Element.self)
         continuations[id] = continuation
         continuation.onTermination = { [weak self] _ in
-            Task { @MainActor [weak self] in
+            Task { @MainActor in
                 self?.continuations.removeValue(forKey: id)
             }
         }
