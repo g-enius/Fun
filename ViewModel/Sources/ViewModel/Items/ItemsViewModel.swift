@@ -34,7 +34,10 @@ public class ItemsViewModel {
 
     // Search & Filter State
     public var searchText: String = "" {
-        didSet { handleSearchTextChanged() }
+        didSet {
+            guard searchText != oldValue else { return }
+            handleSearchTextChanged()
+        }
     }
     public var selectedCategory: String = L10n.Items.categoryAll
     public var isSearching: Bool = false
