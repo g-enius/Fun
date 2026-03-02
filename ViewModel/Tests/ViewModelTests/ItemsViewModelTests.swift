@@ -158,9 +158,7 @@ struct ItemsViewModelTests {
         #expect(viewModel.isFavorited("test_item") == false)
 
         viewModel.toggleFavorite(for: "test_item")
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        await awaitObservation { _ = viewModel.favoriteIds }
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -172,9 +170,7 @@ struct ItemsViewModelTests {
         #expect(viewModel.isFavorited("test_item") == true)
 
         viewModel.toggleFavorite(for: "test_item")
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        await awaitObservation { _ = viewModel.favoriteIds }
 
         #expect(viewModel.isFavorited("test_item") == false)
     }
@@ -196,9 +192,7 @@ struct ItemsViewModelTests {
         #expect(viewModel.favoriteIds.isEmpty)
 
         mockFavorites.addFavorite("new_item")
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        await awaitObservation { _ = viewModel.favoriteIds }
 
         #expect(viewModel.favoriteIds.contains("new_item"))
     }
@@ -264,7 +258,7 @@ struct ItemsViewModelTests {
     // MARK: - Network Search Tests
 
     @Test("Search calls networkService.searchItems with query and category")
-    func testSearchCallsNetworkService() async throws {
+    func testSearchCallsNetworkService() async {
         let mockNetwork = MockNetworkService(stubbedSearchItems: [.swiftUI])
         let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(networkService: mockNetwork))
         await viewModel.loadItems()
@@ -272,9 +266,7 @@ struct ItemsViewModelTests {
         viewModel.searchText = "swift"
         // Trigger search directly by calling the debounced path
         viewModel.didSelectCategory(viewModel.selectedCategory)
-
-        // Wait for the search task to complete
-        try await Task.sleep(for: .milliseconds(100))
+        await awaitObservation { _ = viewModel.isSearching }
 
         #expect(mockNetwork.searchItemsCallCount == 1)
         #expect(mockNetwork.lastSearchQuery == "swift")
@@ -284,7 +276,7 @@ struct ItemsViewModelTests {
     }
 
     @Test("Search error sets hasError and shows toast")
-    func testSearchErrorSetsHasError() async throws {
+    func testSearchErrorSetsHasError() async {
         let mockNetwork = MockNetworkService(shouldThrowError: true)
         let mockToast = MockToastService()
         let locator = makeServiceLocator(networkService: mockNetwork)
@@ -293,8 +285,7 @@ struct ItemsViewModelTests {
 
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
-
-        try await Task.sleep(for: .milliseconds(100))
+        await awaitObservation { _ = viewModel.isSearching }
 
         #expect(viewModel.hasError == true)
         #expect(viewModel.items.isEmpty)
@@ -305,7 +296,7 @@ struct ItemsViewModelTests {
     }
 
     @Test("Clear search resets to filtered allItems")
-    func testClearSearchResetsToAllItems() async throws {
+    func testClearSearchResetsToAllItems() async {
         let mockNetwork = MockNetworkService(stubbedSearchItems: [.swiftUI])
         let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(networkService: mockNetwork))
         await viewModel.loadItems()
@@ -315,7 +306,7 @@ struct ItemsViewModelTests {
         // Perform a search
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
-        try await Task.sleep(for: .milliseconds(100))
+        await awaitObservation { _ = viewModel.isSearching }
         #expect(viewModel.items.count == 1)
 
         // Clear search
