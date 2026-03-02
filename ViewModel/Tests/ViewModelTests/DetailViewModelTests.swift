@@ -20,18 +20,21 @@ struct DetailViewModelTests {
 
     // MARK: - Setup
 
+    @discardableResult
     private func setupServices(
         initialFavorites: Set<String> = [],
         aiService: MockAIService = MockAIService(),
         featureToggleService: MockFeatureToggleService = MockFeatureToggleService()
-    ) {
+    ) -> MockFavoritesService {
+        let favoritesService = MockFavoritesService(initialFavorites: initialFavorites)
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
+        ServiceLocator.shared.register(favoritesService, for: .favorites)
         ServiceLocator.shared.register(featureToggleService, for: .featureToggles)
         ServiceLocator.shared.register(MockToastService(), for: .toast)
         ServiceLocator.shared.register(aiService, for: .ai)
+        return favoritesService
     }
 
     private var testItem: FeaturedItem {
@@ -73,16 +76,12 @@ struct DetailViewModelTests {
     @Test("didTapToggleFavorite adds item to favorites")
     func testToggleFavoriteAdds() async {
         setupServices(initialFavorites: [])
-        let mockFavorites = MockFavoritesService(initialFavorites: [])
-        ServiceLocator.shared.register(mockFavorites, for: .favorites)
         let viewModel = DetailViewModel(item: testItem)
 
         #expect(viewModel.isFavorited == false)
 
-        mockFavorites.toggleFavorite(testItem.id)
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        viewModel.didTapToggleFavorite()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }
@@ -91,16 +90,12 @@ struct DetailViewModelTests {
     func testToggleFavoriteRemoves() async {
         let item = testItem
         setupServices(initialFavorites: [item.id])
-        let mockFavorites = MockFavoritesService(initialFavorites: [item.id])
-        ServiceLocator.shared.register(mockFavorites, for: .favorites)
         let viewModel = DetailViewModel(item: item)
 
         #expect(viewModel.isFavorited == true)
 
-        mockFavorites.toggleFavorite(item.id)
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        viewModel.didTapToggleFavorite()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == false)
     }
@@ -109,9 +104,7 @@ struct DetailViewModelTests {
 
     @Test("ViewModel updates when favorites service changes externally")
     func testExternalFavoritesChange() async {
-        setupServices(initialFavorites: [])
-        let mockFavorites = MockFavoritesService(initialFavorites: [])
-        ServiceLocator.shared.register(mockFavorites, for: .favorites)
+        let mockFavorites = setupServices(initialFavorites: [])
 
         let item = testItem
         let viewModel = DetailViewModel(item: item)
@@ -119,9 +112,7 @@ struct DetailViewModelTests {
         #expect(viewModel.isFavorited == false)
 
         mockFavorites.addFavorite(item.id)
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }

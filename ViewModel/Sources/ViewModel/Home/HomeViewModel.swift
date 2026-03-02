@@ -131,7 +131,8 @@ public class HomeViewModel {
         } catch {
             hasError = true
             featuredItems = []
-            toastService.showToast(message: AppError.networkError.errorDescription ?? L10n.Error.unknownError, type: .error)
+            let errorMessage = AppError.networkError.errorDescription ?? L10n.Error.unknownError
+            toastService.showToast(message: errorMessage, type: .error)
         }
 
         isLoading = false

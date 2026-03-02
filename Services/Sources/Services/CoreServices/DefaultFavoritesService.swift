@@ -19,6 +19,7 @@ public final class DefaultFavoritesService: FavoritesServiceProtocol {
 
     public private(set) var favorites: Set<String> {
         didSet {
+            guard favorites != oldValue else { return }
             saveFavorites()
             favoritesBroadcaster.yield(favorites)
         }
