@@ -82,7 +82,7 @@ The three branches are **visually identical**, but architectural differences pro
 Fun-iOS/
 ├── FunApp/         # iOS app target (Xcode project)
 ├── Coordinator/    # Navigation coordinators
-├── UI/             # SwiftUI views & UIKit controllers
+├── UI/             # SwiftUI views
 ├── ViewModel/      # Business logic (MVVM)
 ├── Model/          # Data models & protocols
 ├── Services/       # Concrete service implementations
