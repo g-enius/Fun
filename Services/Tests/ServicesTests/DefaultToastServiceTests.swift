@@ -102,8 +102,8 @@ struct DefaultToastServiceTests {
             }
         }
 
-        // Verify absence: wait briefly then confirm nothing arrived
-        try? await Task.sleep(for: .milliseconds(10))
+        // Verify absence: yield to let any pending work run
+        await Task.yield()
 
         #expect(receivedEvents.isEmpty)
         task.cancel()

@@ -82,10 +82,8 @@ struct DetailViewModelTests {
 
         #expect(viewModel.isFavorited == false)
 
-        mockFavorites.toggleFavorite(testItem.id)
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        viewModel.didTapToggleFavorite()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }
@@ -105,10 +103,8 @@ struct DetailViewModelTests {
 
         #expect(viewModel.isFavorited == true)
 
-        mockFavorites.toggleFavorite(item.id)
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        viewModel.didTapToggleFavorite()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == false)
     }
@@ -132,9 +128,7 @@ struct DetailViewModelTests {
         #expect(viewModel.isFavorited == false)
 
         mockFavorites.addFavorite(item.id)
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }

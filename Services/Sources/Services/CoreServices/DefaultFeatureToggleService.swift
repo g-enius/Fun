@@ -17,6 +17,7 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
 
     public var featuredCarousel: Bool {
         didSet {
+            guard featuredCarousel != oldValue else { return }
             UserDefaults.standard.set(featuredCarousel, forKey: .featureCarousel)
             carouselBroadcaster.yield(featuredCarousel)
         }
@@ -36,6 +37,7 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
 
     public var appearanceMode: AppearanceMode {
         didSet {
+            guard appearanceMode != oldValue else { return }
             UserDefaults.standard.set(appearanceMode.rawValue, forKey: .appearanceMode)
             appearanceBroadcaster.yield(appearanceMode)
         }
