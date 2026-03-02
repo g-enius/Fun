@@ -177,9 +177,7 @@ struct HomeViewModelTests {
         #expect(viewModel.isFavorited("test_item") == false)
 
         viewModel.toggleFavorite(for: "test_item")
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        await awaitObservation { _ = viewModel.favoriteIds }
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -192,9 +190,7 @@ struct HomeViewModelTests {
         #expect(viewModel.isFavorited("test_item") == true)
 
         viewModel.toggleFavorite(for: "test_item")
-
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        await awaitObservation { _ = viewModel.favoriteIds }
 
         #expect(viewModel.isFavorited("test_item") == false)
     }
@@ -261,8 +257,7 @@ struct HomeViewModelTests {
         // Retry
         viewModel.retry()
 
-        // Let the observation task process the buffered stream value
-        try? await Task.sleep(for: .milliseconds(10))
+        await Task.yield()
 
         #expect(!viewModel.featuredItems.isEmpty)
         #expect(viewModel.hasError == false)
