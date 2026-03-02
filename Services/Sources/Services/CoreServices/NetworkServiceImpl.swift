@@ -10,9 +10,9 @@ import FunModel
 
 public actor NetworkServiceImpl: NetworkService {
 
-    private let shouldSimulateErrors: @MainActor @Sendable () -> Bool
+    private let shouldSimulateErrors: @MainActor () -> Bool
 
-    public init(shouldSimulateErrors: @escaping @MainActor @Sendable () -> Bool = { false }) {
+    public init(shouldSimulateErrors: @escaping @MainActor () -> Bool = { false }) {
         self.shouldSimulateErrors = shouldSimulateErrors
     }
 
