@@ -12,12 +12,18 @@ import FunModel
 public final class MockFeatureToggleService: FeatureToggleServiceProtocol {
 
     public var featuredCarousel: Bool {
-        didSet { carouselBroadcaster.yield(featuredCarousel) }
+        didSet {
+            guard featuredCarousel != oldValue else { return }
+            carouselBroadcaster.yield(featuredCarousel)
+        }
     }
     public var simulateErrors: Bool
     public var aiSummary: Bool
     public var appearanceMode: AppearanceMode {
-        didSet { appearanceBroadcaster.yield(appearanceMode) }
+        didSet {
+            guard appearanceMode != oldValue else { return }
+            appearanceBroadcaster.yield(appearanceMode)
+        }
     }
 
     private let carouselBroadcaster = StreamBroadcaster<Bool>()
