@@ -8,9 +8,9 @@ user_invocable: true
 
 Rebase feature branches in PR-chain order and force-push. If conflicts arise, resolve them intelligently.
 
-**Chain:** `main` → `navigation-stack` → `async-sequence`
+**Chain:** `main` → `navigation-stack` → `observation`
 - `navigation-stack` rebases onto `main`
-- `async-sequence` rebases onto `navigation-stack` (matches PR #4 target)
+- `observation` rebases onto `navigation-stack` (matches PR #4 target)
 
 ## Steps
 
@@ -27,7 +27,7 @@ Rebase feature branches in PR-chain order and force-push. If conflicts arise, re
    - Parse the output to identify which branch(es) failed
    - For each failed branch:
      a. `cd` to the worktree directory
-     b. Run `git rebase <target>` to restart the rebase (main for navigation-stack, feature/navigation-stack for async-sequence)
+     b. Run `git rebase <target>` to restart the rebase (main for navigation-stack, feature/navigation-stack for observation)
      c. When conflicts occur, read the conflicted files
      d. Resolve conflicts intelligently:
         - For CLAUDE.md / README.md / docs: keep the current branch's version for branch-specific content, merge shared content
@@ -46,9 +46,9 @@ Rebase feature branches in PR-chain order and force-push. If conflicts arise, re
 |--------|-------------|------|
 | main | — | `/Users/charleswang/Documents/Source/Fun-iOS` |
 | feature/navigation-stack | main | `/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack` |
-| feature/async-sequence | feature/navigation-stack | `/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack-Async-Sequence` |
+| feature/observation | feature/navigation-stack | `/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack-Observation` |
 
 ## Notes
 - The script auto-pushes main if it's ahead of origin, auto-stashes dirty worktrees, and retries on index.lock contention
-- Rebase order is hardcoded in the script: navigation-stack onto main, then async-sequence onto navigation-stack
+- Rebase order is hardcoded in the script: navigation-stack onto main, then observation onto navigation-stack
 - Uses `--force-with-lease` (not `--force`) for safety

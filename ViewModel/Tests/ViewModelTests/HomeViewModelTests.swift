@@ -50,7 +50,7 @@ struct HomeViewModelTests {
     ) {
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
+        ServiceLocator.shared.register(MockNetworkService(shouldThrowError: simulateErrors), for: .network)
         ServiceLocator.shared.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
         ServiceLocator.shared.register(MockFeatureToggleService(featuredCarousel: featuredCarousel, simulateErrors: simulateErrors), for: .featureToggles)
         ServiceLocator.shared.register(MockToastService(), for: .toast)
@@ -97,15 +97,15 @@ struct HomeViewModelTests {
         #expect(viewModel.hasError == false)
     }
 
-    @Test("loadFeaturedItems with simulateErrors shows toast")
-    func testLoadWithSimulateErrorsShowsToast() async {
-        // Setup with simulateErrors enabled
+    @Test("loadFeaturedItems with network error shows toast")
+    func testLoadWithNetworkErrorShowsToast() async {
+        // Setup with network errors enabled
         let mockToast = MockToastService()
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
+        ServiceLocator.shared.register(MockNetworkService(shouldThrowError: true), for: .network)
         ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleService(featuredCarousel: true, simulateErrors: true), for: .featureToggles)
+        ServiceLocator.shared.register(MockFeatureToggleService(featuredCarousel: true), for: .featureToggles)
         ServiceLocator.shared.register(mockToast, for: .toast)
 
         let viewModel = HomeViewModel()

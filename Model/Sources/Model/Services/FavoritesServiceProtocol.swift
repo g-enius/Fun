@@ -46,4 +46,4 @@ public protocol FavoritesServiceProtocol {
 //     favoriteIds = favoritesService.favorites      // current
 //     // then subscribe to favoritesChanges          // future
 //
-// See feature/async-sequence for the full implementation.
+// See feature/observation for the full implementation.

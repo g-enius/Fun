@@ -120,7 +120,7 @@ public class ItemsViewModel: ObservableObject {
         // - No .removeDuplicates() needed — didSet only fires on actual assignment
         // - Task.cancel() handles debounce reset automatically
         //
-        // See feature/async-sequence for the full implementation.
+        // See feature/observation for the full implementation.
     }
 
     private func observeFavoritesChanges() {
@@ -137,16 +137,21 @@ public class ItemsViewModel: ObservableObject {
     public func loadItems() async {
         isLoading = true
         defer { isLoading = false }
-        allItems = (try? await networkService.fetchAllItems()) ?? []
-        let cats = Set(allItems.map { $0.category })
-        categories = [L10n.Items.categoryAll] + cats.sorted()
 
-        if featureToggleService.simulateErrors {
+        do {
+            allItems = try await networkService.fetchAllItems()
+        } catch is CancellationError {
+            allItems = []
+            return
+        } catch {
             hasError = true
             items = []
-        } else {
-            filterResults()
+            return
         }
+
+        let cats = Set(allItems.map { $0.category })
+        categories = [L10n.Items.categoryAll] + cats.sorted()
+        filterResults()
     }
 
     /// Perform async search via network service

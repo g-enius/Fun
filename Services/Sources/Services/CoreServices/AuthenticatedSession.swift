@@ -17,11 +17,14 @@ public final class AuthenticatedSession: Session {
 
     public func activate() {
         let locator = ServiceLocator.shared
+        let featureToggleService = DefaultFeatureToggleService()
         locator.register(DefaultLoggerService(), for: .logger)
-        locator.register(NetworkServiceImpl(), for: .network)
+        locator.register(NetworkServiceImpl(shouldSimulateErrors: {
+            featureToggleService.simulateErrors
+        }), for: .network)
         locator.register(DefaultFavoritesService(), for: .favorites)
         locator.register(DefaultToastService(), for: .toast)
-        locator.register(DefaultFeatureToggleService(), for: .featureToggles)
+        locator.register(featureToggleService, for: .featureToggles)
         locator.register(DefaultAIService(), for: .ai)
     }
 

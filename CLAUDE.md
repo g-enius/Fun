@@ -1,7 +1,7 @@
 # Fun-iOS
 
 ## Multi-Branch Workflow
-- 3 worktrees: `Fun-iOS` (main), `Fun-iOS-NavigationStack` (feature/navigation-stack), `Fun-iOS-NavigationStack-Async-Sequence` (feature/async-sequence)
+- 3 worktrees: `Fun-iOS` (main), `Fun-iOS-NavigationStack` (feature/navigation-stack), `Fun-iOS-NavigationStack-Observation` (feature/observation)
 - **Always commit shared changes to main first**, push, then rebase feature branches onto main
 - Never make the same change independently on multiple branches
 - **PR discipline**: Each PR's diff must only contain changes necessary for that branch's migration. Don't delete or rewrite general rules (architecture, naming, protocol placement, etc.) that still apply — only add branch-specific content on top. If a general rule needs changing, do it on the base branch first and rebase.

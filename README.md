@@ -7,7 +7,7 @@ A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concur
 Three branches show progressive modernization:
 - UIKit + SwiftUI + Combine (iOS 15+) — [`main`](https://github.com/g-enius/Fun-iOS/tree/main)
 - Pure SwiftUI + Combine (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) - [PR](https://github.com/g-enius/Fun-iOS/pull/3)
-- Pure SwiftUI + AsyncSequence (iOS 17+) — [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) - [PR](https://github.com/g-enius/Fun-iOS/pull/4)
+- Pure SwiftUI + AsyncSequence (iOS 17+) — [`observation`](https://github.com/g-enius/Fun-iOS/tree/feature/observation) - [PR](https://github.com/g-enius/Fun-iOS/pull/4)
 
 Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
@@ -25,7 +25,7 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
 Three branches demonstrate progressive modernization — same app, three architectural approaches. Choose based on your minimum iOS target. All three produce **visually identical** apps.
 
-| | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`async-sequence`](https://github.com/g-enius/Fun-iOS/tree/feature/async-sequence) |
+| | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`observation`](https://github.com/g-enius/Fun-iOS/tree/feature/observation) |
 |---|---|---|---|
 | **Best for** | **iOS 15+** | [![iOS 16+](https://img.shields.io/badge/iOS_16+-blue)](#) | [![iOS 17+](https://img.shields.io/badge/iOS_17+-blue)](#) |
 | **UI framework** | **UIKit + SwiftUI** | **SwiftUI** [![🚫 UIKit](https://img.shields.io/badge/🚫_UIKit-blue)](#) | ← same |
@@ -42,7 +42,7 @@ Three branches demonstrate progressive modernization — same app, three archite
 
 ### UIKit + SwiftUI vs Pure SwiftUI
 
-| Aspect | `main` (UIKit + SwiftUI) | `navigation-stack`&nbsp;/&nbsp;`async-sequence`&nbsp;(Pure&nbsp;SwiftUI) |
+| Aspect | `main` (UIKit + SwiftUI) | `navigation-stack`&nbsp;/&nbsp;`observation`&nbsp;(Pure&nbsp;SwiftUI) |
 |--------|--------------------------|------------------------------------------------------|
 | App entry point | `AppDelegate` + `SceneDelegate` | SwiftUI `@main App` |
 | Tab bar | `UITabBarController` subclass | SwiftUI `TabView` |
@@ -59,14 +59,14 @@ Three branches demonstrate progressive modernization — same app, three archite
 
 The three branches are **visually identical**, but architectural differences produce minor behavioural variations:
 
-| Behaviour | `main` (UIKit) | `navigation-stack` / `async-sequence` (SwiftUI) | Why |
+| Behaviour | `main` (UIKit) | `navigation-stack` / `observation` (SwiftUI) | Why |
 |-----------|----------------|--------------------------------------------------|-----|
 | Items tab first load | No loading spinner — data ready before tab appears | Brief loading spinner on first tap | UIKit coordinators are classes created eagerly at launch; SwiftUI view structs (and their `@StateObject`/`@State` ViewModels) are created lazily on first render |
 | Share sheet position | Bottom sheet (native `UIActivityViewController`) | Popover anchored to toolbar button | `ShareLink` in a `ToolbarItem` presents as a popover on iPhone — Apple controls this internally; no SwiftUI modifier can force bottom-sheet without `import UIKit` |
 
 ### Reactive State: Combine vs AsyncSequence
 
-| Aspect | `main` / `navigation-stack` (Combine) | `async-sequence` (AsyncSequence) |
+| Aspect | `main` / `navigation-stack` (Combine) | `observation` (AsyncSequence) |
 |--------|----------------------------------------|---------------------------------------------|
 | Service publisher | `AnyPublisher<Set<String>, Never>` | `AsyncStream<Set<String>>` |
 | Multi-consumer | `CurrentValueSubject` / `PassthroughSubject` | `StreamBroadcaster` (custom, in Core) |
@@ -264,7 +264,7 @@ ai-rules/
 └── ci-cd.md                       # GitHub Actions CI workflow patterns
 ```
 
-**Branch-aware**: Each branch has its own `CLAUDE.md` and `ai-rules/` adapted for that branch's architecture. The change-reviewer agent knows which patterns to enforce — e.g., flagging `import Combine` on the `async-sequence` branch, or `import UIKit` on the SwiftUI branches.
+**Branch-aware**: Each branch has its own `CLAUDE.md` and `ai-rules/` adapted for that branch's architecture. The change-reviewer agent knows which patterns to enforce — e.g., flagging `import Combine` on the `observation` branch, or `import UIKit` on the SwiftUI branches.
 
 **Multi-branch workflow**: Shared changes commit to `main` first, then feature branches rebase — enforced via project-level rules. The `/sync` skill and `scripts/sync-branches.sh` automate this: push main, rebase both feature branches, force-push, with retry logic for Xcode index.lock contention. When conflicts arise, `/sync` resolves them with AI.
 

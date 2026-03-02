@@ -23,7 +23,7 @@ struct ItemsViewModelTests {
     private func setupServices(initialFavorites: Set<String> = [], simulateErrors: Bool = false) {
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
+        ServiceLocator.shared.register(MockNetworkService(shouldThrowError: simulateErrors), for: .network)
         ServiceLocator.shared.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
         ServiceLocator.shared.register(MockFeatureToggleService(simulateErrors: simulateErrors), for: .featureToggles)
         ServiceLocator.shared.register(MockToastService(), for: .toast)

@@ -25,7 +25,7 @@ public class SettingsViewModel: ObservableObject {
         didSet { featureToggleService.appearanceMode = appearanceMode }
     }
 
-    @Published public var featuredCarouselEnabled: Bool = false {
+    @Published public var featuredCarouselEnabled: Bool = true {
         didSet { featureToggleService.featuredCarousel = featuredCarouselEnabled }
     }
 

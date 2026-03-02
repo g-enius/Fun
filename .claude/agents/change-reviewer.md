@@ -14,7 +14,7 @@ Review all recent code changes thoroughly and provide a structured, actionable a
 
 ## Project Context
 
-- **Architecture**: MVVM-C with Combine (main branch), NavigationStack + Combine (navigation-stack branch), AsyncSequence + @Observable (async-sequence branch)
+- **Architecture**: MVVM-C with Combine (main branch), NavigationStack + Combine (navigation-stack branch), AsyncSequence + @Observable (observation branch)
 - **Packages**: `FunCore` → `FunModel` → `FunViewModel` / `FunServices` → `FunUI` → `FunCoordinator`
 - **Dependency direction**: Never import upward. ViewModel must NOT import UI or Coordinator.
 - **DI**: ServiceLocator with `@Service` property wrapper, session-scoped (LoginSession / AuthenticatedSession)
@@ -46,7 +46,7 @@ Review all recent code changes thoroughly and provide a structured, actionable a
 - Detect which branch you're on and enforce the right reactive pattern:
   - `main`: Combine + UIKit coordinators
   - `feature/navigation-stack`: Combine + NavigationPath + ObservableObject
-  - `feature/async-sequence`: AsyncSequence + StreamBroadcaster + @Observable, zero Combine
+  - `feature/observation`: AsyncSequence + StreamBroadcaster + @Observable, zero Combine
 
 ### Step 4: Correctness Check
 - **Logic errors**: Algorithms, conditions, control flow

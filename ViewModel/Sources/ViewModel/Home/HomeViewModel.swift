@@ -39,7 +39,7 @@ import FunModel
 //         }
 //     }
 //
-// See feature/async-sequence for the full implementation.
+// See feature/observation for the full implementation.
 
 @MainActor
 public class HomeViewModel: ObservableObject {
@@ -124,14 +124,8 @@ public class HomeViewModel: ObservableObject {
 
     // MARK: - Data Loading
 
-    /// Load featured items with simulated network delay
+    /// Load featured items from network service
     public func loadFeaturedItems() async {
-        // Check if error simulation is enabled
-        if featureToggleService.simulateErrors {
-            await handleSimulatedError()
-            return
-        }
-
         // Show loading only for initial load
         if !hasLoadedInitialData {
             isLoading = true
@@ -140,27 +134,22 @@ public class HomeViewModel: ObservableObject {
         hasError = false
         logger.log("Loading featured items...")
 
-        // try? ignores cancellation so SwiftUI's .refreshable always
-        // completes the load even if the user releases the drag early.
-        featuredItems = (try? await networkService.fetchFeaturedItems()) ?? []
+        do {
+            featuredItems = try await networkService.fetchFeaturedItems()
+        } catch is CancellationError {
+            // SwiftUI's .refreshable cancels the task when user releases drag early —
+            // swallow cancellation to keep refresh smooth
+            featuredItems = []
+        } catch {
+            hasError = true
+            featuredItems = []
+            toastService.showToast(message: AppError.networkError.errorDescription ?? L10n.Error.unknownError, type: .error)
+        }
+
         isLoading = false
         hasLoadedInitialData = true
 
         logger.log("Featured items loaded: \(featuredItems.flatMap { $0 }.count) items")
-    }
-
-    private func handleSimulatedError() async {
-        logger.log("Simulating network error...")
-
-        // Simulate network delay
-        let delay = UInt64.random(in: 1_000_000_000...2_000_000_000)
-        try? await Task.sleep(nanoseconds: delay)
-
-        hasError = true
-        isLoading = false
-        featuredItems = []
-
-        toastService.showToast(message: AppError.networkError.errorDescription ?? L10n.Error.unknownError, type: .error)
     }
 
     /// Pull-to-refresh handler

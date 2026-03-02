@@ -2,18 +2,18 @@
 set -euo pipefail
 
 # Sync feature branches in PR-chain order after pushing main.
-# Chain: main → navigation-stack → async-sequence
-# (navigation-stack rebases onto main, async-sequence rebases onto navigation-stack)
+# Chain: main → navigation-stack → observation
+# (navigation-stack rebases onto main, observation rebases onto navigation-stack)
 # Run from the main worktree (Fun-iOS/).
 # On conflict: aborts rebase, restores state, exits non-zero.
 
 MAIN_WORKTREE="$(cd "$(dirname "$0")/.." && pwd)"
 
 # Ordered pairs: worktree_path:rebase_target
-# navigation-stack rebases onto main, async-sequence rebases onto navigation-stack
+# navigation-stack rebases onto main, observation rebases onto navigation-stack
 SYNC_CHAIN=(
   "/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack:main"
-  "/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack-Async-Sequence:feature/navigation-stack"
+  "/Users/charleswang/Documents/Source/Fun-iOS-NavigationStack-Observation:feature/navigation-stack"
 )
 
 RED='\033[0;31m'
