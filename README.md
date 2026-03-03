@@ -4,7 +4,7 @@
 
 A modern iOS application demonstrating clean architecture (MVVM-C), Swift Concurrency, modular design with Swift Package Manager, and best practices for scalable iOS development.
 
-Three branches show progressive modernization:
+Three branches show progressive modernisation:
 - UIKit + SwiftUI + Combine (iOS 15+) — [`main`](https://github.com/g-enius/Fun-iOS/tree/main)
 - Pure SwiftUI + Combine (iOS 16+) — [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) - [PR](https://github.com/g-enius/Fun-iOS/pull/3)
 - Pure SwiftUI + Observation (iOS 17+) — [`observation`](https://github.com/g-enius/Fun-iOS/tree/feature/observation) - [PR](https://github.com/g-enius/Fun-iOS/pull/6)
@@ -23,7 +23,7 @@ Android counterpart: [Fun-Android](https://github.com/g-enius/Fun-Android).
 
 ## Tech Stack & Branch Comparison
 
-Three branches demonstrate progressive modernization — same app, three architectural approaches. Choose based on your minimum iOS target. All three produce **visually identical** apps.
+Three branches demonstrate progressive modernisation — same app, three architectural approaches. Choose based on your minimum iOS target. All three produce **visually identical** apps.
 
 | | `main` | [`navigation-stack`](https://github.com/g-enius/Fun-iOS/tree/feature/navigation-stack) | [`observation`](https://github.com/g-enius/Fun-iOS/tree/feature/observation) |
 |---|---|---|---|
@@ -134,8 +134,8 @@ Modules only import from layers below them.
 Each app flow gets its own **session** with a dedicated set of services. When the flow changes, the old session tears down and a fresh one activates — no stale state leaks between login and main.
 
 ```
-LoginSession:         logger, network, featureToggles
-AuthenticatedSession: logger, network, featureToggles, favorites, toast, ai
+LoginSession:         logger, network, featureToggles, toast
+AuthenticatedSession: logger, network, featureToggles, favourites, toast, ai
 ```
 
 ```swift
@@ -150,7 +150,7 @@ protocol Session: AnyObject {
 ```
 
 ### Protocol-Oriented Design
-All services defined as protocols in `Model`, implementations in `Services`.
+All services are defined as protocols in `Model`, implementations in `Services`.
 
 ### Coordinator Hierarchy
 
@@ -164,7 +164,7 @@ AppCoordinator
 
 3 tab coordinators handle all screens in their navigation stack directly. ViewModels communicate via closures (`onShowDetail`, `onShowProfile`, `onPop`, `onShare`, `onDismiss`, `onLogin`) — no coordinator protocols.
 
-`AppCoordinator` manages login/main flow transitions with session lifecycle.
+`AppCoordinator` manages login/main flow transitions with the session lifecycle.
 
 ### Deep Linking
 
@@ -188,10 +188,10 @@ Deep links received during login are queued and executed after authentication.
 - **Reactive Data Flow**: Combine framework with `@Published` properties
 - **Feature Toggles**: Runtime flags persisted via services
 - **AI Summary**: On-device LLM summarisation using Apple Intelligence / Foundation Models (iOS 26+)
-- **Error Handling**: Centralized `AppError` enum with toast notifications
+- **Error Handling**: Centralised `AppError` enum with toast notifications
 - **Modern Search**: Debounced input, loading states
 - **Pull-to-Refresh**: Native SwiftUI `.refreshable`
-- **Dark Mode & Dynamic Type**: System-adaptive colors, semantic font styles, System/Light/Dark appearance picker
+- **Dark Mode & Dynamic Type**: System-adaptive colours, semantic font styles, System/Light/Dark appearance picker
 - **iOS 17+ APIs**: Symbol effects, sensory feedback (backwards compatible)
 
 ## Testing
@@ -218,7 +218,7 @@ open Fun.xcworkspace
 ### Running
 1. Open `Fun.xcworkspace`
 2. Select `FunApp` scheme
-3. Choose simulator (iPhone 17 Pro recommended)
+3. Choose a simulator (iPhone 17 Pro recommended)
 4. `Cmd + R` to build and run
 
 ### Tests
@@ -232,7 +232,7 @@ xcodebuild test -workspace Fun.xcworkspace -scheme FunApp \
 - SwiftLint with strict rules (no force unwraps)
 - GitHub Actions CI (lint, build, test)
 - OSLog structured logging
-- SwiftGen for type-safe localization
+- SwiftGen for type-safe localisation
 
 ## AI-Assisted Development
 
@@ -240,7 +240,7 @@ This project demonstrates **AI-assisted iOS development** using [Claude Code](ht
 
 ![Claude Code Demo](assets/claude-code-demo.gif)
 
-Architecture and patterns designed by developer. Claude Code assists with feature implementation, bug fixes, testing, cross-platform parity checks, and code review — guided by project-level rules that enforce the architecture.
+Architecture and patterns designed by the developer. Claude Code assists with feature implementation, bug fixes, testing, cross-platform parity checks, and code review — guided by project-level rules that enforce the architecture.
 
 Commits with AI assistance include `Co-Authored-By: Claude` attribution.
 
