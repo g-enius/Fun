@@ -23,7 +23,7 @@ public class HomeViewModel {
     // MARK: - Services
 
     @ObservationIgnored @Service(.logger) private var logger: LoggerService
-    @ObservationIgnored @Service(.network) private var networkService: NetworkService
+    @ObservationIgnored @Service(.network) private var networkService: NetworkServiceProtocol
     @ObservationIgnored @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
     @ObservationIgnored @Service(.toast) private var toastService: ToastServiceProtocol
     @ObservationIgnored @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol

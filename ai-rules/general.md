@@ -149,7 +149,7 @@ Service events use `StreamBroadcaster` instead of Combine publishers.
 | Package | What goes here | Example |
 |---|---|---|
 | Core | Reusable abstractions not tied to domain | `Session`, `ServiceLocator`, `@Service`, `StreamBroadcaster` |
-| Model | Domain-specific protocols and types | `LoggerService`, `FavoritesServiceProtocol`, `NetworkService`, `SessionFactory`, `DeepLink`, `AppFlow`, `TabIndex` |
+| Model | Domain-specific protocols and types | `LoggerService`, `FavoritesServiceProtocol`, `NetworkServiceProtocol`, `SessionFactory`, `DeepLink`, `AppFlow`, `TabIndex` |
 | Services | Concrete implementations only | `DefaultLoggerService`, `LoginSession`, `AuthenticatedSession` |
 
 Never define a protocol in Services — protocols go in Model (domain) or Core (infrastructure).
