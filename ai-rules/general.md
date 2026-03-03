@@ -1,4 +1,4 @@
-# Fun-iOS Architecture Reference (feature/navigation-stack)
+# Fun-iOS Architecture Reference (feature/observation)
 
 ## SPM Package Structure
 
@@ -8,10 +8,10 @@
 FunApp/FunApp.xcodeproj    → iOS app target (FunApp.swift @main, AppSessionFactory)
 Coordinator/               → FunCoordinator (single AppCoordinator + views)
 UI/                        → FunUI (SwiftUI views)
-ViewModel/                 → FunViewModel (business logic, @Published state)
+ViewModel/                 → FunViewModel (business logic, @Observable-compatible state)
 Model/                     → FunModel + FunModelTestSupport (domain types, protocols, mocks)
 Services/                  → FunServices (concrete service implementations)
-Core/                      → FunCore (DI container, Session protocol, utilities)
+Core/                      → FunCore (DI container, Session protocol, StreamBroadcaster, utilities)
 ```
 
 ### Dependency Graph
@@ -35,28 +35,64 @@ FunServices
 
 Services is a sibling to the UI stack — it depends on Model and Core but NOT on ViewModel, UI, or Coordinator.
 
-## MVVM-C Architecture (NavigationStack Variant)
+## MVVM-C Architecture (AsyncSequence Variant)
 
-### Single AppCoordinator
-Unlike the main branch (6 UIKit coordinators), this branch uses a **single `AppCoordinator: ObservableObject`** that manages all navigation state:
+### Single @Observable AppCoordinator
+This branch uses `@Observable` (not ObservableObject) with `@ObservationIgnored` for non-observed state:
 
 ```swift
 @MainActor
-public final class AppCoordinator: ObservableObject {
-    @Published public var currentFlow: AppFlow = .login
-    @Published public var selectedTab: TabIndex = .home
-    @Published public var homePath = NavigationPath()
-    @Published public var itemsPath = NavigationPath()
-    @Published public var settingsPath = NavigationPath()
-    @Published public var isProfilePresented = false
-    @Published public var activeToast: ToastEvent?
-    @Published public var appearanceMode: AppearanceMode = .system
+@Observable
+public final class AppCoordinator {
+    // Observed by SwiftUI
+    public var currentFlow: AppFlow = .login
+    public var selectedTab: TabIndex = .home
+    public var homePath = NavigationPath()
+    public var itemsPath = NavigationPath()
+    public var settingsPath = NavigationPath()
+    public var isProfilePresented = false
+    public var activeToast: ToastEvent?
+    public var appearanceMode: AppearanceMode = .system
+
+    // Not observed
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored private let sessionFactory: SessionFactory
+    @ObservationIgnored private var currentSession: Session?
+    @ObservationIgnored private var pendingDeepLink: DeepLink?
+    @ObservationIgnored private var toastObservation: Task<Void, Never>?
+}
+```
+
+### StreamBroadcaster (in FunCore)
+Replaces Combine's Subject pattern. One-to-many AsyncStream broadcaster:
+```swift
+@MainActor
+public final class StreamBroadcaster<Element: Sendable> {
+    func makeStream() -> AsyncStream<Element>  // Each consumer gets independent stream
+    func yield(_ value: Element)                // Broadcast to all consumers
+    func finish()                               // Complete all streams
+}
+```
+
+Services use `StreamBroadcaster` to emit events. Consumers iterate with `for await`:
+```swift
+// In service
+private let broadcaster = StreamBroadcaster<ToastEvent>()
+func makeStream() -> AsyncStream<ToastEvent> { broadcaster.makeStream() }
+
+// In coordinator/viewmodel
+Task { [weak self] in
+    let stream = toastService.makeStream()
+    for await event in stream {
+        guard let self else { return }
+        self.activeToast = event
+    }
 }
 ```
 
 ### Navigation Architecture
 ```
-FunApp (@main)
+FunApp (@main, uses @State not @StateObject)
   └─ AppRootView
        ├─ LoginTabContent (when currentFlow == .login)
        └─ MainTabView (when currentFlow == .main)
@@ -71,11 +107,10 @@ FunApp (@main)
 ```
 
 ### View Wiring Pattern (this branch)
-Tab content wrappers create ViewModels and wire closures:
 ```swift
 struct HomeTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel = HomeViewModel()
+    @State private var viewModel = HomeViewModel()  // @State, not @StateObject
 
     var body: some View {
         HomeView(viewModel: viewModel)
@@ -93,7 +128,8 @@ struct HomeTabContent: View {
 
 ## ServiceLocator & @Service
 
-Same as main branch — `ServiceLocator.shared` with `@Service` property wrapper.
+Same as other branches — `ServiceLocator.shared` with `@Service` property wrapper.
+Service events use `StreamBroadcaster` instead of Combine publishers.
 
 ### Service Keys
 `ServiceKey` enum in Core: `.network`, `.logger`, `.favorites`, `.toast`, `.featureToggles`, `.ai`
@@ -106,13 +142,13 @@ Same as main branch — `ServiceLocator.shared` with `@Service` property wrapper
 | `AuthenticatedSession` | logger, network, favorites, toast, featureToggles, ai | Main app |
 
 - `AppSessionFactory` creates the right session for each `AppFlow` case
-- App entry (`FunApp.swift`) creates coordinator with `@StateObject` and calls `.start()` in `.task`
+- App entry (`FunApp.swift`) creates coordinator with `@State` and calls `.start()` in `.task`
 
 ## Protocol Placement
 
 | Package | What goes here | Example |
 |---|---|---|
-| Core | Reusable abstractions not tied to domain | `Session`, `ServiceLocator`, `@Service` |
+| Core | Reusable abstractions not tied to domain | `Session`, `ServiceLocator`, `@Service`, `StreamBroadcaster` |
 | Model | Domain-specific protocols and types | `LoggerService`, `FavoritesServiceProtocol`, `NetworkServiceProtocol`, `SessionFactory`, `DeepLink`, `AppFlow`, `TabIndex` |
 | Services | Concrete implementations only | `DefaultLoggerService`, `LoginSession`, `AuthenticatedSession` |
 
@@ -137,8 +173,14 @@ App entry uses `.onOpenURL { url in coordinator.handleDeepLink(DeepLink(url: url
 - **Test support import**: `@testable import FunModelTestSupport`
 - **Snapshots**: swift-snapshot-testing in UI package tests
 
-## Key Difference from Main Branch
+## Key Differences from Other Branches
 - No UIKit, no UIViewControllers, no UIHostingController, no BaseCoordinator
 - Single coordinator (not 6 separate ones)
 - Navigation via NavigationPath (declarative) instead of safePush/safePop (imperative)
 - App entry via SwiftUI @main, not SceneDelegate
+- `@Observable` instead of `ObservableObject` — no `@Published`, SwiftUI tracks property access automatically
+- `@ObservationIgnored` for services and private state that shouldn't trigger view updates
+- `@State` instead of `@StateObject` for coordinator and viewmodel ownership
+- `StreamBroadcaster` replaces Combine publishers — `for await` instead of `.sink`
+- `Task` for observation instead of `AnyCancellable` — cancel via `task?.cancel()`
+- Zero `import Combine` in the entire codebase

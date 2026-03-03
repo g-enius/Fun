@@ -5,45 +5,47 @@
 //  ViewModel for Settings screen
 //
 
-import Combine
 import Foundation
+import Observation
 
 import FunCore
 import FunModel
 
 @MainActor
-public class SettingsViewModel: ObservableObject {
+@Observable
+public class SettingsViewModel {
 
     // MARK: - Services
 
-    @Service(.logger) private var logger: LoggerService
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
-    // MARK: - Published State
+    // MARK: - State
 
-    @Published public var appearanceMode: AppearanceMode = .system {
+    public var appearanceMode: AppearanceMode = .system {
         didSet { featureToggleService.appearanceMode = appearanceMode }
     }
 
-    @Published public var featuredCarouselEnabled: Bool = true {
+    public var featuredCarouselEnabled: Bool = true {
         didSet { featureToggleService.featuredCarousel = featuredCarouselEnabled }
     }
 
-    @Published public var simulateErrorsEnabled: Bool = false {
+    public var simulateErrorsEnabled: Bool = false {
         didSet { featureToggleService.simulateErrors = simulateErrorsEnabled }
     }
 
-    @Published public var aiSummaryEnabled: Bool = true {
+    public var aiSummaryEnabled: Bool = true {
         didSet { featureToggleService.aiSummary = aiSummaryEnabled }
     }
 
     // MARK: - Initialization
 
     public init() {
-        _appearanceMode = Published(initialValue: featureToggleService.appearanceMode)
-        _featuredCarouselEnabled = Published(initialValue: featureToggleService.featuredCarousel)
-        _simulateErrorsEnabled = Published(initialValue: featureToggleService.simulateErrors)
-        _aiSummaryEnabled = Published(initialValue: featureToggleService.aiSummary)
+        // Override defaults with actual service values (didSet won't fire during init)
+        appearanceMode = featureToggleService.appearanceMode
+        featuredCarouselEnabled = featureToggleService.featuredCarousel
+        simulateErrorsEnabled = featureToggleService.simulateErrors
+        aiSummaryEnabled = featureToggleService.aiSummary
     }
 
     // MARK: - Actions

@@ -7,7 +7,6 @@
 
 import Testing
 import Foundation
-import Combine
 @testable import FunServices
 @testable import FunModel
 
@@ -15,36 +14,18 @@ import Combine
 @MainActor
 struct DefaultToastServiceTests {
 
-    // MARK: - Initialization Tests
-
-    @Test("Service initializes with no pending events")
-    func testInitialization() async {
-        let service = DefaultToastService()
-        var eventCount = 0
-        var cancellables = Set<AnyCancellable>()
-
-        service.toastPublisher
-            .sink { _ in eventCount += 1 }
-            .store(in: &cancellables)
-
-        #expect(eventCount == 0)
-    }
-
     // MARK: - Show Toast Tests
 
-    @Test("showToast emits event via publisher")
+    @Test("showToast emits event via stream")
     func testShowToastEmitsEvent() async {
         let service = DefaultToastService()
-        var receivedEvent: ToastEvent?
-        var cancellables = Set<AnyCancellable>()
 
-        service.toastPublisher
-            .sink { event in
-                receivedEvent = event
-            }
-            .store(in: &cancellables)
-
+        // Eager continuation: stream registered, values buffered before iteration
+        let stream = service.toastStream
         service.showToast(message: "Test message", type: .success)
+
+        var iterator = stream.makeAsyncIterator()
+        let receivedEvent = await iterator.next()
 
         #expect(receivedEvent != nil)
         #expect(receivedEvent?.message == "Test message")
@@ -54,16 +35,12 @@ struct DefaultToastServiceTests {
     @Test("showToast with error type")
     func testShowToastErrorType() async {
         let service = DefaultToastService()
-        var receivedEvent: ToastEvent?
-        var cancellables = Set<AnyCancellable>()
 
-        service.toastPublisher
-            .sink { event in
-                receivedEvent = event
-            }
-            .store(in: &cancellables)
-
+        let stream = service.toastStream
         service.showToast(message: "Error occurred", type: .error)
+
+        var iterator = stream.makeAsyncIterator()
+        let receivedEvent = await iterator.next()
 
         #expect(receivedEvent?.type == .error)
         #expect(receivedEvent?.message == "Error occurred")
@@ -72,16 +49,12 @@ struct DefaultToastServiceTests {
     @Test("showToast with info type")
     func testShowToastInfoType() async {
         let service = DefaultToastService()
-        var receivedEvent: ToastEvent?
-        var cancellables = Set<AnyCancellable>()
 
-        service.toastPublisher
-            .sink { event in
-                receivedEvent = event
-            }
-            .store(in: &cancellables)
-
+        let stream = service.toastStream
         service.showToast(message: "Info message", type: .info)
+
+        var iterator = stream.makeAsyncIterator()
+        let receivedEvent = await iterator.next()
 
         #expect(receivedEvent?.type == .info)
     }
@@ -91,18 +64,19 @@ struct DefaultToastServiceTests {
     @Test("Multiple toasts all emit events")
     func testMultipleToastsEmitEvents() async {
         let service = DefaultToastService()
-        var receivedEvents: [ToastEvent] = []
-        var cancellables = Set<AnyCancellable>()
 
-        service.toastPublisher
-            .sink { event in
-                receivedEvents.append(event)
-            }
-            .store(in: &cancellables)
-
+        let stream = service.toastStream
         service.showToast(message: "First", type: .success)
         service.showToast(message: "Second", type: .error)
         service.showToast(message: "Third", type: .info)
+
+        var receivedEvents: [ToastEvent] = []
+        var iterator = stream.makeAsyncIterator()
+        for _ in 0..<3 {
+            if let event = await iterator.next() {
+                receivedEvents.append(event)
+            }
+        }
 
         #expect(receivedEvents.count == 3)
         #expect(receivedEvents[0].message == "First")
@@ -110,39 +84,28 @@ struct DefaultToastServiceTests {
         #expect(receivedEvents[2].message == "Third")
     }
 
-    // MARK: - Publisher Behavior Tests
-
-    @Test("No events received before showToast is called")
-    func testNoEventsBeforeShowToast() async {
-        let service = DefaultToastService()
-        var eventCount = 0
-        var cancellables = Set<AnyCancellable>()
-
-        service.toastPublisher
-            .sink { _ in
-                eventCount += 1
-            }
-            .store(in: &cancellables)
-
-        #expect(eventCount == 0)
-    }
+    // MARK: - Stream Behavior Tests
 
     @Test("Late subscriber does not receive past events")
     func testLateSubscriberMissesPastEvents() async {
         let service = DefaultToastService()
-        var cancellables = Set<AnyCancellable>()
 
-        // Emit before subscribing
+        // Emit before subscribing — no continuation exists, value is lost
         service.showToast(message: "Before subscribe", type: .info)
 
         var receivedEvents: [ToastEvent] = []
-        service.toastPublisher
-            .sink { event in
+        let stream = service.toastStream
+        let task = Task {
+            for await event in stream {
                 receivedEvents.append(event)
+                break
             }
-            .store(in: &cancellables)
+        }
 
-        // PassthroughSubject does not replay - should be empty
+        // Verify absence: yield to let any pending work run
+        await Task.yield()
+
         #expect(receivedEvents.isEmpty)
+        task.cancel()
     }
 }

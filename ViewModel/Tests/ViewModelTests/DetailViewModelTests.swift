@@ -20,18 +20,21 @@ struct DetailViewModelTests {
 
     // MARK: - Setup
 
+    @discardableResult
     private func setupServices(
         initialFavorites: Set<String> = [],
         aiService: MockAIService = MockAIService(),
         featureToggleService: MockFeatureToggleService = MockFeatureToggleService()
-    ) {
+    ) -> MockFavoritesService {
+        let favoritesService = MockFavoritesService(initialFavorites: initialFavorites)
         ServiceLocator.shared.reset()
         ServiceLocator.shared.register(MockLoggerService(), for: .logger)
         ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
+        ServiceLocator.shared.register(favoritesService, for: .favorites)
         ServiceLocator.shared.register(featureToggleService, for: .featureToggles)
         ServiceLocator.shared.register(MockToastService(), for: .toast)
         ServiceLocator.shared.register(aiService, for: .ai)
+        return favoritesService
     }
 
     private var testItem: FeaturedItem {
@@ -78,9 +81,7 @@ struct DetailViewModelTests {
         #expect(viewModel.isFavorited == false)
 
         viewModel.didTapToggleFavorite()
-
-        // Wait for publisher to propagate
-        await Task.yield()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }
@@ -94,9 +95,7 @@ struct DetailViewModelTests {
         #expect(viewModel.isFavorited == true)
 
         viewModel.didTapToggleFavorite()
-
-        // Wait for publisher to propagate
-        await Task.yield()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == false)
     }
@@ -105,20 +104,15 @@ struct DetailViewModelTests {
 
     @Test("ViewModel updates when favorites service changes externally")
     func testExternalFavoritesChange() async {
-        setupServices(initialFavorites: [])
-        let mockFavorites = MockFavoritesService(initialFavorites: [])
-        ServiceLocator.shared.register(mockFavorites, for: .favorites)
+        let mockFavorites = setupServices(initialFavorites: [])
 
         let item = testItem
         let viewModel = DetailViewModel(item: item)
 
         #expect(viewModel.isFavorited == false)
 
-        // Change favorites externally
         mockFavorites.addFavorite(item.id)
-
-        // Wait for publisher
-        await Task.yield()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }
@@ -139,7 +133,7 @@ struct DetailViewModelTests {
     func testDifferentItems() async {
         setupServices()
 
-        let items: [FeaturedItem] = [.swiftUI, .combine, .mvvm, .coordinator]
+        let items: [FeaturedItem] = [.swiftUI, .asyncSequence, .mvvm, .coordinator]
         for item in items {
             let viewModel = DetailViewModel(item: item)
             #expect(viewModel.itemTitle == item.title)
