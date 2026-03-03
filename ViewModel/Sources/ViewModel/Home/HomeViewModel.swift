@@ -22,7 +22,7 @@ import FunModel
 //         var featuredItems: [[FeaturedItem]] = []   // no @Published needed
 //         var isLoading: Bool = false
 //
-//         @ObservationIgnored @Service(.network) private var networkService: NetworkService
+//         @ObservationIgnored @Service(.network) private var networkService: NetworkServiceProtocol
 //         @ObservationIgnored private var loadTask: Task<Void, Never>?
 //         // @ObservationIgnored excludes non-UI state from observation tracking
 //     }
@@ -52,7 +52,7 @@ public class HomeViewModel: ObservableObject {
     // MARK: - Services
 
     @Service(.logger) private var logger: LoggerService
-    @Service(.network) private var networkService: NetworkService
+    @Service(.network) private var networkService: NetworkServiceProtocol
     @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
     @Service(.toast) private var toastService: ToastServiceProtocol
 

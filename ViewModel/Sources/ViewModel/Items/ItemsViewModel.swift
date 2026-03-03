@@ -21,7 +21,7 @@ public class ItemsViewModel: ObservableObject {
     // MARK: - Services
 
     @Service(.logger) private var logger: LoggerService
-    @Service(.network) private var networkService: NetworkService
+    @Service(.network) private var networkService: NetworkServiceProtocol
     @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
     @Service(.toast) private var toastService: ToastServiceProtocol
     @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol

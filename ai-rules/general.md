@@ -104,7 +104,7 @@ Two session types control which services are available:
 | Package | What goes here | Example |
 |---|---|---|
 | Core | Reusable abstractions not tied to domain | `Session`, `ServiceLocator`, `@Service` |
-| Model | Domain-specific protocols and types | `LoggerService`, `FavoritesServiceProtocol`, `NetworkService`, `SessionFactory`, `DeepLink`, `AppFlow`, `TabIndex` |
+| Model | Domain-specific protocols and types | `LoggerService`, `FavoritesServiceProtocol`, `NetworkServiceProtocol`, `SessionFactory`, `DeepLink`, `AppFlow`, `TabIndex` |
 | Services | Concrete implementations only | `DefaultLoggerService`, `LoginSession`, `AuthenticatedSession` |
 
 Never define a protocol in Services — protocols go in Model (domain) or Core (infrastructure).

@@ -21,7 +21,7 @@ public class LoginViewModel: ObservableObject {
     // MARK: - Services
 
     @Service(.logger) private var logger: LoggerService
-    @Service(.network) private var networkService: NetworkService
+    @Service(.network) private var networkService: NetworkServiceProtocol
     @Service(.toast) private var toastService: ToastServiceProtocol
 
     // MARK: - Published State

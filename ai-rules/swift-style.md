@@ -85,8 +85,8 @@ ServiceLocator.shared.register(DefaultLoggerService(), for: .logger)
 - Always optional, always set by the Coordinator
 
 ### Service Protocols
-- Suffix with `Protocol` when the name would otherwise collide: `FavoritesServiceProtocol`, `FeatureToggleServiceProtocol`, `ToastServiceProtocol`, `AIServiceProtocol`
-- No suffix when unambiguous: `LoggerService`, `NetworkService`
+- Suffix with `Protocol` when the name would otherwise collide: `FavoritesServiceProtocol`, `FeatureToggleServiceProtocol`, `ToastServiceProtocol`, `AIServiceProtocol`, `NetworkServiceProtocol`
+- No suffix when unambiguous: `LoggerService`
 
 ## SwiftLint Rules
 

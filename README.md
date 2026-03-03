@@ -146,7 +146,7 @@ protocol Session: AnyObject {
 }
 
 // ViewModels resolve lazily — no changes needed
-@Service(.network) var networkService: NetworkService
+@Service(.network) var networkService: NetworkServiceProtocol
 ```
 
 ### Protocol-Oriented Design

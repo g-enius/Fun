@@ -2,13 +2,13 @@
 //  NetworkServiceImpl.swift
 //  Services
 //
-//  Actor-based implementation of NetworkService
+//  Actor-based implementation of NetworkServiceProtocol
 //
 
 import Foundation
 import FunModel
 
-public actor NetworkServiceImpl: NetworkService {
+public actor NetworkServiceImpl: NetworkServiceProtocol {
 
     private let shouldSimulateErrors: @MainActor () -> Bool
 

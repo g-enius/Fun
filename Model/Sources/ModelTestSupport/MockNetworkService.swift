@@ -2,14 +2,14 @@
 //  MockNetworkService.swift
 //  Model
 //
-//  Mock implementation of NetworkService for testing
+//  Mock implementation of NetworkServiceProtocol for testing
 //
 
 import Foundation
 import FunModel
 
 @MainActor
-public final class MockNetworkService: NetworkService {
+public final class MockNetworkService: NetworkServiceProtocol {
 
     public var stubbedFeaturedItems: [[FeaturedItem]]
     public var stubbedAllItems: [FeaturedItem]
