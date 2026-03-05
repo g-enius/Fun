@@ -68,7 +68,7 @@ public struct ToastView: View {
             }
 
             // Auto-dismiss after 3 seconds
-            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            try? await Task.sleep(for: .seconds(3))
             dismiss()
         }
     }
@@ -88,7 +88,7 @@ public struct ToastView: View {
                 isVisible = false
             }
             Task {
-                try? await Task.sleep(nanoseconds: 250_000_000)
+                try? await Task.sleep(for: .milliseconds(250))
                 onDismiss()
             }
         }

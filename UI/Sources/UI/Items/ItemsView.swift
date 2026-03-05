@@ -20,6 +20,8 @@ public struct ItemsView: View {
 
     public var body: some View {
         ItemsMainContent(viewModel: viewModel)
+            .navigationTitle(L10n.Tabs.items)
+            .navigationBarTitleDisplayMode(.large)
     }
 }
 

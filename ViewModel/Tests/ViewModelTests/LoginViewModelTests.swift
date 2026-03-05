@@ -49,28 +49,24 @@ struct LoginViewModelTests {
         #expect(viewModel.isLoggingIn == true)
     }
 
-    @Test("Login calls onLogin after network request")
-    func testLoginCallsOnLogin() async {
-        let viewModel = LoginViewModel()
-
-        var loginCalled = false
-        viewModel.onLogin = { loginCalled = true }
+    @Test("Login calls onLoginSuccess after network request")
+    func testLoginCallsOnLoginSuccess() async {
+        var loginSuccessCalled = false
+        let viewModel = LoginViewModel(onLoginSuccess: { loginSuccessCalled = true })
 
         viewModel.login()
 
         // Mock network service returns instantly, so yield to let the Task complete
         await Task.yield()
 
-        #expect(loginCalled == true)
+        #expect(loginSuccessCalled == true)
         #expect(viewModel.isLoggingIn == false)
     }
 
     @Test("Login prevents multiple simultaneous logins")
     func testLoginPreventsMultipleLogins() async {
-        let viewModel = LoginViewModel()
-
-        var loginCallCount = 0
-        viewModel.onLogin = { loginCallCount += 1 }
+        var loginSuccessCount = 0
+        let viewModel = LoginViewModel(onLoginSuccess: { loginSuccessCount += 1 })
 
         viewModel.login()
         #expect(viewModel.isLoggingIn == true)
@@ -82,11 +78,11 @@ struct LoginViewModelTests {
         // Yield to let the Task complete
         await Task.yield()
 
-        #expect(loginCallCount == 1)
+        #expect(loginSuccessCount == 1)
     }
 
-    @Test("Login with nil coordinator completes without crash")
-    func testLoginWithNilCoordinatorDoesNotCrash() async {
+    @Test("Login with no onLoginSuccess closure completes without crash")
+    func testLoginWithNoClosureDoesNotCrash() async {
         let viewModel = LoginViewModel()
 
         viewModel.login()
@@ -97,13 +93,13 @@ struct LoginViewModelTests {
         #expect(viewModel.isLoggingIn == false)
     }
 
-    @Test("Login failure does not call onLogin and shows error toast")
-    func testLoginFailureDoesNotCallOnLogin() async {
+    @Test("Login failure does not call onLoginSuccess and shows error toast")
+    func testLoginFailureDoesNotCallOnLoginSuccess() async {
         ServiceLocator.shared.register(MockNetworkService(shouldThrowError: true), for: .network)
 
         let viewModel = LoginViewModel()
         var loginCalled = false
-        viewModel.onLogin = { loginCalled = true }
+        viewModel.onLoginSuccess = { loginCalled = true }
 
         viewModel.login()
         await Task.yield()

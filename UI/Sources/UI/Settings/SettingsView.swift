@@ -19,6 +19,12 @@ public struct SettingsView: View {
     }
 
     public var body: some View {
+        settingsContent
+            .navigationTitle(L10n.Tabs.settings)
+            .navigationBarTitleDisplayMode(.large)
+    }
+
+    private var settingsContent: some View {
         Form {
             Section(header: Text(L10n.Settings.appearance)) {
                 Picker(L10n.Settings.appearance, selection: $viewModel.appearanceMode) {

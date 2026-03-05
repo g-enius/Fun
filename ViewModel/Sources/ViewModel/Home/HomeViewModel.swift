@@ -11,36 +11,6 @@ import Foundation
 import FunCore
 import FunModel
 
-// MARK: - Swift Concurrency Alternative
-//
-// iOS 17+: Replace ObservableObject + @Published with @Observable macro.
-// @Observable tracks per-property (not per-object), so SwiftUI only re-renders
-// views that read the specific property that changed.
-//
-//     @MainActor
-//     @Observable public class HomeViewModel {
-//         var featuredItems: [[FeaturedItem]] = []   // no @Published needed
-//         var isLoading: Bool = false
-//
-//         @ObservationIgnored @Service(.network) private var networkService: NetworkServiceProtocol
-//         @ObservationIgnored private var loadTask: Task<Void, Never>?
-//         // @ObservationIgnored excludes non-UI state from observation tracking
-//     }
-//
-// View side: @ObservedObject → @Bindable (two-way) or plain var (read-only)
-//            @StateObject → @State
-//
-// Subscription side: .sink { }.store(in: &cancellables) → Task { for await ... }
-//     let stream = favoritesService.favoritesChanges
-//     favoritesObservation = Task { [weak self] in
-//         for await newFavorites in stream {
-//             guard let self else { break }
-//             self.favoriteIds = newFavorites
-//         }
-//     }
-//
-// See feature/observation for the full implementation.
-
 @MainActor
 public class HomeViewModel: ObservableObject {
 
@@ -75,7 +45,13 @@ public class HomeViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init() {
+    public init(
+        onShowDetail: ((FeaturedItem) -> Void)? = nil,
+        onShowProfile: (() -> Void)? = nil
+    ) {
+        self.onShowDetail = onShowDetail
+        self.onShowProfile = onShowProfile
+
         observeFeatureToggleChanges()
         observeFavoritesChanges()
 
@@ -137,9 +113,8 @@ public class HomeViewModel: ObservableObject {
         do {
             featuredItems = try await networkService.fetchFeaturedItems()
         } catch is CancellationError {
-            // SwiftUI's .refreshable cancels the task when user releases drag early —
-            // swallow cancellation to keep refresh smooth
-            featuredItems = []
+            // Keep existing items when task is cancelled (e.g. by .refreshable)
+            logger.log("Featured items load cancelled, keeping existing data")
         } catch {
             hasError = true
             featuredItems = []
