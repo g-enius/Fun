@@ -46,11 +46,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider 
             sessionFactory: AppSessionFactory(),
             serviceLocator: serviceLocator
         )
+
+        // Re-subscribe to dark mode after each session activation (login → main → login)
+        // so the subscription always points to the current session's FeatureToggleService
+        coordinator.onSessionActivated = { [weak self] in
+            self?.subscribeToDarkMode()
+        }
+
         coordinator.start()
         self.appCoordinator = coordinator
-
-        // Subscribe to dark mode after coordinator.start() has activated the session
-        subscribeToDarkMode()
 
         window.makeKeyAndVisible()
 

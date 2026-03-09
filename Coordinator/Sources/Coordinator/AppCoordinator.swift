@@ -41,6 +41,9 @@ public final class AppCoordinator: BaseCoordinator {
     // Queue deep link if received during login flow
     private var pendingDeepLink: DeepLink?
 
+    /// Called after each session activation so external observers can re-subscribe to session-scoped services
+    public var onSessionActivated: (() -> Void)?
+
     // MARK: - Init
 
     public init(navigationController: UINavigationController, sessionFactory: SessionFactory, serviceLocator: ServiceLocator) {
@@ -67,6 +70,7 @@ public final class AppCoordinator: BaseCoordinator {
         let session = sessionFactory.makeSession(for: flow, serviceLocator: serviceLocator)
         session.activate()
         currentSession = session
+        onSessionActivated?()
     }
 
     // MARK: - Flow Management
