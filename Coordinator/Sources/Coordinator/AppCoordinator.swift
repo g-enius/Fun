@@ -44,7 +44,7 @@ public final class AppCoordinator: ObservableObject, SessionProvider {
     // MARK: - Toast
 
     @Published public var activeToast: ToastEvent?
-    private var cancellables = Set<AnyCancellable>()
+    private var toastCancellable: AnyCancellable?
 
     // MARK: - Dark Mode
 
@@ -180,11 +180,11 @@ public final class AppCoordinator: ObservableObject, SessionProvider {
     // MARK: - Toast
 
     private func observeToastEvents() {
-        toastService.toastPublisher
+        toastCancellable?.cancel()
+        toastCancellable = toastService.toastPublisher
             .sink { [weak self] event in
                 self?.activeToast = event
             }
-            .store(in: &cancellables)
     }
 
     public func dismissToast() {
