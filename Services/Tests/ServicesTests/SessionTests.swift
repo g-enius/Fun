@@ -31,24 +31,6 @@ struct SessionTests {
             #expect(locator.isRegistered(for: .network))
             #expect(locator.isRegistered(for: .featureToggles))
             #expect(!locator.isRegistered(for: .favorites))
-            #expect(!locator.isRegistered(for: .toast))
-
-            session.teardown()
-        }
-
-        @Test("Teardown clears all services")
-        func teardownClearsServices() {
-            let locator = ServiceLocator()
-            let session = LoginSession(serviceLocator: locator)
-            session.activate()
-
-            #expect(locator.isRegistered(for: .logger))
-
-            session.teardown()
-
-            #expect(!locator.isRegistered(for: .logger))
-            #expect(!locator.isRegistered(for: .network))
-            #expect(!locator.isRegistered(for: .featureToggles))
         }
     }
 
@@ -70,25 +52,6 @@ struct SessionTests {
             #expect(locator.isRegistered(for: .toast))
             #expect(locator.isRegistered(for: .featureToggles))
             #expect(locator.isRegistered(for: .ai))
-
-            session.teardown()
-        }
-
-        @Test("Teardown clears all services")
-        func teardownClearsServices() {
-            let locator = ServiceLocator()
-            let session = AuthenticatedSession(serviceLocator: locator)
-            session.activate()
-
-            #expect(locator.isRegistered(for: .favorites))
-
-            session.teardown()
-
-            #expect(!locator.isRegistered(for: .logger))
-            #expect(!locator.isRegistered(for: .network))
-            #expect(!locator.isRegistered(for: .favorites))
-            #expect(!locator.isRegistered(for: .toast))
-            #expect(!locator.isRegistered(for: .featureToggles))
         }
     }
 
@@ -107,7 +70,7 @@ struct SessionTests {
             login.activate()
             #expect(!locator.isRegistered(for: .favorites))
 
-            // Transition to main
+            // Transition to main (teardown doesn't reset — activate overwrites)
             login.teardown()
             let main = AuthenticatedSession(serviceLocator: locator)
             main.activate()
@@ -115,11 +78,9 @@ struct SessionTests {
             #expect(locator.isRegistered(for: .favorites))
             #expect(locator.isRegistered(for: .toast))
             #expect(locator.isRegistered(for: .featureToggles))
-
-            main.teardown()
         }
 
-        @Test("Main to login: authenticated services removed")
+        @Test("Main to login: core services are overwritten with fresh instances")
         func mainToLoginTransition() {
             let locator = ServiceLocator()
 
@@ -128,7 +89,8 @@ struct SessionTests {
             main.activate()
             #expect(locator.isRegistered(for: .favorites))
 
-            // Transition to login
+            // Transition to login — favorites stays registered (stale but harmless)
+            // until next AuthenticatedSession.activate() overwrites it
             main.teardown()
             let login = LoginSession(serviceLocator: locator)
             login.activate()
@@ -136,39 +98,8 @@ struct SessionTests {
             #expect(locator.isRegistered(for: .logger))
             #expect(locator.isRegistered(for: .network))
             #expect(locator.isRegistered(for: .featureToggles))
-            #expect(!locator.isRegistered(for: .favorites))
-            #expect(!locator.isRegistered(for: .toast))
-
-            login.teardown()
-        }
-
-        @Test("Full round-trip: login -> main -> login yields clean state")
-        func fullRoundTrip() {
-            let locator = ServiceLocator()
-
-            // Login
-            let login1 = LoginSession(serviceLocator: locator)
-            login1.activate()
-
-            // -> Main
-            login1.teardown()
-            let main = AuthenticatedSession(serviceLocator: locator)
-            main.activate()
+            // favorites remains registered (not cleared) — safe for live @Service references
             #expect(locator.isRegistered(for: .favorites))
-
-            // -> Login again
-            main.teardown()
-            let login2 = LoginSession(serviceLocator: locator)
-            login2.activate()
-
-            // Should be a clean login state
-            #expect(locator.isRegistered(for: .logger))
-            #expect(locator.isRegistered(for: .network))
-            #expect(locator.isRegistered(for: .featureToggles))
-            #expect(!locator.isRegistered(for: .favorites))
-            #expect(!locator.isRegistered(for: .toast))
-
-            login2.teardown()
         }
 
         @Test("Favorites are fresh after session transition")
@@ -184,17 +115,15 @@ struct SessionTests {
             favorites1.addFavorite("test-item")
             #expect(favorites1.isFavorited("test-item"))
 
-            // Tear down — this should clear UserDefaults favorites
+            // Tear down — this clears UserDefaults favorites but keeps services registered
             main1.teardown()
 
-            // New session — favorites should be default, not carrying "test-item"
+            // New session — favorites should be fresh (UserDefaults cleared + new instance)
             let main2 = AuthenticatedSession(serviceLocator: locator)
             main2.activate()
 
             let favorites2: FavoritesServiceProtocol = locator.resolve(for: .favorites)
             #expect(!favorites2.isFavorited("test-item"))
-
-            main2.teardown()
         }
     }
 }
