@@ -142,7 +142,7 @@ AuthenticatedSession: logger, network, featureToggles, favourites, toast, ai
 // Sessions activate/teardown automatically on flow transitions
 protocol Session: AnyObject {
     func activate()   // register services
-    func teardown()   // reset ServiceLocator
+    func teardown()   // clean up session state
 }
 
 // @Service resolves from the enclosing instance's serviceLocator

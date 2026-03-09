@@ -55,7 +55,7 @@ Services is a sibling to the UI stack — it depends on Model and Core but NOT o
 SwiftUI views are embedded in UIKit via UIViewControllers:
 ```swift
 // In Coordinator:
-let viewModel = HomeViewModel()
+let viewModel = HomeViewModel(serviceLocator: serviceLocator)
 viewModel.onShowDetail = { [weak self] item in self?.showDetail(for: item) }
 let viewController = HomeViewController(viewModel: viewModel)
 safePush(viewController)
@@ -96,7 +96,7 @@ Two session types control which services are available:
 | `AuthenticatedSession` | logger, network, favorites, toast, featureToggles, ai | Main app |
 
 - `activate()` registers services on the instance's `serviceLocator`
-- `teardown()` calls `favoritesService.resetFavorites()` (AuthenticatedSession) then `serviceLocator.reset()`
+- `teardown()` calls `favoritesService.resetFavorites()` (AuthenticatedSession). Does NOT call `serviceLocator.reset()` — live views may still resolve services via `@Service` during SwiftUI teardown. The next session's `activate()` overwrites with fresh instances.
 - `AppSessionFactory` creates the right session for each `AppFlow` case, passing the `serviceLocator` instance
 
 ## Protocol Placement
