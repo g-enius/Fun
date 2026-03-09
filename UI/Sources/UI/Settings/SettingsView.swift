@@ -12,7 +12,7 @@ import FunModel
 import FunViewModel
 
 public struct SettingsView: View {
-    @Bindable private var viewModel: SettingsViewModel
+    @ObservedObject private var viewModel: SettingsViewModel
 
     public init(viewModel: SettingsViewModel) {
         self.viewModel = viewModel
