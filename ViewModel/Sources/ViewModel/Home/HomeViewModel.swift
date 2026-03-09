@@ -114,7 +114,8 @@ public class HomeViewModel: ObservableObject, SessionProvider {
         } catch {
             hasError = true
             featuredItems = []
-            toastService.showToast(message: AppError.networkError.errorDescription ?? L10n.Error.unknownError, type: .error)
+            let message = AppError.networkError.errorDescription ?? L10n.Error.unknownError
+            toastService.showToast(message: message, type: .error)
         }
 
         isLoading = false
