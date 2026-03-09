@@ -12,7 +12,7 @@ import FunModel
 import FunViewModel
 
 public struct ItemsView: View {
-    private var viewModel: ItemsViewModel
+    @Bindable private var viewModel: ItemsViewModel
 
     public init(viewModel: ItemsViewModel) {
         self.viewModel = viewModel
@@ -27,7 +27,7 @@ public struct ItemsView: View {
 // MARK: - Content View
 
 private struct ItemsMainContent: View {
-    var viewModel: ItemsViewModel
+    @Bindable var viewModel: ItemsViewModel
     @FocusState private var isSearchFocused: Bool
     @State private var hasAppeared = false
 
