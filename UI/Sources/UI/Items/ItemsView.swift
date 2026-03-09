@@ -12,7 +12,7 @@ import FunModel
 import FunViewModel
 
 public struct ItemsView: View {
-    @ObservedObject private var viewModel: ItemsViewModel
+    @Bindable private var viewModel: ItemsViewModel
 
     public init(viewModel: ItemsViewModel) {
         self.viewModel = viewModel
@@ -21,14 +21,13 @@ public struct ItemsView: View {
     public var body: some View {
         ItemsMainContent(viewModel: viewModel)
             .navigationTitle(L10n.Tabs.items)
-            .navigationBarTitleDisplayMode(.large)
     }
 }
 
 // MARK: - Content View
 
 private struct ItemsMainContent: View {
-    @ObservedObject var viewModel: ItemsViewModel
+    @Bindable var viewModel: ItemsViewModel
     @FocusState private var isSearchFocused: Bool
     @State private var hasAppeared = false
 
@@ -58,7 +57,7 @@ private struct ItemsMainContent: View {
 // MARK: - Shared Components
 
 private struct CategoryFilterView: View {
-    @ObservedObject var viewModel: ItemsViewModel
+    var viewModel: ItemsViewModel
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -92,7 +91,7 @@ private struct CategoryFilterView: View {
 }
 
 private struct ItemsContentView: View {
-    @ObservedObject var viewModel: ItemsViewModel
+    var viewModel: ItemsViewModel
     var isSearchFocused: FocusState<Bool>.Binding
 
     var body: some View {
@@ -143,7 +142,7 @@ private struct ItemsContentView: View {
 
 private struct ItemRowView: View {
     let item: FeaturedItem
-    @ObservedObject var viewModel: ItemsViewModel
+    var viewModel: ItemsViewModel
     var isSearchFocused: FocusState<Bool>.Binding
 
     private var isFavorited: Bool {

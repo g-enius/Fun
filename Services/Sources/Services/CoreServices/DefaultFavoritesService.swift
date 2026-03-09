@@ -5,10 +5,10 @@
 //  Default implementation of FavoritesServiceProtocol
 //
 
-import Combine
 import Foundation
 import OSLog
 
+import FunCore
 import FunModel
 
 @MainActor
@@ -19,38 +19,17 @@ public final class DefaultFavoritesService: FavoritesServiceProtocol {
 
     public private(set) var favorites: Set<String> {
         didSet {
+            guard favorites != oldValue else { return }
             saveFavorites()
-            favoritesSubject.send(favorites)
+            favoritesBroadcaster.yield(favorites)
         }
     }
 
-    private let favoritesSubject: CurrentValueSubject<Set<String>, Never>
+    private let favoritesBroadcaster = StreamBroadcaster<Set<String>>()
 
-    public var favoritesDidChange: AnyPublisher<Set<String>, Never> {
-        favoritesSubject.eraseToAnyPublisher()
+    public var favoritesStream: AsyncStream<Set<String>> {
+        favoritesBroadcaster.makeStream()
     }
-
-    // MARK: - Swift Concurrency Alternative (iOS 15+)
-    //
-    // Replace CurrentValueSubject with StreamBroadcaster (a multi-consumer AsyncStream utility):
-    //
-    //     private let favoritesBroadcaster = StreamBroadcaster<Set<String>>()
-    //
-    //     var favoritesChanges: AsyncStream<Set<String>> {
-    //         favoritesBroadcaster.makeStream()   // each consumer gets its own stream
-    //     }
-    //
-    //     // In didSet:
-    //     didSet {
-    //         saveFavorites()
-    //         favoritesBroadcaster.yield(favorites)  // delivers to all active consumers
-    //     }
-    //
-    // StreamBroadcaster.makeStream() returns a new AsyncStream per consumer — unlike
-    // CurrentValueSubject where all subscribers share one publisher. Each consumer's
-    // stream is cleaned up automatically when the consuming Task is cancelled.
-    //
-    // See Core/Sources/Core/StreamBroadcaster.swift on feature/observation.
 
     public init() {
         let loaded: Set<String>
@@ -65,7 +44,6 @@ public final class DefaultFavoritesService: FavoritesServiceProtocol {
             loaded = Self.defaultFavorites
         }
         self.favorites = loaded
-        self.favoritesSubject = CurrentValueSubject(loaded)
     }
 
     public func isFavorited(_ itemId: String) -> Bool {

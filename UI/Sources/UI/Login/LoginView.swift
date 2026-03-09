@@ -11,7 +11,7 @@ import FunCore
 import FunViewModel
 
 public struct LoginView: View {
-    @ObservedObject private var viewModel: LoginViewModel
+    private var viewModel: LoginViewModel
 
     public init(viewModel: LoginViewModel) {
         self.viewModel = viewModel

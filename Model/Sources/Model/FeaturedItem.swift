@@ -62,10 +62,10 @@ public extension FeaturedItem {
         category: "Concurrency"
     )
 
-    static let combine = FeaturedItem(
-        id: TechnologyItem.combine.rawValue,
-        title: "Combine",
-        subtitle: "Reactive programming",
+    static let asyncSequence = FeaturedItem(
+        id: TechnologyItem.asyncSequence.rawValue,
+        title: "AsyncSequence",
+        subtitle: "Reactive streams (zero Combine)",
         iconName: "arrow.triangle.merge",
         iconColor: .orange,
         category: "Reactive"
@@ -75,7 +75,7 @@ public extension FeaturedItem {
     static let swiftUI = FeaturedItem(
         id: TechnologyItem.swiftUI.rawValue,
         title: "SwiftUI",
-        subtitle: "Pure SwiftUI + NavigationStack",
+        subtitle: "Pure SwiftUI + @Observable",
         iconName: "swift",
         iconColor: .blue,
         category: "UI Framework"
@@ -84,7 +84,7 @@ public extension FeaturedItem {
     static let coordinator = FeaturedItem(
         id: TechnologyItem.coordinator.rawValue,
         title: "Coordinator",
-        subtitle: "Single ObservableObject",
+        subtitle: "Single @Observable AppCoordinator",
         iconName: "arrow.triangle.branch",
         iconColor: .purple,
         category: "Navigation"
@@ -94,7 +94,7 @@ public extension FeaturedItem {
     static let mvvm = FeaturedItem(
         id: TechnologyItem.mvvm.rawValue,
         title: "MVVM",
-        subtitle: "Architecture pattern",
+        subtitle: "@Observable ViewModels",
         iconName: "square.stack.3d.up",
         iconColor: .indigo,
         category: "Architecture"
@@ -189,7 +189,7 @@ public extension FeaturedItem {
     static let concurrencyPatterns = FeaturedItem(
         id: TechnologyItem.concurrencyPatterns.rawValue,
         title: "Concurrency Patterns",
-        subtitle: "Callbacks vs Combine vs async/await",
+        subtitle: "Callbacks vs AsyncStream vs async/await",
         iconName: "arrow.triangle.2.circlepath",
         iconColor: .orange,
         category: "Concurrency"
@@ -197,7 +197,7 @@ public extension FeaturedItem {
 
     static let deploymentTarget = FeaturedItem(
         id: TechnologyItem.deploymentTarget.rawValue,
-        title: "iOS 16+",
+        title: "iOS 17+",
         subtitle: "Minimum deployment target",
         iconName: "iphone.gen3",
         iconColor: .yellow,
@@ -205,7 +205,7 @@ public extension FeaturedItem {
     )
 
     // Carousel sets (2 items per page)
-    private static let carouselSet1: [FeaturedItem] = [.asyncAwait, .combine]
+    private static let carouselSet1: [FeaturedItem] = [.asyncAwait, .asyncSequence]
     private static let carouselSet2: [FeaturedItem] = [.swiftUI, .coordinator]
     private static let carouselSet3: [FeaturedItem] = [.mvvm, .spmModules]
     private static let carouselSet4: [FeaturedItem] = [.serviceLocator, .protocolOriented]

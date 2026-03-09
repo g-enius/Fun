@@ -7,7 +7,6 @@
 
 import XCTest
 import SwiftUI
-import Combine
 import SnapshotTesting
 @testable import FunUI
 @testable import FunViewModel

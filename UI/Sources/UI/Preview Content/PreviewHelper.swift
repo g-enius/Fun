@@ -5,7 +5,6 @@
 //  Helper utilities for SwiftUI previews
 //
 
-import Combine
 import SwiftUI
 
 import FunCore
@@ -77,31 +76,34 @@ private final class PreviewLoggerService: LoggerService {
 @MainActor
 private final class PreviewFavoritesService: FavoritesServiceProtocol {
     var favorites: Set<String>
-    private let subject: CurrentValueSubject<Set<String>, Never>
-    var favoritesDidChange: AnyPublisher<Set<String>, Never> { subject.eraseToAnyPublisher() }
+    private let broadcaster = StreamBroadcaster<Set<String>>()
+    var favoritesStream: AsyncStream<Set<String>> { broadcaster.makeStream() }
 
     init(initialFavorites: Set<String> = []) {
         self.favorites = initialFavorites
-        self.subject = CurrentValueSubject(initialFavorites)
     }
     func isFavorited(_ itemId: String) -> Bool { favorites.contains(itemId) }
     func toggleFavorite(_ itemId: String) {
         if favorites.contains(itemId) { favorites.remove(itemId) } else { favorites.insert(itemId) }
-        subject.send(favorites)
+        broadcaster.yield(favorites)
     }
-    func addFavorite(_ itemId: String) { favorites.insert(itemId); subject.send(favorites) }
-    func removeFavorite(_ itemId: String) { favorites.remove(itemId); subject.send(favorites) }
-    func resetFavorites() { favorites.removeAll(); subject.send(favorites) }
+    func addFavorite(_ itemId: String) { favorites.insert(itemId); broadcaster.yield(favorites) }
+    func removeFavorite(_ itemId: String) { favorites.remove(itemId); broadcaster.yield(favorites) }
+    func resetFavorites() { favorites.removeAll(); broadcaster.yield(favorites) }
 }
 
 @MainActor
 private final class PreviewFeatureToggleService: FeatureToggleServiceProtocol {
-    @Published var featuredCarousel: Bool = true
-    @Published var simulateErrors: Bool = false
-    @Published var aiSummary: Bool = true
-    @Published var appearanceMode: AppearanceMode = .system
-    var featuredCarouselPublisher: AnyPublisher<Bool, Never> { $featuredCarousel.eraseToAnyPublisher() }
-    var appearanceModePublisher: AnyPublisher<AppearanceMode, Never> { $appearanceMode.eraseToAnyPublisher() }
+    var featuredCarousel: Bool = true
+    var simulateErrors: Bool = false
+    var aiSummary: Bool = true
+    var appearanceMode: AppearanceMode = .system
+
+    private let carouselBroadcaster = StreamBroadcaster<Bool>()
+    private let appearanceBroadcaster = StreamBroadcaster<AppearanceMode>()
+
+    var featuredCarouselStream: AsyncStream<Bool> { carouselBroadcaster.makeStream() }
+    var appearanceModeStream: AsyncStream<AppearanceMode> { appearanceBroadcaster.makeStream() }
 }
 
 @MainActor
@@ -122,7 +124,7 @@ private final class PreviewNetworkService: NetworkServiceProtocol {
 
 @MainActor
 private final class PreviewToastService: ToastServiceProtocol {
-    private let subject = PassthroughSubject<ToastEvent, Never>()
-    var toastPublisher: AnyPublisher<ToastEvent, Never> { subject.eraseToAnyPublisher() }
-    func showToast(message: String, type: ToastType) { subject.send(ToastEvent(message: message, type: type)) }
+    private let broadcaster = StreamBroadcaster<ToastEvent>()
+    var toastStream: AsyncStream<ToastEvent> { broadcaster.makeStream() }
+    func showToast(message: String, type: ToastType) { broadcaster.yield(ToastEvent(message: message, type: type)) }
 }

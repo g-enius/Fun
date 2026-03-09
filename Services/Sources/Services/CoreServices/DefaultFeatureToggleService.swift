@@ -5,9 +5,9 @@
 //  Default implementation of FeatureToggleServiceProtocol
 //
 
-import Combine
 import Foundation
 
+import FunCore
 import FunModel
 
 @MainActor
@@ -15,27 +15,45 @@ public final class DefaultFeatureToggleService: FeatureToggleServiceProtocol {
 
     // MARK: - Feature Toggles
 
-    @Published public var featuredCarousel: Bool {
-        didSet { UserDefaults.standard.set(featuredCarousel, forKey: .featureCarousel) }
-    }
-    @Published public var simulateErrors: Bool {
-        didSet { UserDefaults.standard.set(simulateErrors, forKey: .simulateErrors) }
-    }
-    @Published public var aiSummary: Bool {
-        didSet { UserDefaults.standard.set(aiSummary, forKey: .aiSummary) }
-    }
-    @Published public var appearanceMode: AppearanceMode {
-        didSet { UserDefaults.standard.set(appearanceMode.rawValue, forKey: .appearanceMode) }
+    public var featuredCarousel: Bool {
+        didSet {
+            guard featuredCarousel != oldValue else { return }
+            UserDefaults.standard.set(featuredCarousel, forKey: .featureCarousel)
+            carouselBroadcaster.yield(featuredCarousel)
+        }
     }
 
-    // MARK: - Publishers
-
-    public var featuredCarouselPublisher: AnyPublisher<Bool, Never> {
-        $featuredCarousel.removeDuplicates().eraseToAnyPublisher()
+    public var simulateErrors: Bool {
+        didSet {
+            UserDefaults.standard.set(simulateErrors, forKey: .simulateErrors)
+        }
     }
 
-    public var appearanceModePublisher: AnyPublisher<AppearanceMode, Never> {
-        $appearanceMode.removeDuplicates().eraseToAnyPublisher()
+    public var aiSummary: Bool {
+        didSet {
+            UserDefaults.standard.set(aiSummary, forKey: .aiSummary)
+        }
+    }
+
+    public var appearanceMode: AppearanceMode {
+        didSet {
+            guard appearanceMode != oldValue else { return }
+            UserDefaults.standard.set(appearanceMode.rawValue, forKey: .appearanceMode)
+            appearanceBroadcaster.yield(appearanceMode)
+        }
+    }
+
+    // MARK: - Streams
+
+    private let carouselBroadcaster = StreamBroadcaster<Bool>()
+    private let appearanceBroadcaster = StreamBroadcaster<AppearanceMode>()
+
+    public var featuredCarouselStream: AsyncStream<Bool> {
+        carouselBroadcaster.makeStream()
+    }
+
+    public var appearanceModeStream: AsyncStream<AppearanceMode> {
+        appearanceBroadcaster.makeStream()
     }
 
     // MARK: - Initialization

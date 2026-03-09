@@ -5,40 +5,46 @@
 //  ViewModel for Items screen - combines search, filter, and items list
 //
 
-import Combine
 import Foundation
+import Observation
 
 import FunCore
 import FunModel
 
 @MainActor
-public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
+@Observable
+public class ItemsViewModel: ServiceLocatorProvider {
 
     // MARK: - Navigation Closures
 
-    public var onShowDetail: ((FeaturedItem) -> Void)?
+    @ObservationIgnored public var onShowDetail: ((FeaturedItem) -> Void)?
 
     // MARK: - DI
 
-    public let serviceLocator: ServiceLocator
-    @Service(.logger) private var logger: LoggerService
-    @Service(.network) private var networkService: NetworkServiceProtocol
-    @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
-    @Service(.toast) private var toastService: ToastServiceProtocol
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    @ObservationIgnored public let serviceLocator: ServiceLocator
+    @ObservationIgnored @Service(.logger) private var logger: LoggerService
+    @ObservationIgnored @Service(.network) private var networkService: NetworkServiceProtocol
+    @ObservationIgnored @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
+    @ObservationIgnored @Service(.toast) private var toastService: ToastServiceProtocol
+    @ObservationIgnored @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
-    // MARK: - Published State
+    // MARK: - State
 
-    @Published public var items: [FeaturedItem] = []
-    @Published public private(set) var favoriteIds: Set<String> = []
+    public var items: [FeaturedItem] = []
+    public var favoriteIds: Set<String> = []
 
     // Search & Filter State
-    @Published public var searchText: String = ""
-    @Published public var selectedCategory: String = L10n.Items.categoryAll
-    @Published public var isSearching: Bool = false
-    @Published public var needsMoreCharacters: Bool = false
-    @Published public var hasError: Bool = false
-    @Published public private(set) var isLoading: Bool = false
+    public var searchText: String = "" {
+        didSet {
+            guard searchText != oldValue else { return }
+            handleSearchTextChanged()
+        }
+    }
+    public var selectedCategory: String = L10n.Items.categoryAll
+    public var isSearching: Bool = false
+    public var needsMoreCharacters: Bool = false
+    public var hasError: Bool = false
+    public private(set) var isLoading: Bool = false
 
     // MARK: - Configuration
 
@@ -47,10 +53,11 @@ public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Private Properties
 
-    private var cancellables = Set<AnyCancellable>()
-    private var allItems: [FeaturedItem] = []
-    private var loadTask: Task<Void, Never>?
-    private var searchTask: Task<Void, Never>?
+    @ObservationIgnored private var allItems: [FeaturedItem] = []
+    @ObservationIgnored private var loadTask: Task<Void, Never>?
+    @ObservationIgnored private var searchTask: Task<Void, Never>?
+    @ObservationIgnored private var debounceTask: Task<Void, Never>?
+    @ObservationIgnored private var favoritesObservation: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -62,7 +69,6 @@ public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
         self.serviceLocator = serviceLocator
 
         observeFavoritesChanges()
-        setupSearchBinding()
 
         loadTask = Task { [weak self] in
             await self?.loadItems()
@@ -72,47 +78,51 @@ public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
     deinit {
         loadTask?.cancel()
         searchTask?.cancel()
+        debounceTask?.cancel()
+        favoritesObservation?.cancel()
     }
 
     // MARK: - Setup
 
-    private func setupSearchBinding() {
-        // Debounce search text with minimum character requirement
-        $searchText
-            .dropFirst() // Skip initial value
-            .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
-            .removeDuplicates()
-            .sink { [weak self] text in
-                guard let self else { return }
-                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    private func handleSearchTextChanged() {
+        debounceTask?.cancel()
+        debounceTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(600))
+            guard !Task.isCancelled, let self else { return }
+            self.processSearchText()
+        }
+    }
 
-                if trimmed.isEmpty {
-                    // Empty search - show all items
-                    self.needsMoreCharacters = false
-                    self.performSearch()
-                } else if trimmed.count < self.minimumSearchCharacters {
-                    // Below minimum - show "keep typing" unless in error state
-                    if !self.hasError {
-                        self.needsMoreCharacters = true
-                        self.items = []
-                    }
-                    self.isSearching = false
-                } else {
-                    // Meets minimum - perform search
-                    self.needsMoreCharacters = false
-                    self.performSearch()
-                }
+    private func processSearchText() {
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmed.isEmpty {
+            needsMoreCharacters = false
+            performSearch()
+        } else if trimmed.count < minimumSearchCharacters {
+            if !hasError {
+                needsMoreCharacters = true
+                items = []
             }
-            .store(in: &cancellables)
+            isSearching = false
+        } else {
+            needsMoreCharacters = false
+            performSearch()
+        }
     }
 
     private func observeFavoritesChanges() {
-        // CurrentValueSubject replays current value on subscribe — no manual init needed
-        favoritesService.favoritesDidChange
-            .sink { [weak self] newFavorites in
-                self?.favoriteIds = newFavorites
+        // Initialize with current favorites
+        favoriteIds = favoritesService.favorites
+
+        // Observe future changes
+        let stream = favoritesService.favoritesStream
+        favoritesObservation = Task { [weak self] in
+            for await newFavorites in stream {
+                guard let self else { break }
+                self.favoriteIds = newFavorites
             }
-            .store(in: &cancellables)
+        }
     }
 
     // MARK: - Data Loading
@@ -200,6 +210,7 @@ public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
 
     public func clearSearch() {
         searchText = ""
+        debounceTask?.cancel()
         searchTask?.cancel()
         isSearching = false
         hasError = false

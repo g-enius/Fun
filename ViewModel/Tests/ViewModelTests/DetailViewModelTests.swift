@@ -75,9 +75,7 @@ struct DetailViewModelTests {
         #expect(viewModel.isFavorited == false)
 
         viewModel.didTapToggleFavorite()
-
-        // Wait for publisher to propagate
-        await Task.yield()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }
@@ -90,9 +88,7 @@ struct DetailViewModelTests {
         #expect(viewModel.isFavorited == true)
 
         viewModel.didTapToggleFavorite()
-
-        // Wait for publisher to propagate
-        await Task.yield()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == false)
     }
@@ -115,11 +111,8 @@ struct DetailViewModelTests {
 
         #expect(viewModel.isFavorited == false)
 
-        // Change favorites externally
         mockFavorites.addFavorite(item.id)
-
-        // Wait for publisher
-        await Task.yield()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }
@@ -139,7 +132,7 @@ struct DetailViewModelTests {
     func testDifferentItems() async {
         let locator = makeServiceLocator()
 
-        let items: [FeaturedItem] = [.swiftUI, .combine, .mvvm, .coordinator]
+        let items: [FeaturedItem] = [.swiftUI, .asyncSequence, .mvvm, .coordinator]
         for item in items {
             let viewModel = DetailViewModel(item: item, serviceLocator: locator)
             #expect(viewModel.itemTitle == item.title)

@@ -11,7 +11,7 @@ import FunCore
 import FunViewModel
 
 public struct DetailView: View {
-    @ObservedObject private var viewModel: DetailViewModel
+    private var viewModel: DetailViewModel
 
     public init(viewModel: DetailViewModel) {
         self.viewModel = viewModel
@@ -19,8 +19,13 @@ public struct DetailView: View {
 
     public var body: some View {
         detailContent
+            .navigationTitle(viewModel.itemTitle)
             .toolbar(.hidden, for: .tabBar)
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ShareLink(item: viewModel.shareText)
+                        .accessibilityIdentifier(AccessibilityID.Detail.shareButton)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { viewModel.didTapToggleFavorite() }) {
                         Image(systemName: viewModel.isFavorited ? "star.fill" : "star")
@@ -28,21 +33,12 @@ public struct DetailView: View {
                     }
                     .accessibilityIdentifier(AccessibilityID.Detail.favoriteButton)
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    ShareLink(item: viewModel.shareText)
-                        .accessibilityIdentifier(AccessibilityID.Detail.shareButton)
-                }
             }
     }
 
     private var detailContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Title
-                Text(viewModel.itemTitle)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-
                 // Category badge
                 HStack {
                     Text(viewModel.category)

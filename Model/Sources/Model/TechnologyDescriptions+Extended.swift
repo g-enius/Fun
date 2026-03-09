@@ -41,13 +41,11 @@ extension TechnologyDescriptions {
         """
 
     static let deploymentTargetDescription = """
-        This branch requires iOS 16.0 as the minimum deployment target.
+        This branch requires iOS 17.0 as the minimum deployment target.
 
-        iOS 16 unlocks:
-        • NavigationStack + NavigationPath for programmatic navigation
-        • .navigationDestination(for:) type-safe routing
-        • SwiftUI TabView improvements
-        • ShareLink and other modern SwiftUI APIs
+        iOS 17 unlocks:
+        • @Observable macro (Observation framework) — per-property tracking
+        • @Bindable for two-way bindings with @Observable classes
 
         Three branches demonstrate progressive iOS version requirements:
         • main: iOS 15+ (UIKit navigation + Combine)
@@ -82,21 +80,25 @@ extension TechnologyDescriptions {
         Note: A serial queue would execute fetches one at a time. The concurrent \
         queue runs all 3 in parallel, and the barrier flag ensures thread-safe writes.
 
-        2. Combine (Publishers.MergeMany):
+        2. AsyncStream (makeStream + continuation):
         ```swift
-        let publishers = (0..<3).map { page in
-            Future<[Item], Never> { promise in
-                promise(.success(fetchPage(page)))
-            }
+        let (stream, continuation) = AsyncStream.makeStream(of: (Int, [Item]).self)
+        for page in 0..<3 {
+            Task { continuation.yield((page, await fetchPage(page))) }
         }
-        Publishers.MergeMany(publishers)
-            .collect()
-            .map { $0.flatMap { $0 } }
-            .sink { items in self.allItems = items }
-            .store(in: &cancellables)
+        var results: [(Int, [Item])] = []
+        for await result in stream {
+            results.append(result)
+            if results.count == 3 { continuation.finish() }
+        }
+        let items = results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
         ```
+        Zero Combine — this branch uses AsyncStream for all reactive patterns.
+        Note: AsyncStream needs manual termination (`continuation.finish()` when count \
+        reached) because the stream has no concept of "all producers finished" — unlike \
+        TaskGroup which tracks its children automatically.
 
-        3. async/await (TaskGroup):
+        3. async/await (TaskGroup) — preferred for parallel work:
         ```swift
         let items = await withTaskGroup(of: (Int, [Item]).self) { group in
             for page in 0..<3 {
@@ -107,7 +109,9 @@ extension TechnologyDescriptions {
             return results.sorted { $0.0 < $1.0 }.flatMap { $0.1 }
         }
         ```
-
-        All three produce identical results. async/await is the cleanest syntax.
+        TaskGroup is structured concurrency: all children are scoped to the group, \
+        cancelling the parent cancels all children, and `for await` ends automatically \
+        when all children complete. Prefer TaskGroup for parallel work you own end-to-end; \
+        use AsyncStream for bridging event/callback APIs or reactive service streams.
         """
 }
