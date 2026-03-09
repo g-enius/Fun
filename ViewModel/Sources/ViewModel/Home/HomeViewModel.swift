@@ -42,20 +42,21 @@ import FunModel
 // See feature/observation for the full implementation.
 
 @MainActor
-public class HomeViewModel: ObservableObject {
+public class HomeViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Navigation Closures
 
     public var onShowDetail: ((FeaturedItem) -> Void)?
     public var onShowProfile: (() -> Void)?
 
-    // MARK: - Services
+    // MARK: - DI
 
-    private let logger: LoggerService
-    private let networkService: NetworkServiceProtocol
-    private let favoritesService: FavoritesServiceProtocol
-    private let toastService: ToastServiceProtocol
-    private let featureToggleService: FeatureToggleServiceProtocol
+    public let serviceLocator: ServiceLocator
+    @Service(.logger) private var logger: LoggerService
+    @Service(.network) private var networkService: NetworkServiceProtocol
+    @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
+    @Service(.toast) private var toastService: ToastServiceProtocol
+    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
     // MARK: - Published State
 
@@ -74,12 +75,8 @@ public class HomeViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(serviceLocator: ServiceLocator = .shared) {
-        self.logger = serviceLocator.resolve(for: .logger)
-        self.networkService = serviceLocator.resolve(for: .network)
-        self.favoritesService = serviceLocator.resolve(for: .favorites)
-        self.toastService = serviceLocator.resolve(for: .toast)
-        self.featureToggleService = serviceLocator.resolve(for: .featureToggles)
+    public init(serviceLocator: ServiceLocator) {
+        self.serviceLocator = serviceLocator
 
         observeFeatureToggleChanges()
         observeFavoritesChanges()

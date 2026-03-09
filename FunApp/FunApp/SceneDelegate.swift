@@ -13,11 +13,11 @@ import FunCore
 import FunModel
 
 @MainActor
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider {
 
     var window: UIWindow?
     var appCoordinator: AppCoordinator?
-    private var cancellables = Set<AnyCancellable>()
+    let serviceLocator = ServiceLocator()
     private var darkModeCancellable: AnyCancellable?
 
     @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
@@ -40,16 +40,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = navigationController
         self.window = window
 
-        // Observe before coordinator.start() so serviceDidRegisterPublisher triggers initial subscription
-        observeDarkMode()
-
         // Create and start app coordinator with session factory
         let coordinator = AppCoordinator(
             navigationController: navigationController,
-            sessionFactory: AppSessionFactory()
+            sessionFactory: AppSessionFactory(),
+            serviceLocator: serviceLocator
         )
         coordinator.start()
         self.appCoordinator = coordinator
+
+        // Subscribe to dark mode after coordinator.start() has activated the session
+        subscribeToDarkMode()
 
         window.makeKeyAndVisible()
 
@@ -62,17 +63,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     // MARK: - Dark Mode Observation
 
-    private func observeDarkMode() {
-        ServiceLocator.shared.serviceDidRegisterPublisher
-            .filter { $0 == .featureToggles }
-            .sink { [weak self] _ in
-                self?.subscribeToDarkMode()
-            }
-            .store(in: &cancellables)
-    }
-
     private func subscribeToDarkMode() {
-        // Cancel previous subscription to avoid duplicates on repeated registrations
         darkModeCancellable?.cancel()
         darkModeCancellable = featureToggleService.appearanceModePublisher
             .sink { [weak self] mode in

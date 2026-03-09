@@ -12,19 +12,20 @@ import FunCore
 import FunModel
 
 @MainActor
-public class DetailViewModel: ObservableObject {
+public class DetailViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Navigation Closures
 
     public var onPop: (() -> Void)?
     public var onShare: ((String) -> Void)?
 
-    // MARK: - Services
+    // MARK: - DI
 
-    private let logger: LoggerService
-    private let favoritesService: FavoritesServiceProtocol
-    private let aiService: AIServiceProtocol
-    private let featureToggleService: FeatureToggleServiceProtocol
+    public let serviceLocator: ServiceLocator
+    @Service(.logger) private var logger: LoggerService
+    @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
+    @Service(.ai) private var aiService: AIServiceProtocol
+    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
     // MARK: - Published State
 
@@ -47,11 +48,8 @@ public class DetailViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(item: FeaturedItem, serviceLocator: ServiceLocator = .shared) {
-        self.logger = serviceLocator.resolve(for: .logger)
-        self.favoritesService = serviceLocator.resolve(for: .favorites)
-        self.aiService = serviceLocator.resolve(for: .ai)
-        self.featureToggleService = serviceLocator.resolve(for: .featureToggles)
+    public init(item: FeaturedItem, serviceLocator: ServiceLocator) {
+        self.serviceLocator = serviceLocator
 
         self.itemTitle = item.title
         self.category = item.category

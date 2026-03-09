@@ -16,36 +16,30 @@ struct ServiceLocatorTests {
     @Test("Can register and resolve a service")
     @MainActor
     func registerAndResolve() {
-        let locator = ServiceLocator.shared
-        locator.reset()
+        let locator = ServiceLocator()
 
         let testService = TestService(value: 42)
         locator.register(testService, for: .logger)
 
         let resolved: TestService = locator.resolve(for: .logger)
         #expect(resolved.value == 42)
-
-        locator.reset()
     }
 
     @Test("isRegistered returns correct value")
     @MainActor
     func isRegisteredWorks() {
-        let locator = ServiceLocator.shared
-        locator.reset()
+        let locator = ServiceLocator()
 
         #expect(locator.isRegistered(for: .logger) == false)
 
         locator.register(TestService(value: 1), for: .logger)
         #expect(locator.isRegistered(for: .logger) == true)
-
-        locator.reset()
     }
 
     @Test("reset clears all services")
     @MainActor
     func resetClearsEverything() {
-        let locator = ServiceLocator.shared
+        let locator = ServiceLocator()
 
         locator.register(TestService(value: 1), for: .network)
 

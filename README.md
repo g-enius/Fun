@@ -134,7 +134,7 @@ Modules only import from layers below them.
 Each app flow gets its own **session** with a dedicated set of services. When the flow changes, the old session tears down and a fresh one activates — no stale state leaks between login and main.
 
 ```
-LoginSession:         logger, network, featureToggles, toast
+LoginSession:         logger, network, featureToggles
 AuthenticatedSession: logger, network, featureToggles, favourites, toast, ai
 ```
 
@@ -145,11 +145,23 @@ protocol Session: AnyObject {
     func teardown()   // reset ServiceLocator
 }
 
-// ViewModels accept ServiceLocator via constructor injection
-public init(serviceLocator: ServiceLocator = .shared) {
-    self.networkService = serviceLocator.resolve(for: .network)
+// @Service resolves from the enclosing instance's serviceLocator
+// via static subscript(_enclosingInstance:) — no global singleton
+class HomeViewModel: ObservableObject, ServiceLocatorProvider {
+    let serviceLocator: ServiceLocator
+    @Service(.network) private var networkService: NetworkServiceProtocol
+
+    init(serviceLocator: ServiceLocator) {
+        self.serviceLocator = serviceLocator
+    }
 }
 ```
+
+### DI Evolution
+
+The current `@Service` property wrapper uses `static subscript(_enclosingInstance:)` to resolve from the enclosing instance's `serviceLocator`. This eliminates the global singleton (`ServiceLocator.shared`) — the app creates one instance at the top and threads it through coordinators, sessions, and ViewModels.
+
+**Future**: A Swift Macro could auto-generate `ServiceLocatorProvider` conformance + the `serviceLocator` stored property, eliminating the remaining boilerplate. On `@Observable` classes it could also auto-add `@ObservationIgnored` to each `@Service` property.
 
 ### Protocol-Oriented Design
 All services are defined as protocols in `Model`, implementations in `Services`.

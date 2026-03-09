@@ -14,14 +14,15 @@ import FunCore
 import FunModel
 import FunViewModel
 
-public class HomeTabBarController: UITabBarController {
+public class HomeTabBarController: UITabBarController, ServiceLocatorProvider {
 
     // MARK: - ViewModel
 
     private let viewModel: HomeTabBarViewModel
 
-    // MARK: - Services
+    // MARK: - DI
 
+    public let serviceLocator: ServiceLocator
     @Service(.toast) private var toastService: ToastServiceProtocol
 
     // MARK: - Combine
@@ -39,8 +40,9 @@ public class HomeTabBarController: UITabBarController {
 
     // MARK: - Initialization
 
-    public init(viewModel: HomeTabBarViewModel, tabNavigationControllers: [UINavigationController]) {
+    public init(viewModel: HomeTabBarViewModel, tabNavigationControllers: [UINavigationController], serviceLocator: ServiceLocator) {
         self.viewModel = viewModel
+        self.serviceLocator = serviceLocator
         super.init(nibName: nil, bundle: nil)
         delegate = self
         viewControllers = tabNavigationControllers

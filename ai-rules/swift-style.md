@@ -59,16 +59,22 @@
 ## ServiceLocator & @Service
 
 ```swift
-// Registration (in Session.activate())
-ServiceLocator.shared.register(DefaultLoggerService(), for: .logger)
+// Instance-based DI — no .shared singleton
+class MyViewModel: ObservableObject, ServiceLocatorProvider {
+    let serviceLocator: ServiceLocator
+    @Service(.logger) private var logger: LoggerService
 
-// Resolution (in ViewModel/Coordinator)
-@Service(.logger) private var logger: LoggerService
+    init(serviceLocator: ServiceLocator) {
+        self.serviceLocator = serviceLocator
+    }
+}
 ```
 
-- Registration happens in `LoginSession.activate()` and `AuthenticatedSession.activate()`
+- `@Service` uses `static subscript(_enclosingInstance:)` to resolve from the enclosing instance's `serviceLocator`
+- Registration happens in `LoginSession.activate()` and `AuthenticatedSession.activate()` on the instance
 - Resolution crashes if service isn't registered — this is intentional
-- Never call `ServiceLocator.shared.resolve()` directly in Views
+- Never call `serviceLocator.resolve()` directly in Views
+- One `ServiceLocator()` is created in SceneDelegate and threaded through the entire object graph
 
 ## Naming Conventions
 

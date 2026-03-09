@@ -168,21 +168,18 @@ public enum TechnologyDescriptions {
         """
 
     private static let serviceLocatorDescription = """
-        Custom dependency injection using ServiceLocator pattern:
+        Instance-based dependency injection using ServiceLocator + @Service property wrapper:
 
-        Registration (in SceneDelegate):
+        Conform to ServiceLocatorProvider:
         ```swift
-        ServiceLocator.shared.register(
-            NetworkServiceImpl(),
-            for: .network
-        )
+        class MyViewModel: ServiceLocatorProvider {
+            let serviceLocator: ServiceLocator
+            @Service(.favorites) var favoritesService: FavoritesServiceProtocol
+        }
         ```
 
-        Resolution via property wrapper:
-        ```swift
-        @Service(.favorites)
-        private var favoritesService: FavoritesServiceProtocol
-        ```
+        @Service resolves from the enclosing instance's serviceLocator via
+        static subscript(_enclosingInstance:) — no global singleton needed.
 
         This enables easy mocking for tests while keeping injection simple.
         """

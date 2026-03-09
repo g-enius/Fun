@@ -12,11 +12,12 @@ import FunCore
 import FunModel
 
 @MainActor
-public class HomeTabBarViewModel: ObservableObject {
+public class HomeTabBarViewModel: ObservableObject, ServiceLocatorProvider {
 
-    // MARK: - Services
+    // MARK: - DI
 
-    private let logger: LoggerService
+    public let serviceLocator: ServiceLocator
+    @Service(.logger) private var logger: LoggerService
 
     // MARK: - Published State
 
@@ -25,8 +26,8 @@ public class HomeTabBarViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(serviceLocator: ServiceLocator = .shared) {
-        self.logger = serviceLocator.resolve(for: .logger)
+    public init(serviceLocator: ServiceLocator) {
+        self.serviceLocator = serviceLocator
         logger.log("HomeTabBarViewModel initialized")
     }
 

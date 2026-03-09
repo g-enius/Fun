@@ -21,7 +21,7 @@ public final class HomeCoordinator: BaseCoordinator {
     private var isShowingDetail = false
 
     override public func start() {
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: serviceLocator)
         viewModel.onShowDetail = { [weak self] item in self?.showDetail(for: item) }
         viewModel.onShowProfile = { [weak self] in self?.showProfile() }
 
@@ -35,7 +35,7 @@ public final class HomeCoordinator: BaseCoordinator {
         guard !isShowingDetail else { return }
         isShowingDetail = true
 
-        let viewModel = DetailViewModel(item: item)
+        let viewModel = DetailViewModel(item: item, serviceLocator: serviceLocator)
         viewModel.onPop = { [weak self] in self?.isShowingDetail = false }
         viewModel.onShare = { [weak self] text in self?.share(text: text) }
 
@@ -46,7 +46,7 @@ public final class HomeCoordinator: BaseCoordinator {
     public func showProfile() {
         let profileNavController = UINavigationController()
 
-        let viewModel = ProfileViewModel()
+        let viewModel = ProfileViewModel(serviceLocator: serviceLocator)
         viewModel.onDismiss = { [weak self] in self?.safeDismiss() }
         viewModel.onLogout = { [weak self] in self?.safeDismiss { self?.onLogout?() } }
         viewModel.onGoToItems = { [weak self] in

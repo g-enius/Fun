@@ -18,18 +18,19 @@ import FunModelTestSupport
 @MainActor
 final class SettingsViewSnapshotTests: XCTestCase {
 
-    override func setUp() async throws {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
+    private func makeServiceLocator() -> ServiceLocator {
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(MockFeatureToggleService(), for: .featureToggles)
+        return locator
     }
 
     // Set to true to regenerate snapshots, then set back to false
     private var recording: Bool { false }
 
     func testSettingsView_defaultState() {
-        let viewModel = SettingsViewModel()
+        let viewModel = SettingsViewModel(serviceLocator: makeServiceLocator())
 
         let view = SettingsView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -39,7 +40,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     }
 
     func testSettingsView_darkAppearance() {
-        let viewModel = SettingsViewModel()
+        let viewModel = SettingsViewModel(serviceLocator: makeServiceLocator())
         viewModel.appearanceMode = .dark
 
         let view = SettingsView(viewModel: viewModel)
@@ -51,7 +52,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     }
 
     func testSettingsView_carouselEnabled() {
-        let viewModel = SettingsViewModel()
+        let viewModel = SettingsViewModel(serviceLocator: makeServiceLocator())
         viewModel.featuredCarouselEnabled = true
 
         let view = SettingsView(viewModel: viewModel)
@@ -62,7 +63,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     }
 
     func testSettingsView_carouselDisabled() {
-        let viewModel = SettingsViewModel()
+        let viewModel = SettingsViewModel(serviceLocator: makeServiceLocator())
         viewModel.featuredCarouselEnabled = false
 
         let view = SettingsView(viewModel: viewModel)

@@ -12,17 +12,18 @@ import FunCore
 import FunModel
 
 @MainActor
-public class LoginViewModel: ObservableObject {
+public class LoginViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Navigation Closures
 
     public var onLogin: (() -> Void)?
 
-    // MARK: - Services
+    // MARK: - DI
 
-    private let logger: LoggerService
-    private let networkService: NetworkServiceProtocol
-    private let toastService: ToastServiceProtocol
+    public let serviceLocator: ServiceLocator
+    @Service(.logger) private var logger: LoggerService
+    @Service(.network) private var networkService: NetworkServiceProtocol
+    @Service(.toast) private var toastService: ToastServiceProtocol
 
     // MARK: - Published State
 
@@ -34,10 +35,8 @@ public class LoginViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(serviceLocator: ServiceLocator = .shared) {
-        self.logger = serviceLocator.resolve(for: .logger)
-        self.networkService = serviceLocator.resolve(for: .network)
-        self.toastService = serviceLocator.resolve(for: .toast)
+    public init(serviceLocator: ServiceLocator) {
+        self.serviceLocator = serviceLocator
     }
 
     deinit {

@@ -18,21 +18,22 @@ import FunModelTestSupport
 @MainActor
 final class DetailViewSnapshotTests: XCTestCase {
 
-    override func setUp() async throws {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
-        ServiceLocator.shared.register(MockAIService(isAvailable: false), for: .ai)
-        ServiceLocator.shared.register(MockToastService(), for: .toast)
+    private func makeServiceLocator() -> ServiceLocator {
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(MockFavoritesService(), for: .favorites)
+        locator.register(MockFeatureToggleService(), for: .featureToggles)
+        locator.register(MockAIService(isAvailable: false), for: .ai)
+        locator.register(MockToastService(), for: .toast)
+        return locator
     }
 
     // Set to true to regenerate snapshots, then set back to false
     private var recording: Bool { false }
 
     func testDetailView_defaultState() {
-        let viewModel = DetailViewModel(item: .asyncAwait)
+        let viewModel = DetailViewModel(item: .asyncAwait, serviceLocator: makeServiceLocator())
 
         let view = DetailView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -42,7 +43,7 @@ final class DetailViewSnapshotTests: XCTestCase {
     }
 
     func testDetailView_favorited() {
-        let viewModel = DetailViewModel(item: .asyncAwait)
+        let viewModel = DetailViewModel(item: .asyncAwait, serviceLocator: makeServiceLocator())
         viewModel.isFavorited = true
 
         let view = DetailView(viewModel: viewModel)
@@ -53,7 +54,7 @@ final class DetailViewSnapshotTests: XCTestCase {
     }
 
     func testDetailView_darkMode() {
-        let viewModel = DetailViewModel(item: .swiftUI)
+        let viewModel = DetailViewModel(item: .swiftUI, serviceLocator: makeServiceLocator())
 
         let view = DetailView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)

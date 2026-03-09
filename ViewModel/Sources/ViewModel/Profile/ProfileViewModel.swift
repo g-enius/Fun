@@ -11,7 +11,7 @@ import FunCore
 import FunModel
 
 @MainActor
-public class ProfileViewModel: ObservableObject {
+public class ProfileViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Navigation Closures
 
@@ -19,9 +19,10 @@ public class ProfileViewModel: ObservableObject {
     public var onLogout: (() -> Void)?
     public var onGoToItems: (() -> Void)?
 
-    // MARK: - Services
+    // MARK: - DI
 
-    private let logger: LoggerService
+    public let serviceLocator: ServiceLocator
+    @Service(.logger) private var logger: LoggerService
 
     // MARK: - Published State
 
@@ -34,8 +35,8 @@ public class ProfileViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(profile: UserProfile = .demo, serviceLocator: ServiceLocator = .shared) {
-        self.logger = serviceLocator.resolve(for: .logger)
+    public init(profile: UserProfile = .demo, serviceLocator: ServiceLocator) {
+        self.serviceLocator = serviceLocator
         self.userName = profile.name
         self.userEmail = profile.email
         self.userBio = profile.bio

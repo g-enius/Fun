@@ -13,7 +13,7 @@ import FunViewModel
 public final class SettingsCoordinator: BaseCoordinator {
 
     override public func start() {
-        let viewModel = SettingsViewModel()
+        let viewModel = SettingsViewModel(serviceLocator: serviceLocator)
         let viewController = SettingsViewController(viewModel: viewModel)
         navigationController.setViewControllers([viewController], animated: false)
     }

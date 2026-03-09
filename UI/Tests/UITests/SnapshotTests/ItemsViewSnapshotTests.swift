@@ -18,20 +18,21 @@ import FunModelTestSupport
 @MainActor
 final class ItemsViewSnapshotTests: XCTestCase {
 
-    override func setUp() async throws {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
-        ServiceLocator.shared.register(MockToastService(), for: .toast)
+    private func makeServiceLocator() -> ServiceLocator {
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(MockFavoritesService(), for: .favorites)
+        locator.register(MockFeatureToggleService(), for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
+        return locator
     }
 
     // Set to true to regenerate snapshots, then set back to false
     private var recording: Bool { false }
 
     func testItemsView_defaultState() async {
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
         await viewModel.loadItems()
 
         let view = ItemsView(viewModel: viewModel)
@@ -42,7 +43,7 @@ final class ItemsViewSnapshotTests: XCTestCase {
     }
 
     func testItemsView_withSearchText() async {
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
         await viewModel.loadItems()
         viewModel.searchText = "swift"
 
@@ -54,7 +55,7 @@ final class ItemsViewSnapshotTests: XCTestCase {
     }
 
     func testItemsView_darkMode() async {
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
         await viewModel.loadItems()
 
         let view = ItemsView(viewModel: viewModel)

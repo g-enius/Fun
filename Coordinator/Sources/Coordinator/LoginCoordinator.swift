@@ -18,7 +18,7 @@ public final class LoginCoordinator: BaseCoordinator {
     public var onLoginSuccess: (() -> Void)?
 
     override public func start() {
-        let viewModel = LoginViewModel()
+        let viewModel = LoginViewModel(serviceLocator: serviceLocator)
         viewModel.onLogin = { [weak self] in self?.onLoginSuccess?() }
 
         let viewController = LoginViewController(viewModel: viewModel)

@@ -16,7 +16,7 @@ public final class ItemsCoordinator: BaseCoordinator {
     private var isShowingDetail = false
 
     override public func start() {
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: serviceLocator)
         viewModel.onShowDetail = { [weak self] item in self?.showDetail(for: item) }
 
         let viewController = ItemsViewController(viewModel: viewModel)
@@ -29,7 +29,7 @@ public final class ItemsCoordinator: BaseCoordinator {
         guard !isShowingDetail else { return }
         isShowingDetail = true
 
-        let viewModel = DetailViewModel(item: item)
+        let viewModel = DetailViewModel(item: item, serviceLocator: serviceLocator)
         viewModel.onPop = { [weak self] in self?.isShowingDetail = false }
         viewModel.onShare = { [weak self] text in self?.share(text: text) }
 

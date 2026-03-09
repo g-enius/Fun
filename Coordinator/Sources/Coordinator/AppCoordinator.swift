@@ -43,9 +43,9 @@ public final class AppCoordinator: BaseCoordinator {
 
     // MARK: - Init
 
-    public init(navigationController: UINavigationController, sessionFactory: SessionFactory) {
+    public init(navigationController: UINavigationController, sessionFactory: SessionFactory, serviceLocator: ServiceLocator) {
         self.sessionFactory = sessionFactory
-        super.init(navigationController: navigationController)
+        super.init(navigationController: navigationController, serviceLocator: serviceLocator)
     }
 
     // MARK: - Start
@@ -64,7 +64,7 @@ public final class AppCoordinator: BaseCoordinator {
 
     private func activateSession(for flow: AppFlow) {
         currentSession?.teardown()
-        let session = sessionFactory.makeSession(for: flow)
+        let session = sessionFactory.makeSession(for: flow, serviceLocator: serviceLocator)
         session.activate()
         currentSession = session
     }
@@ -75,7 +75,10 @@ public final class AppCoordinator: BaseCoordinator {
         // Clear any existing main flow coordinators
         clearMainFlowCoordinators()
 
-        let loginCoordinator = LoginCoordinator(navigationController: navigationController)
+        let loginCoordinator = LoginCoordinator(
+            navigationController: navigationController,
+            serviceLocator: serviceLocator
+        )
         loginCoordinator.onLoginSuccess = { [weak self] in
             self?.transitionToMainFlow()
         }
@@ -120,18 +123,21 @@ public final class AppCoordinator: BaseCoordinator {
         settingsNavController.tabBarItem.accessibilityIdentifier = AccessibilityID.Tabs.settings
 
         // Create view model for tab bar
-        let tabBarViewModel = HomeTabBarViewModel()
+        let tabBarViewModel = HomeTabBarViewModel(serviceLocator: serviceLocator)
         self.tabBarViewModel = tabBarViewModel
 
         // Create and store coordinators for each tab
         let homeCoordinator = HomeCoordinator(
-            navigationController: homeNavController
+            navigationController: homeNavController,
+            serviceLocator: serviceLocator
         )
         let itemsCoordinator = ItemsCoordinator(
-            navigationController: itemsNavController
+            navigationController: itemsNavController,
+            serviceLocator: serviceLocator
         )
         let settingsCoordinator = SettingsCoordinator(
-            navigationController: settingsNavController
+            navigationController: settingsNavController,
+            serviceLocator: serviceLocator
         )
 
         // Set up logout callback through home coordinator (Profile modal)
@@ -156,7 +162,8 @@ public final class AppCoordinator: BaseCoordinator {
                 homeNavController,
                 itemsNavController,
                 settingsNavController
-            ]
+            ],
+            serviceLocator: serviceLocator
         )
 
         // Set as root (tab bar doesn't push, it's the container)

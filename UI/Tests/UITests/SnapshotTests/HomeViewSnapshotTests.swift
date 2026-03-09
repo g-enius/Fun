@@ -18,20 +18,21 @@ import FunModelTestSupport
 @MainActor
 final class HomeViewSnapshotTests: XCTestCase {
 
-    override func setUp() async throws {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
-        ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
-        ServiceLocator.shared.register(MockToastService(), for: .toast)
+    private func makeServiceLocator() -> ServiceLocator {
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(MockFeatureToggleService(), for: .featureToggles)
+        locator.register(MockFavoritesService(), for: .favorites)
+        locator.register(MockToastService(), for: .toast)
+        return locator
     }
 
     // Set to true to regenerate snapshots, then set back to false
     private var recording: Bool { false }
 
     func testHomeView_withCarouselEnabled() {
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
         viewModel.isCarouselEnabled = true
 
         let view = HomeView(viewModel: viewModel)
@@ -42,7 +43,7 @@ final class HomeViewSnapshotTests: XCTestCase {
     }
 
     func testHomeView_withCarouselDisabled() {
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
         viewModel.isCarouselEnabled = false
 
         let view = HomeView(viewModel: viewModel)
@@ -53,7 +54,7 @@ final class HomeViewSnapshotTests: XCTestCase {
     }
 
     func testHomeView_darkMode() {
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
         viewModel.isCarouselEnabled = true
 
         let view = HomeView(viewModel: viewModel)
@@ -67,7 +68,7 @@ final class HomeViewSnapshotTests: XCTestCase {
     // MARK: - iPad Tests
 
     func testHomeView_iPad_portrait() {
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
         viewModel.isCarouselEnabled = true
 
         let view = HomeView(viewModel: viewModel)
@@ -78,7 +79,7 @@ final class HomeViewSnapshotTests: XCTestCase {
     }
 
     func testHomeView_iPad_landscape() {
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
         viewModel.isCarouselEnabled = true
 
         let view = HomeView(viewModel: viewModel)

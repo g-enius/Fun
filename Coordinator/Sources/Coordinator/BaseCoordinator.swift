@@ -7,6 +7,8 @@
 
 import UIKit
 
+import FunCore
+
 // MARK: - Coordinator Protocol
 
 @MainActor
@@ -18,9 +20,10 @@ public protocol Coordinator: AnyObject {
 // MARK: - Base Coordinator
 
 @MainActor
-open class BaseCoordinator: Coordinator {
+open class BaseCoordinator: Coordinator, ServiceLocatorProvider {
 
     public let navigationController: UINavigationController
+    public let serviceLocator: ServiceLocator
 
     private var isTransitioning: Bool {
         navigationController.transitionCoordinator != nil
@@ -30,8 +33,9 @@ open class BaseCoordinator: Coordinator {
     /// Handles deep links arriving mid-transition without full queue complexity.
     private var pendingAction: (@MainActor () -> Void)?
 
-    public init(navigationController: UINavigationController) {
+    public init(navigationController: UINavigationController, serviceLocator: ServiceLocator) {
         self.navigationController = navigationController
+        self.serviceLocator = serviceLocator
     }
 
     open func start() {

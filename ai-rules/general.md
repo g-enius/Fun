@@ -95,9 +95,9 @@ Two session types control which services are available:
 | `LoginSession` | logger, network, featureToggles | Login screen |
 | `AuthenticatedSession` | logger, network, favorites, toast, featureToggles, ai | Main app |
 
-- `activate()` registers services on `ServiceLocator.shared`
-- `teardown()` calls `favoritesService.resetFavorites()` (AuthenticatedSession) then `ServiceLocator.shared.reset()`
-- `AppSessionFactory` creates the right session for each `AppFlow` case
+- `activate()` registers services on the instance's `serviceLocator`
+- `teardown()` calls `favoritesService.resetFavorites()` (AuthenticatedSession) then `serviceLocator.reset()`
+- `AppSessionFactory` creates the right session for each `AppFlow` case, passing the `serviceLocator` instance
 
 ## Protocol Placement
 

@@ -16,15 +16,10 @@ import FunViewModel
 @MainActor
 public enum PreviewHelper {
 
-    private static var isConfigured = false
+    /// Creates a ServiceLocator with all preview mock services registered
+    public static func makeServiceLocator() -> ServiceLocator {
+        let locator = ServiceLocator()
 
-    /// Call this once at the start of preview to register mock services
-    public static func configureMockServices() {
-        guard !isConfigured else { return }
-
-        let locator = ServiceLocator.shared
-
-        // Register preview stub services
         locator.register(PreviewLoggerService() as LoggerService, for: .logger)
         let favorites = PreviewFavoritesService(initialFavorites: ["asyncawait", "swiftui"])
         locator.register(favorites as FavoritesServiceProtocol, for: .favorites)
@@ -35,43 +30,37 @@ public enum PreviewHelper {
         locator.register(PreviewToastService() as ToastServiceProtocol, for: .toast)
         locator.register(PreviewAIService() as AIServiceProtocol, for: .ai)
 
-        isConfigured = true
+        return locator
     }
 
     /// Creates a HomeViewModel configured for previews
     public static func makeHomeViewModel() -> HomeViewModel {
-        configureMockServices()
-        return HomeViewModel()
+        HomeViewModel(serviceLocator: makeServiceLocator())
     }
 
     /// Creates an ItemsViewModel configured for previews
     public static func makeItemsViewModel() -> ItemsViewModel {
-        configureMockServices()
-        return ItemsViewModel()
+        ItemsViewModel(serviceLocator: makeServiceLocator())
     }
 
     /// Creates a SettingsViewModel configured for previews
     public static func makeSettingsViewModel() -> SettingsViewModel {
-        configureMockServices()
-        return SettingsViewModel()
+        SettingsViewModel(serviceLocator: makeServiceLocator())
     }
 
     /// Creates a ProfileViewModel configured for previews
     public static func makeProfileViewModel() -> ProfileViewModel {
-        configureMockServices()
-        return ProfileViewModel()
+        ProfileViewModel(serviceLocator: makeServiceLocator())
     }
 
     /// Creates a DetailViewModel configured for previews
     public static func makeDetailViewModel() -> DetailViewModel {
-        configureMockServices()
-        return DetailViewModel(item: .asyncAwait)
+        DetailViewModel(item: .asyncAwait, serviceLocator: makeServiceLocator())
     }
 
     /// Creates a LoginViewModel configured for previews
     public static func makeLoginViewModel() -> LoginViewModel {
-        configureMockServices()
-        return LoginViewModel()
+        LoginViewModel(serviceLocator: makeServiceLocator())
     }
 }
 

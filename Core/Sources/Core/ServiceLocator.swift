@@ -2,10 +2,12 @@
 //  ServiceLocator.swift
 //  Core
 //
-//  Central registry for dependency injection
+//  Central registry for dependency injection.
+//
+//  Instance-based DI: the app creates one ServiceLocator() at the top (SceneDelegate)
+//  and threads it through coordinators, sessions, and ViewModels. No global singleton.
 //
 
-import Combine
 import Foundation
 
 // MARK: - Service Key
@@ -26,30 +28,20 @@ public enum ServiceKey {
 @MainActor
 public class ServiceLocator {
 
-    /// Shared instance
-    public static let shared = ServiceLocator()
-
     /// Registered services
     private var services: [ServiceKey: Any] = [:]
-
-    /// Emits the key whenever a service is registered
-    private let registrationSubject = PassthroughSubject<ServiceKey, Never>()
-    public var serviceDidRegisterPublisher: AnyPublisher<ServiceKey, Never> {
-        registrationSubject.eraseToAnyPublisher()
-    }
 
     public init() {}
 
     /// Register a service
     public func register<T>(_ service: T, for key: ServiceKey) {
         services[key] = service
-        registrationSubject.send(key)
     }
 
     /// Resolve a service (crashes if not registered)
     public func resolve<T>(for key: ServiceKey) -> T {
         guard let service = services[key] as? T else {
-            fatalError("Service not registered for key: \(key). Register in ServiceLocator.shared.")
+            fatalError("Service not registered for key: \(key)")
         }
         return service
     }
@@ -65,9 +57,23 @@ public class ServiceLocator {
     }
 }
 
+// MARK: - ServiceLocatorProvider
+
+/// Any type that holds a ServiceLocator instance for instance-based DI resolution.
+public protocol ServiceLocatorProvider {
+    var serviceLocator: ServiceLocator { get }
+}
+
 // MARK: - @Service Property Wrapper
 
-/// Property wrapper for convenient service access
+/// Property wrapper that resolves services from the enclosing instance's ServiceLocator.
+///
+/// Uses `static subscript(_enclosingInstance:)` to resolve from the enclosing type's
+/// `serviceLocator` property when it conforms to `ServiceLocatorProvider`.
+///
+/// Future: A Swift Macro could auto-generate ServiceLocatorProvider conformance +
+/// the `serviceLocator` stored property, eliminating boilerplate. On @Observable classes
+/// it could also auto-add @ObservationIgnored to each @Service property.
 @propertyWrapper
 @MainActor
 public struct Service<T> {
@@ -78,7 +84,28 @@ public struct Service<T> {
         self.key = key
     }
 
+    /// Instance-based resolution: reads from the enclosing instance's serviceLocator.
+    /// Takes priority over `wrappedValue` when the enclosing type conforms to ServiceLocatorProvider.
+    public static subscript<EnclosingSelf: ServiceLocatorProvider>(
+        _enclosingInstance observed: EnclosingSelf,
+        wrapped wrappedKeyPath: ReferenceWritableKeyPath<EnclosingSelf, T>,
+        storage storageKeyPath: ReferenceWritableKeyPath<EnclosingSelf, Service<T>>
+    ) -> T {
+        get {
+            observed.serviceLocator.resolve(for: observed[keyPath: storageKeyPath].key)
+        }
+        // swiftlint:disable:next unused_setter_value
+        set { /* required by compiler for ReferenceWritableKeyPath, never called */ }
+    }
+
+    /// Required by @propertyWrapper — crashes if used outside a ServiceLocatorProvider type.
     public var wrappedValue: T {
-        ServiceLocator.shared.resolve(for: key)
+        get { notImplementedError() }
+        // swiftlint:disable:next unused_setter_value
+        set { notImplementedError() }
+    }
+
+    private func notImplementedError() -> Never {
+        fatalError("@Service must be used inside a type conforming to ServiceLocatorProvider")
     }
 }
