@@ -31,6 +31,7 @@ struct SessionTests {
             #expect(locator.isRegistered(for: .network))
             #expect(locator.isRegistered(for: .featureToggles))
             #expect(!locator.isRegistered(for: .favorites))
+            #expect(locator.isRegistered(for: .toast))
         }
     }
 
@@ -100,6 +101,7 @@ struct SessionTests {
             #expect(locator.isRegistered(for: .featureToggles))
             // favorites remains registered (not cleared) — safe for live @Service references
             #expect(locator.isRegistered(for: .favorites))
+            #expect(locator.isRegistered(for: .toast))
         }
 
         @Test("Favorites are fresh after session transition")

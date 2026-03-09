@@ -18,23 +18,40 @@ public struct DetailView: View {
     }
 
     public var body: some View {
+        detailContent
+            .toolbar(.hidden, for: .tabBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { viewModel.didTapToggleFavorite() }) {
+                        Image(systemName: viewModel.isFavorited ? "star.fill" : "star")
+                            .foregroundColor(viewModel.isFavorited ? .yellow : .blue)
+                    }
+                    .accessibilityIdentifier(AccessibilityID.Detail.favoriteButton)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ShareLink(item: viewModel.shareText)
+                        .accessibilityIdentifier(AccessibilityID.Detail.shareButton)
+                }
+            }
+    }
+
+    private var detailContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Header
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(viewModel.itemTitle)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+                // Title
+                Text(viewModel.itemTitle)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
 
-                    HStack {
-                        Text(viewModel.category)
-                            .font(.subheadline)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.blue.opacity(0.1))
-                            .foregroundColor(.blue)
-                            .cornerRadius(8)
-                    }
+                // Category badge
+                HStack {
+                    Text(viewModel.category)
+                        .font(.subheadline)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.blue.opacity(0.1))
+                        .foregroundColor(.blue)
+                        .cornerRadius(8)
                 }
 
                 Divider()

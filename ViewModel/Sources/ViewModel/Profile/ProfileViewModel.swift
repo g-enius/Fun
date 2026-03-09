@@ -35,7 +35,16 @@ public class ProfileViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Initialization
 
-    public init(profile: UserProfile = .demo, serviceLocator: ServiceLocator) {
+    public init(
+        onDismiss: (() -> Void)? = nil,
+        onLogout: (() -> Void)? = nil,
+        onGoToItems: (() -> Void)? = nil,
+        profile: UserProfile = .demo,
+        serviceLocator: ServiceLocator
+    ) {
+        self.onDismiss = onDismiss
+        self.onLogout = onLogout
+        self.onGoToItems = onGoToItems
         self.serviceLocator = serviceLocator
         self.userName = profile.name
         self.userEmail = profile.email

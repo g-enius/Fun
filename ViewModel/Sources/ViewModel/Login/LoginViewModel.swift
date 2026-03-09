@@ -16,7 +16,7 @@ public class LoginViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Navigation Closures
 
-    public var onLogin: (() -> Void)?
+    public var onLoginSuccess: (() -> Void)?
 
     // MARK: - DI
 
@@ -35,7 +35,11 @@ public class LoginViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Initialization
 
-    public init(serviceLocator: ServiceLocator) {
+    public init(
+        onLoginSuccess: (() -> Void)? = nil,
+        serviceLocator: ServiceLocator
+    ) {
+        self.onLoginSuccess = onLoginSuccess
         self.serviceLocator = serviceLocator
     }
 
@@ -57,7 +61,7 @@ public class LoginViewModel: ObservableObject, ServiceLocatorProvider {
             defer { self.isLoggingIn = false }
             do {
                 try await self.networkService.login()
-                self.onLogin?()
+                self.onLoginSuccess?()
             } catch {
                 self.logger.log("Login failed: \(error)", level: .error, category: .general)
                 self.toastService.showToast(message: L10n.Error.networkError, type: .error)

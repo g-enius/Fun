@@ -20,6 +20,7 @@ public final class LoginSession: Session {
         serviceLocator.register(DefaultLoggerService(), for: .logger)
         serviceLocator.register(NetworkServiceImpl(), for: .network)
         serviceLocator.register(DefaultFeatureToggleService(), for: .featureToggles)
+        serviceLocator.register(DefaultToastService(), for: .toast)
     }
 
     public func teardown() {
