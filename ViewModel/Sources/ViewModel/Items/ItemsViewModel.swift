@@ -20,11 +20,11 @@ public class ItemsViewModel: ObservableObject {
 
     // MARK: - Services
 
-    @Service(.logger) private var logger: LoggerService
-    @Service(.network) private var networkService: NetworkServiceProtocol
-    @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
-    @Service(.toast) private var toastService: ToastServiceProtocol
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    private let logger: LoggerService
+    private let networkService: NetworkServiceProtocol
+    private let favoritesService: FavoritesServiceProtocol
+    private let toastService: ToastServiceProtocol
+    private let featureToggleService: FeatureToggleServiceProtocol
 
     // MARK: - Published State
 
@@ -53,7 +53,13 @@ public class ItemsViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init() {
+    public init(serviceLocator: ServiceLocator = .shared) {
+        self.logger = serviceLocator.resolve(for: .logger)
+        self.networkService = serviceLocator.resolve(for: .network)
+        self.favoritesService = serviceLocator.resolve(for: .favorites)
+        self.toastService = serviceLocator.resolve(for: .toast)
+        self.featureToggleService = serviceLocator.resolve(for: .featureToggles)
+
         observeFavoritesChanges()
         setupSearchBinding()
 

@@ -20,18 +20,19 @@ struct DetailViewModelTests {
 
     // MARK: - Setup
 
-    private func setupServices(
+    private func makeServiceLocator(
         initialFavorites: Set<String> = [],
         aiService: MockAIService = MockAIService(),
         featureToggleService: MockFeatureToggleService = MockFeatureToggleService()
-    ) {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
-        ServiceLocator.shared.register(featureToggleService, for: .featureToggles)
-        ServiceLocator.shared.register(MockToastService(), for: .toast)
-        ServiceLocator.shared.register(aiService, for: .ai)
+    ) -> ServiceLocator {
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
+        locator.register(featureToggleService, for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
+        locator.register(aiService, for: .ai)
+        return locator
     }
 
     private var testItem: FeaturedItem {
@@ -42,9 +43,8 @@ struct DetailViewModelTests {
 
     @Test("Initial state matches item data")
     func testInitialStateMatchesItem() async {
-        setupServices()
         let item = testItem
-        let viewModel = DetailViewModel(item: item)
+        let viewModel = DetailViewModel(item: item, serviceLocator: makeServiceLocator())
 
         #expect(viewModel.itemTitle == item.title)
         #expect(viewModel.category == item.category)
@@ -54,16 +54,14 @@ struct DetailViewModelTests {
     @Test("isFavorited is true when item is in favorites")
     func testIsFavoritedTrue() async {
         let item = testItem
-        setupServices(initialFavorites: [item.id])
-        let viewModel = DetailViewModel(item: item)
+        let viewModel = DetailViewModel(item: item, serviceLocator: makeServiceLocator(initialFavorites: [item.id]))
 
         #expect(viewModel.isFavorited == true)
     }
 
     @Test("isFavorited is false when item is not in favorites")
     func testIsFavoritedFalse() async {
-        setupServices(initialFavorites: [])
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(initialFavorites: []))
 
         #expect(viewModel.isFavorited == false)
     }
@@ -72,8 +70,7 @@ struct DetailViewModelTests {
 
     @Test("didTapToggleFavorite adds item to favorites")
     func testToggleFavoriteAdds() async {
-        setupServices(initialFavorites: [])
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(initialFavorites: []))
 
         #expect(viewModel.isFavorited == false)
 
@@ -88,8 +85,7 @@ struct DetailViewModelTests {
     @Test("didTapToggleFavorite removes item from favorites")
     func testToggleFavoriteRemoves() async {
         let item = testItem
-        setupServices(initialFavorites: [item.id])
-        let viewModel = DetailViewModel(item: item)
+        let viewModel = DetailViewModel(item: item, serviceLocator: makeServiceLocator(initialFavorites: [item.id]))
 
         #expect(viewModel.isFavorited == true)
 
@@ -105,12 +101,17 @@ struct DetailViewModelTests {
 
     @Test("ViewModel updates when favorites service changes externally")
     func testExternalFavoritesChange() async {
-        setupServices(initialFavorites: [])
         let mockFavorites = MockFavoritesService(initialFavorites: [])
-        ServiceLocator.shared.register(mockFavorites, for: .favorites)
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(mockFavorites, for: .favorites)
+        locator.register(MockFeatureToggleService(), for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
+        locator.register(MockAIService(), for: .ai)
 
         let item = testItem
-        let viewModel = DetailViewModel(item: item)
+        let viewModel = DetailViewModel(item: item, serviceLocator: locator)
 
         #expect(viewModel.isFavorited == false)
 
@@ -127,8 +128,7 @@ struct DetailViewModelTests {
 
     @Test("didTapShare calls onShare with item title")
     func testDidTapShareCallsOnShare() async {
-        setupServices()
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator())
 
         var shareCalled = false
         var shareText: String?
@@ -144,8 +144,7 @@ struct DetailViewModelTests {
 
     @Test("handleBackNavigation calls onPop")
     func testHandleBackNavigationCallsOnPop() async {
-        setupServices()
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator())
 
         var popCalled = false
         viewModel.onPop = { popCalled = true }
@@ -157,8 +156,7 @@ struct DetailViewModelTests {
 
     @Test("handleBackNavigation with nil closure does not crash")
     func testHandleBackNavigationWithNilClosure() async {
-        setupServices()
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator())
 
         viewModel.handleBackNavigation() // Should not crash
     }
@@ -167,11 +165,11 @@ struct DetailViewModelTests {
 
     @Test("Works with different featured items")
     func testDifferentItems() async {
-        setupServices()
+        let locator = makeServiceLocator()
 
         let items: [FeaturedItem] = [.swiftUI, .combine, .mvvm, .coordinator]
         for item in items {
-            let viewModel = DetailViewModel(item: item)
+            let viewModel = DetailViewModel(item: item, serviceLocator: locator)
             #expect(viewModel.itemTitle == item.title)
             #expect(viewModel.category == item.category)
         }
@@ -183,8 +181,7 @@ struct DetailViewModelTests {
     func testShowAISummaryTrue() async {
         let aiService = MockAIService(isAvailable: true)
         let featureToggle = MockFeatureToggleService(aiSummary: true)
-        setupServices(aiService: aiService, featureToggleService: featureToggle)
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService, featureToggleService: featureToggle))
 
         #expect(viewModel.showAISummary == true)
     }
@@ -193,8 +190,7 @@ struct DetailViewModelTests {
     func testShowAISummaryFalseWhenToggleOff() async {
         let aiService = MockAIService(isAvailable: true)
         let featureToggle = MockFeatureToggleService(aiSummary: false)
-        setupServices(aiService: aiService, featureToggleService: featureToggle)
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService, featureToggleService: featureToggle))
 
         #expect(viewModel.showAISummary == false)
     }
@@ -203,8 +199,7 @@ struct DetailViewModelTests {
     func testShowAISummaryFalseWhenUnavailable() async {
         let aiService = MockAIService(isAvailable: false)
         let featureToggle = MockFeatureToggleService(aiSummary: true)
-        setupServices(aiService: aiService, featureToggleService: featureToggle)
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService, featureToggleService: featureToggle))
 
         #expect(viewModel.showAISummary == false)
     }
@@ -212,8 +207,7 @@ struct DetailViewModelTests {
     @Test("generateSummary sets summary text")
     func testGenerateSummarySetsText() async {
         let aiService = MockAIService(stubbedSummary: "Test summary result")
-        setupServices(aiService: aiService)
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService))
 
         await viewModel.generateSummary()
 
@@ -226,8 +220,7 @@ struct DetailViewModelTests {
     @Test("generateSummary handles errors")
     func testGenerateSummaryHandlesErrors() async {
         let aiService = MockAIService(shouldThrowError: true)
-        setupServices(aiService: aiService)
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService))
 
         await viewModel.generateSummary()
 
@@ -239,8 +232,7 @@ struct DetailViewModelTests {
     @Test("isSummarizing is false after generation completes")
     func testIsSummarizingStateAfterCompletion() async {
         let aiService = MockAIService(stubbedSummary: "Summary")
-        setupServices(aiService: aiService)
-        let viewModel = DetailViewModel(item: testItem)
+        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService))
 
         #expect(viewModel.isSummarizing == false)
 

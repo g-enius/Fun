@@ -2,12 +2,12 @@
 //  ViewModelTestSuite.swift
 //  ViewModelTests
 //
-//  Parent suite that serializes all ViewModel test suites to prevent
-//  ServiceLocator.shared.reset() from interfering across suites.
+//  Parent suite grouping all ViewModel test suites.
+//  No .serialized needed — each test creates its own ServiceLocator instance.
 //
 
 import Testing
 
-@Suite("ViewModel Tests", .serialized)
+@Suite("ViewModel Tests")
 @MainActor
 struct ViewModelTestSuite {}

@@ -16,7 +16,7 @@ public class HomeTabBarViewModel: ObservableObject {
 
     // MARK: - Services
 
-    @Service(.logger) private var logger: LoggerService
+    private let logger: LoggerService
 
     // MARK: - Published State
 
@@ -25,7 +25,8 @@ public class HomeTabBarViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init() {
+    public init(serviceLocator: ServiceLocator = .shared) {
+        self.logger = serviceLocator.resolve(for: .logger)
         logger.log("HomeTabBarViewModel initialized")
     }
 

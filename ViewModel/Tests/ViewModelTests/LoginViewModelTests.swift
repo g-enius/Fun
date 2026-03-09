@@ -20,20 +20,21 @@ struct LoginViewModelTests {
 
     // MARK: - Setup
 
-    init() {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
-        ServiceLocator.shared.register(MockToastService(), for: .toast)
+    private func makeServiceLocator(shouldThrowError: Bool = false) -> ServiceLocator {
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(shouldThrowError: shouldThrowError), for: .network)
+        locator.register(MockFavoritesService(), for: .favorites)
+        locator.register(MockFeatureToggleService(), for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
+        return locator
     }
 
     // MARK: - Initial State Tests
 
     @Test("Initial state has isLoggingIn false")
     func testInitialStateIsNotLoggingIn() async {
-        let viewModel = LoginViewModel()
+        let viewModel = LoginViewModel(serviceLocator: makeServiceLocator())
 
         #expect(viewModel.isLoggingIn == false)
     }
@@ -42,7 +43,7 @@ struct LoginViewModelTests {
 
     @Test("Login sets isLoggingIn to true")
     func testLoginSetsIsLoggingIn() async {
-        let viewModel = LoginViewModel()
+        let viewModel = LoginViewModel(serviceLocator: makeServiceLocator())
 
         viewModel.login()
 
@@ -51,7 +52,7 @@ struct LoginViewModelTests {
 
     @Test("Login calls onLogin after network request")
     func testLoginCallsOnLogin() async {
-        let viewModel = LoginViewModel()
+        let viewModel = LoginViewModel(serviceLocator: makeServiceLocator())
 
         var loginCalled = false
         viewModel.onLogin = { loginCalled = true }
@@ -67,7 +68,7 @@ struct LoginViewModelTests {
 
     @Test("Login prevents multiple simultaneous logins")
     func testLoginPreventsMultipleLogins() async {
-        let viewModel = LoginViewModel()
+        let viewModel = LoginViewModel(serviceLocator: makeServiceLocator())
 
         var loginCallCount = 0
         viewModel.onLogin = { loginCallCount += 1 }
@@ -87,7 +88,7 @@ struct LoginViewModelTests {
 
     @Test("Login with nil coordinator completes without crash")
     func testLoginWithNilCoordinatorDoesNotCrash() async {
-        let viewModel = LoginViewModel()
+        let viewModel = LoginViewModel(serviceLocator: makeServiceLocator())
 
         viewModel.login()
         #expect(viewModel.isLoggingIn == true)
@@ -99,9 +100,9 @@ struct LoginViewModelTests {
 
     @Test("Login failure does not call onLogin and shows error toast")
     func testLoginFailureDoesNotCallOnLogin() async {
-        ServiceLocator.shared.register(MockNetworkService(shouldThrowError: true), for: .network)
+        let locator = makeServiceLocator(shouldThrowError: true)
 
-        let viewModel = LoginViewModel()
+        let viewModel = LoginViewModel(serviceLocator: locator)
         var loginCalled = false
         viewModel.onLogin = { loginCalled = true }
 
@@ -111,7 +112,7 @@ struct LoginViewModelTests {
         #expect(loginCalled == false)
         #expect(viewModel.isLoggingIn == false)
 
-        let toastService: MockToastService = ServiceLocator.shared.resolve(for: .toast)
+        let toastService: MockToastService = locator.resolve(for: .toast)
         #expect(toastService.showToastCalled == true)
         #expect(toastService.lastType == .error)
     }

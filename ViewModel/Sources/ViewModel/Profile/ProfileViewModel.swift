@@ -21,7 +21,7 @@ public class ProfileViewModel: ObservableObject {
 
     // MARK: - Services
 
-    @Service(.logger) private var logger: LoggerService
+    private let logger: LoggerService
 
     // MARK: - Published State
 
@@ -34,7 +34,8 @@ public class ProfileViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(profile: UserProfile = .demo) {
+    public init(profile: UserProfile = .demo, serviceLocator: ServiceLocator = .shared) {
+        self.logger = serviceLocator.resolve(for: .logger)
         self.userName = profile.name
         self.userEmail = profile.email
         self.userBio = profile.bio

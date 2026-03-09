@@ -20,21 +20,25 @@ struct ItemsViewModelTests {
 
     // MARK: - Setup
 
-    private func setupServices(initialFavorites: Set<String> = [], simulateErrors: Bool = false) {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(shouldThrowError: simulateErrors), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleService(simulateErrors: simulateErrors), for: .featureToggles)
-        ServiceLocator.shared.register(MockToastService(), for: .toast)
+    private func makeServiceLocator(
+        initialFavorites: Set<String> = [],
+        simulateErrors: Bool = false,
+        networkService: MockNetworkService? = nil
+    ) -> ServiceLocator {
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(networkService ?? MockNetworkService(shouldThrowError: simulateErrors), for: .network)
+        locator.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
+        locator.register(MockFeatureToggleService(simulateErrors: simulateErrors), for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
+        return locator
     }
 
     // MARK: - Initialization Tests
 
     @Test("Items are loaded on initialization")
     func testItemsLoadedOnInit() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
         await viewModel.loadItems()
 
         #expect(viewModel.items.isEmpty == false)
@@ -42,32 +46,28 @@ struct ItemsViewModelTests {
 
     @Test("Initial search text is empty")
     func testInitialSearchTextEmpty() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
 
         #expect(viewModel.searchText.isEmpty)
     }
 
     @Test("Initial selected category is 'All'")
     func testInitialCategoryIsAll() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
 
         #expect(viewModel.selectedCategory == "All")
     }
 
     @Test("Initial isSearching is false")
     func testInitialIsSearchingFalse() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
 
         #expect(viewModel.isSearching == false)
     }
 
     @Test("Minimum search characters is 2")
     func testMinimumSearchCharacters() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
 
         #expect(viewModel.minimumSearchCharacters == 2)
     }
@@ -76,8 +76,7 @@ struct ItemsViewModelTests {
 
     @Test("Categories include 'All' as first option")
     func testCategoriesIncludeAll() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
         await viewModel.loadItems()
 
         #expect(viewModel.categories.first == "All")
@@ -85,8 +84,7 @@ struct ItemsViewModelTests {
 
     @Test("Selecting a category updates selectedCategory")
     func testSelectCategoryUpdatesState() async throws {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
         await viewModel.loadItems()
 
         let categories = viewModel.categories
@@ -100,8 +98,7 @@ struct ItemsViewModelTests {
 
     @Test("Selecting 'All' shows all items")
     func testSelectAllShowsAllItems() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
         await viewModel.loadItems()
 
         // Get initial item count (with All selected)
@@ -122,8 +119,7 @@ struct ItemsViewModelTests {
 
     @Test("Clear search resets search text and isSearching")
     func testClearSearchResetsState() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
 
         viewModel.searchText = "test"
         viewModel.clearSearch()
@@ -134,8 +130,7 @@ struct ItemsViewModelTests {
 
     @Test("Initial needsMoreCharacters is false")
     func testInitialNeedsMoreCharactersFalse() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
 
         #expect(viewModel.needsMoreCharacters == false)
     }
@@ -144,24 +139,21 @@ struct ItemsViewModelTests {
 
     @Test("isFavorited returns false for unfavorited item")
     func testIsFavoritedReturnsFalse() async {
-        setupServices(initialFavorites: [])
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(initialFavorites: []))
 
         #expect(viewModel.isFavorited("unfavorited_item") == false)
     }
 
     @Test("isFavorited returns true for favorited item")
     func testIsFavoritedReturnsTrue() async {
-        setupServices(initialFavorites: ["test_item"])
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(initialFavorites: ["test_item"]))
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
 
     @Test("toggleFavorite adds unfavorited item to favorites")
     func testToggleFavoriteAdds() async {
-        setupServices(initialFavorites: [])
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(initialFavorites: []))
 
         #expect(viewModel.isFavorited("test_item") == false)
 
@@ -175,8 +167,7 @@ struct ItemsViewModelTests {
 
     @Test("toggleFavorite removes favorited item from favorites")
     func testToggleFavoriteRemoves() async {
-        setupServices(initialFavorites: ["test_item"])
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(initialFavorites: ["test_item"]))
 
         #expect(viewModel.isFavorited("test_item") == true)
 
@@ -192,11 +183,15 @@ struct ItemsViewModelTests {
 
     @Test("ViewModel updates favoriteIds when service changes")
     func testViewModelObservesFavoritesChanges() async {
-        setupServices(initialFavorites: [])
         let mockFavorites = MockFavoritesService(initialFavorites: [])
-        ServiceLocator.shared.register(mockFavorites, for: .favorites)
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(mockFavorites, for: .favorites)
+        locator.register(MockFeatureToggleService(), for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
 
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: locator)
 
         #expect(viewModel.favoriteIds.isEmpty)
 
@@ -213,8 +208,7 @@ struct ItemsViewModelTests {
 
     @Test("didSelectItem calls onShowDetail")
     func testDidSelectItemCallsOnShowDetail() async throws {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
 
         var showDetailCalled = false
         var showDetailItem: FeaturedItem?
@@ -234,8 +228,7 @@ struct ItemsViewModelTests {
 
     @Test("Filtering by category reduces item count")
     func testCategoryFilterReducesItems() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
         await viewModel.loadItems()
 
         let allItemsCount = viewModel.items.count
@@ -256,8 +249,7 @@ struct ItemsViewModelTests {
 
     @Test("Items in filtered list match selected category")
     func testFilteredItemsMatchCategory() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
         await viewModel.loadItems()
 
         let categories = viewModel.categories.filter { $0 != "All" }
@@ -276,12 +268,8 @@ struct ItemsViewModelTests {
 
     @Test("Search calls networkService.searchItems with query and category")
     func testSearchCallsNetworkService() async throws {
-        setupServices()
-        let mockNetwork = MockNetworkService(
-            stubbedSearchItems: [.swiftUI]
-        )
-        ServiceLocator.shared.register(mockNetwork, for: .network)
-        let viewModel = ItemsViewModel()
+        let mockNetwork = MockNetworkService(stubbedSearchItems: [.swiftUI])
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(networkService: mockNetwork))
         await viewModel.loadItems()
 
         viewModel.searchText = "swift"
@@ -300,10 +288,9 @@ struct ItemsViewModelTests {
 
     @Test("Search error sets hasError and shows toast")
     func testSearchErrorSetsHasError() async throws {
-        setupServices()
         let mockNetwork = MockNetworkService(shouldThrowError: true)
-        ServiceLocator.shared.register(mockNetwork, for: .network)
-        let viewModel = ItemsViewModel()
+        let locator = makeServiceLocator(networkService: mockNetwork)
+        let viewModel = ItemsViewModel(serviceLocator: locator)
 
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
@@ -314,19 +301,14 @@ struct ItemsViewModelTests {
         #expect(viewModel.items.isEmpty)
         #expect(viewModel.isSearching == false)
 
-        let mockToast: ToastServiceProtocol = ServiceLocator.shared.resolve(for: .toast)
-        let toast = mockToast as! MockToastService
+        let toast: MockToastService = locator.resolve(for: .toast)
         #expect(toast.showToastCalled == true)
     }
 
     @Test("Clear search resets to filtered allItems")
     func testClearSearchResetsToAllItems() async throws {
-        setupServices()
-        let mockNetwork = MockNetworkService(
-            stubbedSearchItems: [.swiftUI]
-        )
-        ServiceLocator.shared.register(mockNetwork, for: .network)
-        let viewModel = ItemsViewModel()
+        let mockNetwork = MockNetworkService(stubbedSearchItems: [.swiftUI])
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(networkService: mockNetwork))
         await viewModel.loadItems()
 
         let allItemsCount = viewModel.items.count
@@ -347,25 +329,23 @@ struct ItemsViewModelTests {
 
     @Test("Initial hasError is false")
     func testInitialHasErrorFalse() async {
-        setupServices()
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
 
         #expect(viewModel.hasError == false)
     }
 
     @Test("Mock feature toggle service returns correct simulateErrors value")
     func testMockFeatureToggleSimulateErrors() async {
-        setupServices(simulateErrors: true)
+        let locator = makeServiceLocator(simulateErrors: true)
 
-        let service: FeatureToggleServiceProtocol = ServiceLocator.shared.resolve(for: .featureToggles)
+        let service: FeatureToggleServiceProtocol = locator.resolve(for: .featureToggles)
         #expect(service.simulateErrors == true)
     }
 
 
     @Test("clearSearch always sets hasError to false")
     func testClearSearchSetsHasErrorFalse() async {
-        setupServices(simulateErrors: true)
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(simulateErrors: true))
 
         // Manually set hasError to true to simulate error state
         viewModel.hasError = true
@@ -378,8 +358,7 @@ struct ItemsViewModelTests {
 
     @Test("retry resets hasError before re-searching")
     func testRetryResetsHasError() async {
-        setupServices(simulateErrors: false)
-        let viewModel = ItemsViewModel()
+        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator(simulateErrors: false))
 
         // Manually set hasError to true
         viewModel.hasError = true

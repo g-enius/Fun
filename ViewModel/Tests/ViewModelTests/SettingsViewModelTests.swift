@@ -20,31 +20,30 @@ struct SettingsViewModelTests {
 
     // MARK: - Setup
 
-    private func setupServices(
+    private func makeServiceLocator(
         appearanceMode: AppearanceMode = .system,
         featuredCarousel: Bool = true,
         simulateErrors: Bool = false
-    ) -> MockFeatureToggleService {
+    ) -> (ServiceLocator, MockFeatureToggleService) {
         let mockFeatureToggle = MockFeatureToggleService(
             featuredCarousel: featuredCarousel,
             simulateErrors: simulateErrors,
             appearanceMode: appearanceMode
         )
 
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(mockFeatureToggle, for: .featureToggles)
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(mockFeatureToggle, for: .featureToggles)
 
-        return mockFeatureToggle
+        return (locator, mockFeatureToggle)
     }
 
     // MARK: - Initialization Tests
 
     @Test("Initial state matches service defaults")
     func testInitialStateMatchesServiceDefaults() async {
-        _ = setupServices()
-        let viewModel = SettingsViewModel()
+        let (locator, _) = makeServiceLocator()
+        let viewModel = SettingsViewModel(serviceLocator: locator)
 
         #expect(viewModel.appearanceMode == .system)
         #expect(viewModel.featuredCarouselEnabled == true)
@@ -56,8 +55,8 @@ struct SettingsViewModelTests {
 
     @Test("Changing appearance mode updates service")
     func testChangingAppearanceModeUpdatesService() async {
-        let mockService = setupServices(appearanceMode: .system)
-        let viewModel = SettingsViewModel()
+        let (locator, mockService) = makeServiceLocator(appearanceMode: .system)
+        let viewModel = SettingsViewModel(serviceLocator: locator)
 
         viewModel.appearanceMode = .dark
 
@@ -66,8 +65,8 @@ struct SettingsViewModelTests {
 
     @Test("Appearance mode changes propagate to service")
     func testAppearanceModeChangesPropagateToService() async {
-        let mockService = setupServices(appearanceMode: .dark)
-        let viewModel = SettingsViewModel()
+        let (locator, mockService) = makeServiceLocator(appearanceMode: .dark)
+        let viewModel = SettingsViewModel(serviceLocator: locator)
 
         viewModel.appearanceMode = .light
 
@@ -78,8 +77,8 @@ struct SettingsViewModelTests {
 
     @Test("Toggling featured carousel updates service")
     func testTogglingFeaturedCarouselUpdatesService() async {
-        let mockService = setupServices(featuredCarousel: true)
-        let viewModel = SettingsViewModel()
+        let (locator, mockService) = makeServiceLocator(featuredCarousel: true)
+        let viewModel = SettingsViewModel(serviceLocator: locator)
 
         viewModel.featuredCarouselEnabled = false
 
@@ -88,8 +87,8 @@ struct SettingsViewModelTests {
 
     @Test("Toggling simulate errors updates service")
     func testTogglingSimulateErrorsUpdatesService() async {
-        let mockService = setupServices(simulateErrors: false)
-        let viewModel = SettingsViewModel()
+        let (locator, mockService) = makeServiceLocator(simulateErrors: false)
+        let viewModel = SettingsViewModel(serviceLocator: locator)
 
         viewModel.simulateErrorsEnabled = true
 
@@ -100,8 +99,8 @@ struct SettingsViewModelTests {
 
     @Test("Reset appearance sets to system")
     func testResetAppearanceSetsToSystem() async {
-        let mockService = setupServices(appearanceMode: .dark)
-        let viewModel = SettingsViewModel()
+        let (locator, mockService) = makeServiceLocator(appearanceMode: .dark)
+        let viewModel = SettingsViewModel(serviceLocator: locator)
 
         viewModel.resetAppearance()
 
@@ -111,9 +110,9 @@ struct SettingsViewModelTests {
 
     @Test("Reset feature toggles restores defaults")
     func testResetFeatureTogglesRestoresDefaults() async {
-        let mockService = setupServices(featuredCarousel: false, simulateErrors: true)
+        let (locator, mockService) = makeServiceLocator(featuredCarousel: false, simulateErrors: true)
         mockService.aiSummary = false
-        let viewModel = SettingsViewModel()
+        let viewModel = SettingsViewModel(serviceLocator: locator)
 
         viewModel.resetFeatureToggles()
 
@@ -129,17 +128,17 @@ struct SettingsViewModelTests {
 
     @Test("AI Summary enabled initializes from service")
     func testAISummaryEnabledInitFromService() async {
-        let mockService = setupServices()
+        let (locator, mockService) = makeServiceLocator()
         mockService.aiSummary = false
-        let viewModel = SettingsViewModel()
+        let viewModel = SettingsViewModel(serviceLocator: locator)
 
         #expect(viewModel.aiSummaryEnabled == false)
     }
 
     @Test("Toggling AI Summary updates service")
     func testTogglingAISummaryUpdatesService() async {
-        let mockService = setupServices()
-        let viewModel = SettingsViewModel()
+        let (locator, mockService) = makeServiceLocator()
+        let viewModel = SettingsViewModel(serviceLocator: locator)
 
         viewModel.aiSummaryEnabled = false
 

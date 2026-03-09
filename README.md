@@ -36,7 +36,7 @@ Three branches demonstrate progressive modernisation — same app, three archite
 | Architecture | MVVM + Coordinator | ← same | ← same |
 | Coordinator → ViewModel | Closures | ← same | ← same |
 | Language | Swift 6.0 | ← same | ← same |
-| DI | Session-Scoped + @Service | ← same | ← same |
+| DI | Session-Scoped + Constructor Injection | ← same | ← same |
 | LLM | Foundation Models (iOS 26+) | ← same | ← same |
 | Testing | Swift Testing, swift-snapshot-testing | ← same | ← same |
 
@@ -145,8 +145,10 @@ protocol Session: AnyObject {
     func teardown()   // reset ServiceLocator
 }
 
-// ViewModels resolve lazily — no changes needed
-@Service(.network) var networkService: NetworkServiceProtocol
+// ViewModels accept ServiceLocator via constructor injection
+public init(serviceLocator: ServiceLocator = .shared) {
+    self.networkService = serviceLocator.resolve(for: .network)
+}
 ```
 
 ### Protocol-Oriented Design

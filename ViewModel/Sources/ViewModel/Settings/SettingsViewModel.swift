@@ -16,8 +16,8 @@ public class SettingsViewModel: ObservableObject {
 
     // MARK: - Services
 
-    @Service(.logger) private var logger: LoggerService
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    private let logger: LoggerService
+    private let featureToggleService: FeatureToggleServiceProtocol
 
     // MARK: - Published State
 
@@ -39,7 +39,10 @@ public class SettingsViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init() {
+    public init(serviceLocator: ServiceLocator = .shared) {
+        self.logger = serviceLocator.resolve(for: .logger)
+        self.featureToggleService = serviceLocator.resolve(for: .featureToggles)
+
         _appearanceMode = Published(initialValue: featureToggleService.appearanceMode)
         _featuredCarouselEnabled = Published(initialValue: featureToggleService.featuredCarousel)
         _simulateErrorsEnabled = Published(initialValue: featureToggleService.simulateErrors)

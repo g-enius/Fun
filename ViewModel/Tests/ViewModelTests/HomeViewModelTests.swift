@@ -43,21 +43,22 @@ struct HomeViewModelTests {
 
     // MARK: - Setup
 
-    private func setupServices(
+    private func makeServiceLocator(
         initialFavorites: Set<String> = [],
         featuredCarousel: Bool = true,
         simulateErrors: Bool = false
-    ) {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(shouldThrowError: simulateErrors), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleService(featuredCarousel: featuredCarousel, simulateErrors: simulateErrors), for: .featureToggles)
-        ServiceLocator.shared.register(MockToastService(), for: .toast)
+    ) -> ServiceLocator {
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(shouldThrowError: simulateErrors), for: .network)
+        locator.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
+        locator.register(MockFeatureToggleService(featuredCarousel: featuredCarousel, simulateErrors: simulateErrors), for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
+        return locator
     }
 
-    private func setupServices(scenario: FeatureScenario, initialFavorites: Set<String> = []) {
-        setupServices(
+    private func makeServiceLocator(scenario: FeatureScenario, initialFavorites: Set<String> = []) -> ServiceLocator {
+        makeServiceLocator(
             initialFavorites: initialFavorites,
             featuredCarousel: scenario.carousel,
             simulateErrors: scenario.simulateErrors
@@ -68,8 +69,7 @@ struct HomeViewModelTests {
 
     @Test("Initial hasError is false on creation")
     func testInitialHasErrorOnCreation() async {
-        setupServices()
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
 
         // hasError should always start false
         #expect(viewModel.hasError == false)
@@ -77,8 +77,7 @@ struct HomeViewModelTests {
 
     @Test("Initial currentCarouselIndex is 0 on creation")
     func testInitialCarouselIndexOnCreation() async {
-        setupServices()
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
 
         #expect(viewModel.currentCarouselIndex == 0)
     }
@@ -87,8 +86,7 @@ struct HomeViewModelTests {
 
     @Test("loadFeaturedItems populates data")
     func testLoadFeaturedItemsPopulatesData() async {
-        setupServices()
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
 
         await viewModel.loadFeaturedItems()
 
@@ -101,20 +99,20 @@ struct HomeViewModelTests {
     func testLoadWithNetworkErrorShowsToast() async {
         // Setup with network errors enabled
         let mockToast = MockToastService()
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(shouldThrowError: true), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleService(featuredCarousel: true), for: .featureToggles)
-        ServiceLocator.shared.register(mockToast, for: .toast)
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(shouldThrowError: true), for: .network)
+        locator.register(MockFavoritesService(), for: .favorites)
+        locator.register(MockFeatureToggleService(featuredCarousel: true), for: .featureToggles)
+        locator.register(mockToast, for: .toast)
 
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: locator)
 
         // Explicitly call loadFeaturedItems and wait for it
         await viewModel.loadFeaturedItems()
 
         // Verify the toast was called
-        let resolvedToast: MockToastService = ServiceLocator.shared.resolve(for: .toast)
+        let resolvedToast: MockToastService = locator.resolve(for: .toast)
         #expect(resolvedToast.showToastCalled == true)
         #expect(resolvedToast.lastType == .error)
     }
@@ -123,8 +121,7 @@ struct HomeViewModelTests {
 
     @Test("didTapFeaturedItem calls onShowDetail")
     func testDidTapFeaturedItemCallsOnShowDetail() async throws {
-        setupServices()
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
 
         var showDetailCalled = false
         var showDetailItem: FeaturedItem?
@@ -143,8 +140,7 @@ struct HomeViewModelTests {
 
     @Test("didTapProfile calls onShowProfile")
     func testDidTapProfileCallsOnShowProfile() async {
-        setupServices()
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
 
         var showProfileCalled = false
         viewModel.onShowProfile = { showProfileCalled = true }
@@ -158,24 +154,21 @@ struct HomeViewModelTests {
 
     @Test("isFavorited returns false for unfavorited item")
     func testIsFavoritedReturnsFalse() async {
-        setupServices(initialFavorites: [])
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(initialFavorites: []))
 
         #expect(viewModel.isFavorited("unfavorited_item") == false)
     }
 
     @Test("isFavorited returns true for favorited item")
     func testIsFavoritedReturnsTrue() async {
-        setupServices(initialFavorites: ["test_item"])
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(initialFavorites: ["test_item"]))
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
 
     @Test("toggleFavorite updates favorites")
     func testToggleFavoriteUpdates() async {
-        setupServices(initialFavorites: [])
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(initialFavorites: []))
 
         #expect(viewModel.isFavorited("test_item") == false)
 
@@ -189,8 +182,7 @@ struct HomeViewModelTests {
 
     @Test("toggleFavorite removes favorited item")
     func testToggleFavoriteRemoves() async {
-        setupServices(initialFavorites: ["test_item"])
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(initialFavorites: ["test_item"]))
 
         #expect(viewModel.isFavorited("test_item") == true)
 
@@ -206,29 +198,27 @@ struct HomeViewModelTests {
 
     @Test("Carousel visibility matches feature toggle", arguments: FeatureScenario.carouselScenarios)
     func testCarouselVisibility(scenario: FeatureScenario) async {
-        setupServices(scenario: scenario)
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(scenario: scenario))
 
         #expect(viewModel.isCarouselEnabled == scenario.carousel)
     }
 
     @Test("Mock feature toggle service supports appearanceMode")
     func testMockFeatureToggleAppearanceMode() async {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleService(appearanceMode: .dark), for: .featureToggles)
-        ServiceLocator.shared.register(MockToastService(), for: .toast)
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(MockFavoritesService(), for: .favorites)
+        locator.register(MockFeatureToggleService(appearanceMode: .dark), for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
 
-        let service: FeatureToggleServiceProtocol = ServiceLocator.shared.resolve(for: .featureToggles)
+        let service: FeatureToggleServiceProtocol = locator.resolve(for: .featureToggles)
         #expect(service.appearanceMode == .dark)
     }
 
     @Test("Loading behavior based on error simulation", arguments: FeatureScenario.errorScenarios)
     func testLoadingBehavior(scenario: FeatureScenario) async {
-        setupServices(scenario: scenario)
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(scenario: scenario))
 
         await viewModel.loadFeaturedItems()
 
@@ -241,8 +231,7 @@ struct HomeViewModelTests {
 
     @Test("refresh reloads featured items")
     func testRefreshReloadsItems() async {
-        setupServices()
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
 
         await viewModel.refresh()
 
@@ -255,8 +244,7 @@ struct HomeViewModelTests {
 
     @Test("retry calls loadFeaturedItems")
     func testRetryCallsLoad() async {
-        setupServices(simulateErrors: false)
-        let viewModel = HomeViewModel()
+        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(simulateErrors: false))
 
         // Clear items
         viewModel.hasError = true

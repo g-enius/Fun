@@ -38,7 +38,7 @@ public class ServiceLocator {
         registrationSubject.eraseToAnyPublisher()
     }
 
-    private init() {}
+    public init() {}
 
     /// Register a service
     public func register<T>(_ service: T, for key: ServiceKey) {

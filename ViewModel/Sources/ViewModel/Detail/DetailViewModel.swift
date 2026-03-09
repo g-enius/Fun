@@ -21,10 +21,10 @@ public class DetailViewModel: ObservableObject {
 
     // MARK: - Services
 
-    @Service(.logger) private var logger: LoggerService
-    @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
-    @Service(.ai) private var aiService: AIServiceProtocol
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
+    private let logger: LoggerService
+    private let favoritesService: FavoritesServiceProtocol
+    private let aiService: AIServiceProtocol
+    private let featureToggleService: FeatureToggleServiceProtocol
 
     // MARK: - Published State
 
@@ -47,7 +47,12 @@ public class DetailViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(item: FeaturedItem) {
+    public init(item: FeaturedItem, serviceLocator: ServiceLocator = .shared) {
+        self.logger = serviceLocator.resolve(for: .logger)
+        self.favoritesService = serviceLocator.resolve(for: .favorites)
+        self.aiService = serviceLocator.resolve(for: .ai)
+        self.featureToggleService = serviceLocator.resolve(for: .featureToggles)
+
         self.itemTitle = item.title
         self.category = item.category
         self.itemId = item.id

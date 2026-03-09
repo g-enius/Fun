@@ -20,20 +20,17 @@ struct ProfileViewModelTests {
 
     // MARK: - Setup
 
-    init() {
-        ServiceLocator.shared.reset()
-        ServiceLocator.shared.register(MockLoggerService(), for: .logger)
-        ServiceLocator.shared.register(MockNetworkService(), for: .network)
-        ServiceLocator.shared.register(MockFavoritesService(), for: .favorites)
-        ServiceLocator.shared.register(MockFeatureToggleService(), for: .featureToggles)
-        ServiceLocator.shared.register(MockToastService(), for: .toast)
+    private func makeServiceLocator() -> ServiceLocator {
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        return locator
     }
 
     // MARK: - Initialization Tests
 
     @Test("Initial state matches demo profile")
     func testInitialState() async {
-        let viewModel = ProfileViewModel()
+        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
 
         #expect(viewModel.userName == UserProfile.demo.name)
         #expect(viewModel.userEmail == UserProfile.demo.email)
@@ -46,7 +43,7 @@ struct ProfileViewModelTests {
     @Test("Custom profile values are used")
     func testCustomProfileValues() async {
         let profile = UserProfile(name: "Test", email: "test@test.com", bio: "Bio", viewsCount: 1, favoritesCount: 2, daysCount: 3)
-        let viewModel = ProfileViewModel(profile: profile)
+        let viewModel = ProfileViewModel(profile: profile, serviceLocator: makeServiceLocator())
 
         #expect(viewModel.userName == "Test")
         #expect(viewModel.userEmail == "test@test.com")
@@ -57,7 +54,7 @@ struct ProfileViewModelTests {
 
     @Test("Dismiss calls onDismiss")
     func testDismissCallsOnDismiss() async {
-        let viewModel = ProfileViewModel()
+        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
 
         var dismissCalled = false
         viewModel.onDismiss = { dismissCalled = true }
@@ -71,7 +68,7 @@ struct ProfileViewModelTests {
 
     @Test("Logout calls onLogout")
     func testLogoutCallsOnLogout() async {
-        let viewModel = ProfileViewModel()
+        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
 
         var logoutCalled = false
         viewModel.onLogout = { logoutCalled = true }
@@ -85,7 +82,7 @@ struct ProfileViewModelTests {
 
     @Test("didTapGoToItems calls onGoToItems")
     func testDidTapGoToItemsCallsOnGoToItems() async {
-        let viewModel = ProfileViewModel()
+        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
 
         var goToItemsCalled = false
         viewModel.onGoToItems = { goToItemsCalled = true }
