@@ -42,16 +42,16 @@ Unlike the main branch (6 UIKit coordinators), this branch uses a **single `AppC
 
 ```swift
 @MainActor
-public final class AppCoordinator: ObservableObject, ServiceLocatorProvider {
-    public let serviceLocator: ServiceLocator
-    @Published public var currentFlow: AppFlow = .login
-    @Published public var selectedTab: TabIndex = .home
-    @Published public var homePath = NavigationPath()
-    @Published public var itemsPath = NavigationPath()
-    @Published public var settingsPath = NavigationPath()
-    @Published public var isProfilePresented = false
-    @Published public var activeToast: ToastEvent?
-    @Published public var appearanceMode: AppearanceMode = .system
+@Observable public final class AppCoordinator: ServiceLocatorProvider {
+    @ObservationIgnored public let serviceLocator: ServiceLocator
+    public var currentFlow: AppFlow = .login
+    public var selectedTab: TabIndex = .home
+    public var homePath = NavigationPath()
+    public var itemsPath = NavigationPath()
+    public var settingsPath = NavigationPath()
+    public var isProfilePresented = false
+    public var activeToast: ToastEvent?
+    public var appearanceMode: AppearanceMode = .system
 }
 ```
 
@@ -76,11 +76,11 @@ Tab content wrappers create ViewModels and wire closures:
 ```swift
 struct HomeTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: HomeViewModel
+    @State private var viewModel: HomeViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: HomeViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = State(wrappedValue: HomeViewModel(serviceLocator: coordinator.serviceLocator))
     }
 
     var body: some View {
@@ -99,7 +99,7 @@ struct HomeTabContent: View {
 
 ## ServiceLocator & @Service
 
-Instance-based `ServiceLocator` with `@Service` property wrapper — no `.shared` singleton. Types conform to `ServiceLocatorProvider` to enable `@Service` resolution from their `serviceLocator` instance.
+Instance-based `ServiceLocator` with `@Service` property wrapper — no `.shared` singleton. Types conform to `ServiceLocatorProvider` (+ `@ObservationIgnored` on `@Service` properties) to enable resolution from their `serviceLocator` instance.
 
 ### Service Keys
 `ServiceKey` enum in Core: `.network`, `.logger`, `.favorites`, `.toast`, `.featureToggles`, `.ai`
@@ -114,7 +114,7 @@ Instance-based `ServiceLocator` with `@Service` property wrapper — no `.shared
 - `activate()` registers services on the instance's `serviceLocator`
 - `teardown()` calls `favoritesService.resetFavorites()` (AuthenticatedSession). Does NOT call `serviceLocator.reset()` — live views may still resolve services via `@Service` during SwiftUI teardown. The next session's `activate()` overwrites with fresh instances.
 - `AppSessionFactory` creates the right session for each `AppFlow` case, passing the `serviceLocator` instance
-- App entry (`FunApp.swift`) creates coordinator with `@StateObject` and calls `.start()` in `.task`
+- App entry (`FunApp.swift`) creates coordinator with `@State` and calls `.start()` in `.task`
 
 ## Protocol Placement
 
