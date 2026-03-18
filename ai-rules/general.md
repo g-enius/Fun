@@ -59,7 +59,7 @@ public final class AppCoordinator: ObservableObject, SessionProvider {
 ```
 FunApp (@main)
   └─ AppRootView
-       ├─ LoginTabContent (when currentFlow == .login)
+       ├─ LoginContent (when currentFlow == .login)
        └─ MainTabView (when currentFlow == .main)
             ├─ homeTab: NavigationStack(path: $coordinator.homePath)
             │    └─ HomeTabContent → .navigationDestination(for: FeaturedItem.self)
@@ -68,7 +68,7 @@ FunApp (@main)
             └─ settingsTab: NavigationStack(path: $coordinator.settingsPath)
                  └─ SettingsTabContent
             + .sheet(isPresented: $coordinator.isProfilePresented)
-                 └─ ProfileTabContent
+                 └─ ProfileContent
 ```
 
 ### View Wiring Pattern (this branch)

@@ -115,11 +115,11 @@ public final class AppCoordinator: ObservableObject, SessionProvider {
     //   switch item.category {
     //   case .article: ArticleDetailView(item: item)
     //   case .video:   VideoPlayerView(item: item)
-    //   default:       DetailTabContent(item: item)
+    //   default:       DetailContent(item: item)
     //   }
     @ViewBuilder
     func destinationView(for item: FeaturedItem) -> some View {
-        DetailTabContent(item: item, coordinator: self)
+        DetailContent(item: item, coordinator: self)
     }
 
     // MARK: - Flow Transitions

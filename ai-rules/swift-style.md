@@ -81,7 +81,8 @@ class MyViewModel: ObservableObject, SessionProvider {
 
 ### Types
 - AppCoordinator (single, not per-tab)
-- Tab content wrappers: `HomeTabContent`, `ItemsTabContent`, `SettingsTabContent`, `ProfileTabContent`, `LoginTabContent`
+- Tab content wrappers: `HomeTabContent`, `ItemsTabContent`, `SettingsTabContent`
+- Non-tab content wrappers: `DetailContent`, `ProfileContent`, `LoginContent`
 - ViewModels: `HomeViewModel`, `ItemsViewModel`, `DetailViewModel`
 - Views: `HomeView`, `ItemsView`, `DetailView`
 - Services: protocol `FavoritesServiceProtocol`, impl `DefaultFavoritesService`

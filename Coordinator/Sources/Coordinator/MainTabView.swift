@@ -25,7 +25,7 @@ struct MainTabView: View {
         }
         .sheet(isPresented: $coordinator.isProfilePresented) {
             NavigationStack {
-                ProfileTabContent(coordinator: coordinator)
+                ProfileContent(coordinator: coordinator)
             }
         }
         .overlay(alignment: .top) {
@@ -144,7 +144,7 @@ struct SettingsTabContent: View {
 }
 
 /// Wrapper that creates DetailViewModel for a pushed item
-struct DetailTabContent: View {
+struct DetailContent: View {
     let coordinator: AppCoordinator
     @StateObject private var viewModel: DetailViewModel
 
@@ -159,7 +159,7 @@ struct DetailTabContent: View {
 }
 
 /// Wrapper that creates ProfileViewModel with navigation closures
-struct ProfileTabContent: View {
+struct ProfileContent: View {
     let coordinator: AppCoordinator
     @StateObject private var viewModel: ProfileViewModel
 
@@ -181,26 +181,6 @@ struct ProfileTabContent: View {
                 viewModel.onGoToItems = { [weak coordinator] in
                     coordinator?.dismissProfile()
                     coordinator?.selectTab(.items)
-                }
-            }
-    }
-}
-
-/// Wrapper that creates LoginViewModel with login success closure
-struct LoginTabContent: View {
-    let coordinator: AppCoordinator
-    @StateObject private var viewModel: LoginViewModel
-
-    init(coordinator: AppCoordinator) {
-        self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: LoginViewModel(serviceLocator: coordinator.serviceLocator))
-    }
-
-    var body: some View {
-        LoginView(viewModel: viewModel)
-            .task {
-                viewModel.onLoginSuccess = { [weak coordinator] in
-                    coordinator?.transitionToMainFlow()
                 }
             }
     }

@@ -25,7 +25,7 @@ public struct AppRootView: View {
         Group {
             switch coordinator.currentFlow {
             case .login:
-                LoginTabContent(coordinator: coordinator)
+                LoginContent(coordinator: coordinator)
             case .main:
                 MainTabView(coordinator: coordinator)
             }
