@@ -13,17 +13,16 @@ import FunUI
 import FunViewModel
 
 /// Main app coordinator that manages the root navigation and app flow
-public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
+public final class AppCoordinator: BaseCoordinator, SessionProvider {
 
     // MARK: - Services
 
-    public private(set) var serviceLocator = ServiceLocator()
+    public private(set) var session: Session
     @Service(.logger) private var logger: LoggerService
 
     // MARK: - Session Management
 
     private let sessionFactory: SessionFactory
-    private var currentSession: Session?
 
     // MARK: - App Flow State
 
@@ -49,13 +48,15 @@ public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
 
     public init(navigationController: UINavigationController, sessionFactory: SessionFactory) {
         self.sessionFactory = sessionFactory
+        self.session = sessionFactory.makeSession(for: .login)
         super.init(navigationController: navigationController)
     }
 
     // MARK: - Start
 
     override public func start() {
-        let session = activateSession(for: currentFlow)
+        session.activate()
+        onSessionActivated?()
         switch currentFlow {
         case .login:
             showLoginFlow(session: session)
@@ -66,15 +67,13 @@ public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
 
     // MARK: - Session Lifecycle
 
-    @discardableResult
     private func activateSession(for flow: AppFlow) -> Session {
-        currentSession?.teardown()
-        let session = sessionFactory.makeSession(for: flow)
-        session.activate()
-        currentSession = session
-        serviceLocator = session.serviceLocator
+        session.teardown()
+        let newSession = sessionFactory.makeSession(for: flow)
+        newSession.activate()
+        session = newSession
         onSessionActivated?()
-        return session
+        return newSession
     }
 
     // MARK: - Flow Management
