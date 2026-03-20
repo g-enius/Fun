@@ -13,10 +13,11 @@ import FunUI
 import FunViewModel
 
 /// Main app coordinator that manages the root navigation and app flow
-public final class AppCoordinator: BaseCoordinator {
+public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
 
     // MARK: - Services
 
+    public private(set) var serviceLocator = ServiceLocator()
     @Service(.logger) private var logger: LoggerService
 
     // MARK: - Session Management

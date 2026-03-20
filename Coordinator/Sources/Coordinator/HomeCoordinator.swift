@@ -7,6 +7,7 @@
 
 import UIKit
 
+import FunCore
 import FunModel
 import FunUI
 import FunViewModel
@@ -15,10 +16,17 @@ public final class HomeCoordinator: BaseCoordinator {
 
     // MARK: - Properties
 
+    private let serviceLocator: ServiceLocator
+
     /// Callback to notify parent coordinator of logout
     public var onLogout: (() -> Void)?
 
     private var isShowingDetail = false
+
+    public init(navigationController: UINavigationController, serviceLocator: ServiceLocator) {
+        self.serviceLocator = serviceLocator
+        super.init(navigationController: navigationController)
+    }
 
     override public func start() {
         let viewModel = HomeViewModel(serviceLocator: serviceLocator)

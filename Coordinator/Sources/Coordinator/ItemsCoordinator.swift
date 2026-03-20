@@ -7,13 +7,20 @@
 
 import UIKit
 
+import FunCore
 import FunModel
 import FunUI
 import FunViewModel
 
 public final class ItemsCoordinator: BaseCoordinator {
 
+    private let serviceLocator: ServiceLocator
     private var isShowingDetail = false
+
+    public init(navigationController: UINavigationController, serviceLocator: ServiceLocator) {
+        self.serviceLocator = serviceLocator
+        super.init(navigationController: navigationController)
+    }
 
     override public func start() {
         let viewModel = ItemsViewModel(serviceLocator: serviceLocator)
