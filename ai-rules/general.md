@@ -96,8 +96,8 @@ Two session types control which services are available:
 | `AuthenticatedSession` | logger, network, favorites, toast, featureToggles, ai | Main app |
 
 - `activate()` registers services on the instance's `serviceLocator`
-- `teardown()` calls `favoritesService.resetFavorites()` (AuthenticatedSession). Does NOT call `serviceLocator.reset()` — live views may still resolve services via `@Service` during SwiftUI teardown. The next session's `activate()` overwrites with fresh instances.
-- `AppSessionFactory` creates the right session for each `AppFlow` case, passing the `serviceLocator` instance
+- `teardown()` calls `favoritesService.resetFavorites()` (AuthenticatedSession). Does NOT call `serviceLocator.reset()` — live views may still resolve services via `@Service` during SwiftUI teardown. The old session's ServiceLocator is released when the session is deallocated.
+- `AppSessionFactory` creates the right session for each `AppFlow` case. Each session creates its own ServiceLocator internally.
 
 ## Protocol Placement
 

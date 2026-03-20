@@ -139,8 +139,8 @@ AuthenticatedSession: logger, network, featureToggles, favourites, toast, ai
 ```
 
 ```swift
-// Sessions activate/teardown automatically on flow transitions
-protocol Session: AnyObject {
+// Each session owns its own ServiceLocator — released on session transition
+protocol Session: AnyObject, ServiceLocatorProvider {
     func activate()   // register services
     func teardown()   // clean up session state
 }
@@ -159,7 +159,7 @@ class HomeViewModel: ObservableObject, ServiceLocatorProvider {
 
 ### DI Evolution
 
-The current `@Service` property wrapper uses `static subscript(_enclosingInstance:)` to resolve from the enclosing instance's `serviceLocator`. This eliminates the global singleton (`ServiceLocator.shared`) — the app creates one instance at the top and threads it through coordinators, sessions, and ViewModels.
+The current `@Service` property wrapper uses `static subscript(_enclosingInstance:)` to resolve from the enclosing instance's `serviceLocator`. This eliminates the global singleton (`ServiceLocator.shared`) — each `Session` creates its own `ServiceLocator`, and coordinators/ViewModels receive the current session's locator via constructor injection. On session transition, the old locator is released with the session.
 
 **Future**: A Swift Macro could auto-generate `ServiceLocatorProvider` conformance + the `serviceLocator` stored property, eliminating the remaining boilerplate. On `@Observable` classes it could also auto-add `@ObservationIgnored` to each `@Service` property.
 

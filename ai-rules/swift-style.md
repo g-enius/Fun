@@ -74,7 +74,7 @@ class MyViewModel: ObservableObject, ServiceLocatorProvider {
 - Registration happens in `LoginSession.activate()` and `AuthenticatedSession.activate()` on the instance
 - Resolution crashes if service isn't registered — this is intentional
 - Never call `serviceLocator.resolve()` directly in Views
-- One `ServiceLocator()` is created in SceneDelegate and threaded through the entire object graph
+- Each `Session` creates its own `ServiceLocator()`. Coordinators and ViewModels receive the current session's ServiceLocator via constructor injection.
 
 ## Naming Conventions
 

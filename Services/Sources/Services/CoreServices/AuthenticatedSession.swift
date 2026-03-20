@@ -32,6 +32,6 @@ public final class AuthenticatedSession: Session {
         favoritesService.resetFavorites()
         // Don't call serviceLocator.reset() — with @Service property wrapper,
         // live views may still resolve services during SwiftUI teardown.
-        // The next session's activate() overwrites with fresh instances.
+        // The next session creates its own ServiceLocator with fresh instances.
     }
 }
