@@ -23,7 +23,7 @@ public protocol Coordinator: AnyObject {
 open class BaseCoordinator: Coordinator, ServiceLocatorProvider {
 
     public let navigationController: UINavigationController
-    public let serviceLocator: ServiceLocator
+    public internal(set) var serviceLocator: ServiceLocator
 
     private var isTransitioning: Bool {
         navigationController.transitionCoordinator != nil

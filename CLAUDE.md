@@ -59,7 +59,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - **Views**: SwiftUI views embedded in UIHostingController via UIViewControllers
 - **Reactive**: Combine (`@Published`, `CurrentValueSubject`, `.sink`)
 - **ViewModel → Coordinator**: Optional closures (`onShowDetail`, `onShowProfile`, etc.)
-- **DI**: Instance-based ServiceLocator — no `.shared` singleton. `@Service` property wrapper resolves via `static subscript(_enclosingInstance:)` from the enclosing type's `serviceLocator` (requires `ServiceLocatorProvider` conformance). One `ServiceLocator()` created in SceneDelegate, threaded through coordinators → sessions → ViewModels.
+- **DI**: Session-scoped ServiceLocator — no `.shared` singleton. Each `Session` creates and owns its own `ServiceLocator`. On session transition, the old ServiceLocator is released with the session (no stale services). `@Service` property wrapper resolves via `static subscript(_enclosingInstance:)` from the enclosing type's `serviceLocator` (requires `ServiceLocatorProvider` conformance). Coordinators and ViewModels receive the current session's ServiceLocator via constructor injection.
 
 ## Rule Index
 Consult these files for detailed guidance (not auto-loaded — read on demand):

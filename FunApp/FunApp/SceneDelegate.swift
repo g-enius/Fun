@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider 
 
     var window: UIWindow?
     var appCoordinator: AppCoordinator?
-    let serviceLocator = ServiceLocator()
+    var serviceLocator: ServiceLocator { appCoordinator!.serviceLocator }
     private var darkModeCancellable: AnyCancellable?
 
     @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
@@ -43,9 +43,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider 
         // Create and start app coordinator with session factory
         let coordinator = AppCoordinator(
             navigationController: navigationController,
-            sessionFactory: AppSessionFactory(),
-            serviceLocator: serviceLocator
+            sessionFactory: AppSessionFactory()
         )
+        self.appCoordinator = coordinator
 
         // Re-subscribe to dark mode after each session activation (login → main → login)
         // so the subscription always points to the current session's FeatureToggleService
@@ -54,7 +54,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider 
         }
 
         coordinator.start()
-        self.appCoordinator = coordinator
 
         window.makeKeyAndVisible()
 

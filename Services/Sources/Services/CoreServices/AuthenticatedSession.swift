@@ -9,14 +9,12 @@ import FunCore
 import FunModel
 
 @MainActor
-public final class AuthenticatedSession: Session, ServiceLocatorProvider {
+public final class AuthenticatedSession: Session {
 
-    public let serviceLocator: ServiceLocator
+    public let serviceLocator = ServiceLocator()
     @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
 
-    public init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
-    }
+    public init() {}
 
     public func activate() {
         let featureToggleService = DefaultFeatureToggleService()

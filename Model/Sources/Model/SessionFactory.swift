@@ -10,5 +10,5 @@ import FunCore
 /// Creates the appropriate session for a given app flow
 @MainActor
 public protocol SessionFactory {
-    func makeSession(for flow: AppFlow, serviceLocator: ServiceLocator) -> Session
+    func makeSession(for flow: AppFlow) -> Session
 }

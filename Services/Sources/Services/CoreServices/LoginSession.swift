@@ -10,11 +10,9 @@ import FunCore
 @MainActor
 public final class LoginSession: Session {
 
-    private let serviceLocator: ServiceLocator
+    public let serviceLocator = ServiceLocator()
 
-    public init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
-    }
+    public init() {}
 
     public func activate() {
         serviceLocator.register(DefaultLoggerService(), for: .logger)

@@ -4,8 +4,10 @@
 //
 //  Central registry for dependency injection.
 //
-//  Instance-based DI: the app creates one ServiceLocator() at the top (SceneDelegate)
-//  and threads it through coordinators, sessions, and ViewModels. No global singleton.
+//  Instance-based DI: each Session creates its own ServiceLocator and registers
+//  services into it. On session transition, the old ServiceLocator is released
+//  with the session — no stale services. Coordinators and ViewModels receive
+//  the current session's ServiceLocator via constructor injection.
 //
 
 import Foundation
@@ -60,6 +62,7 @@ public class ServiceLocator {
 // MARK: - ServiceLocatorProvider
 
 /// Any type that holds a ServiceLocator instance for instance-based DI resolution.
+@MainActor
 public protocol ServiceLocatorProvider {
     var serviceLocator: ServiceLocator { get }
 }

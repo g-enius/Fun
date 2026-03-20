@@ -46,9 +46,9 @@ public final class AppCoordinator: BaseCoordinator {
 
     // MARK: - Init
 
-    public init(navigationController: UINavigationController, sessionFactory: SessionFactory, serviceLocator: ServiceLocator) {
+    public init(navigationController: UINavigationController, sessionFactory: SessionFactory) {
         self.sessionFactory = sessionFactory
-        super.init(navigationController: navigationController, serviceLocator: serviceLocator)
+        super.init(navigationController: navigationController, serviceLocator: ServiceLocator())
     }
 
     // MARK: - Start
@@ -67,9 +67,10 @@ public final class AppCoordinator: BaseCoordinator {
 
     private func activateSession(for flow: AppFlow) {
         currentSession?.teardown()
-        let session = sessionFactory.makeSession(for: flow, serviceLocator: serviceLocator)
+        let session = sessionFactory.makeSession(for: flow)
         session.activate()
         currentSession = session
+        serviceLocator = session.serviceLocator
         onSessionActivated?()
     }
 
