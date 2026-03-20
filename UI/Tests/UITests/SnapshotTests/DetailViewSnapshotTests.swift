@@ -18,7 +18,7 @@ import FunModelTestSupport
 @MainActor
 final class DetailViewSnapshotTests: XCTestCase {
 
-    private func makeServiceLocator() -> ServiceLocator {
+    private func makeSession() -> MockSession {
         let locator = ServiceLocator()
         locator.register(MockLoggerService(), for: .logger)
         locator.register(MockNetworkService(), for: .network)
@@ -26,14 +26,14 @@ final class DetailViewSnapshotTests: XCTestCase {
         locator.register(MockFeatureToggleService(), for: .featureToggles)
         locator.register(MockAIService(isAvailable: false), for: .ai)
         locator.register(MockToastService(), for: .toast)
-        return locator
+        return MockSession(serviceLocator: locator)
     }
 
     // Set to true to regenerate snapshots, then set back to false
     private var recording: Bool { false }
 
     func testDetailView_defaultState() {
-        let viewModel = DetailViewModel(item: .asyncAwait, serviceLocator: makeServiceLocator())
+        let viewModel = DetailViewModel(item: .asyncAwait, session: makeSession())
 
         let view = DetailView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -43,7 +43,7 @@ final class DetailViewSnapshotTests: XCTestCase {
     }
 
     func testDetailView_favorited() {
-        let viewModel = DetailViewModel(item: .asyncAwait, serviceLocator: makeServiceLocator())
+        let viewModel = DetailViewModel(item: .asyncAwait, session: makeSession())
         viewModel.isFavorited = true
 
         let view = DetailView(viewModel: viewModel)
@@ -54,7 +54,7 @@ final class DetailViewSnapshotTests: XCTestCase {
     }
 
     func testDetailView_darkMode() {
-        let viewModel = DetailViewModel(item: .swiftUI, serviceLocator: makeServiceLocator())
+        let viewModel = DetailViewModel(item: .swiftUI, session: makeSession())
 
         let view = DetailView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)

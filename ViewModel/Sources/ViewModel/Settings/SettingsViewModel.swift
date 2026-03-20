@@ -12,11 +12,11 @@ import FunCore
 import FunModel
 
 @MainActor
-public class SettingsViewModel: ObservableObject, ServiceLocatorProvider {
+public class SettingsViewModel: ObservableObject, SessionProvider {
 
     // MARK: - DI
 
-    public let serviceLocator: ServiceLocator
+    public let session: Session
     @Service(.logger) private var logger: LoggerService
     @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
@@ -40,8 +40,8 @@ public class SettingsViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Initialization
 
-    public init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
+    public init(session: Session) {
+        self.session = session
 
         _appearanceMode = Published(initialValue: featureToggleService.appearanceMode)
         _featuredCarouselEnabled = Published(initialValue: featureToggleService.featuredCarousel)

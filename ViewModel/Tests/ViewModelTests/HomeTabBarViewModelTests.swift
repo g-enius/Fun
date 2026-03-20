@@ -20,17 +20,17 @@ struct HomeTabBarViewModelTests {
 
     // MARK: - Setup
 
-    private func makeServiceLocator() -> ServiceLocator {
+    private func makeSession() -> MockSession {
         let locator = ServiceLocator()
         locator.register(MockLoggerService(), for: .logger)
-        return locator
+        return MockSession(serviceLocator: locator)
     }
 
     // MARK: - Initialization Tests
 
     @Test("Initial selectedTabIndex is 0")
     func testInitialTabIndex() async {
-        let viewModel = HomeTabBarViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeTabBarViewModel(session: makeSession())
 
         #expect(viewModel.selectedTabIndex == 0)
     }
@@ -39,7 +39,7 @@ struct HomeTabBarViewModelTests {
 
     @Test("tabDidChange updates selectedTabIndex")
     func testTabDidChangeUpdatesIndex() async {
-        let viewModel = HomeTabBarViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeTabBarViewModel(session: makeSession())
 
         viewModel.tabDidChange(to: 1)
         #expect(viewModel.selectedTabIndex == 1)
@@ -53,7 +53,7 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab updates selectedTabIndex")
     func testSwitchToTabUpdatesIndex() async {
-        let viewModel = HomeTabBarViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeTabBarViewModel(session: makeSession())
 
         viewModel.switchToTab(1)
         #expect(viewModel.selectedTabIndex == 1)
@@ -64,9 +64,9 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab and tabDidChange produce same result")
     func testSwitchAndDidChangeEquivalent() async {
-        let locator = makeServiceLocator()
-        let vm1 = HomeTabBarViewModel(serviceLocator: locator)
-        let vm2 = HomeTabBarViewModel(serviceLocator: locator)
+        let session = makeSession()
+        let vm1 = HomeTabBarViewModel(session: session)
+        let vm2 = HomeTabBarViewModel(session: session)
 
         vm1.switchToTab(2)
         vm2.tabDidChange(to: 2)
@@ -78,7 +78,7 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab ignores negative index")
     func testSwitchToTabIgnoresNegativeIndex() async {
-        let viewModel = HomeTabBarViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeTabBarViewModel(session: makeSession())
 
         viewModel.switchToTab(1)
         #expect(viewModel.selectedTabIndex == 1)
@@ -89,7 +89,7 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab ignores out-of-bounds index")
     func testSwitchToTabIgnoresOutOfBoundsIndex() async {
-        let viewModel = HomeTabBarViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeTabBarViewModel(session: makeSession())
 
         viewModel.switchToTab(1)
         #expect(viewModel.selectedTabIndex == 1)
@@ -100,7 +100,7 @@ struct HomeTabBarViewModelTests {
 
     @Test("switchToTab accepts all valid tab indices")
     func testSwitchToTabAcceptsAllValidIndices() async {
-        let viewModel = HomeTabBarViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeTabBarViewModel(session: makeSession())
 
         for tabIndex in TabIndex.allCases {
             viewModel.switchToTab(tabIndex.rawValue)

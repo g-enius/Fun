@@ -42,7 +42,7 @@ import FunModel
 // See feature/observation for the full implementation.
 
 @MainActor
-public class HomeViewModel: ObservableObject, ServiceLocatorProvider {
+public class HomeViewModel: ObservableObject, SessionProvider {
 
     // MARK: - Navigation Closures
 
@@ -51,7 +51,7 @@ public class HomeViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - DI
 
-    public let serviceLocator: ServiceLocator
+    public let session: Session
     @Service(.logger) private var logger: LoggerService
     @Service(.network) private var networkService: NetworkServiceProtocol
     @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
@@ -75,8 +75,8 @@ public class HomeViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Initialization
 
-    public init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
+    public init(session: Session) {
+        self.session = session
 
         observeFeatureToggleChanges()
         observeFavoritesChanges()

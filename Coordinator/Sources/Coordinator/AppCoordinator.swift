@@ -55,35 +55,37 @@ public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
     // MARK: - Start
 
     override public func start() {
-        activateSession(for: currentFlow)
+        let session = activateSession(for: currentFlow)
         switch currentFlow {
         case .login:
-            showLoginFlow()
+            showLoginFlow(session: session)
         case .main:
-            showMainFlow()
+            showMainFlow(session: session)
         }
     }
 
     // MARK: - Session Lifecycle
 
-    private func activateSession(for flow: AppFlow) {
+    @discardableResult
+    private func activateSession(for flow: AppFlow) -> Session {
         currentSession?.teardown()
         let session = sessionFactory.makeSession(for: flow)
         session.activate()
         currentSession = session
         serviceLocator = session.serviceLocator
         onSessionActivated?()
+        return session
     }
 
     // MARK: - Flow Management
 
-    private func showLoginFlow() {
+    private func showLoginFlow(session: Session) {
         // Clear any existing main flow coordinators
         clearMainFlowCoordinators()
 
         let loginCoordinator = LoginCoordinator(
             navigationController: navigationController,
-            serviceLocator: serviceLocator
+            session: session
         )
         loginCoordinator.onLoginSuccess = { [weak self] in
             self?.transitionToMainFlow()
@@ -92,7 +94,7 @@ public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
         loginCoordinator.start()
     }
 
-    private func showMainFlow() {
+    private func showMainFlow(session: Session) {
         // Clear login coordinator
         loginCoordinator = nil
 
@@ -129,21 +131,21 @@ public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
         settingsNavController.tabBarItem.accessibilityIdentifier = AccessibilityID.Tabs.settings
 
         // Create view model for tab bar
-        let tabBarViewModel = HomeTabBarViewModel(serviceLocator: serviceLocator)
+        let tabBarViewModel = HomeTabBarViewModel(session: session)
         self.tabBarViewModel = tabBarViewModel
 
         // Create and store coordinators for each tab
         let homeCoordinator = HomeCoordinator(
             navigationController: homeNavController,
-            serviceLocator: serviceLocator
+            session: session
         )
         let itemsCoordinator = ItemsCoordinator(
             navigationController: itemsNavController,
-            serviceLocator: serviceLocator
+            session: session
         )
         let settingsCoordinator = SettingsCoordinator(
             navigationController: settingsNavController,
-            serviceLocator: serviceLocator
+            session: session
         )
 
         // Set up logout callback through home coordinator (Profile modal)
@@ -169,7 +171,7 @@ public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
                 itemsNavController,
                 settingsNavController
             ],
-            serviceLocator: serviceLocator
+            session: session
         )
 
         // Set as root (tab bar doesn't push, it's the container)
@@ -180,8 +182,8 @@ public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
 
     private func transitionToMainFlow() {
         currentFlow = .main
-        activateSession(for: .main)
-        showMainFlow()
+        let session = activateSession(for: .main)
+        showMainFlow(session: session)
 
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
@@ -192,8 +194,8 @@ public final class AppCoordinator: BaseCoordinator, ServiceLocatorProvider {
     private func transitionToLoginFlow() {
         currentFlow = .login
         pendingDeepLink = nil
-        activateSession(for: .login)
-        showLoginFlow()
+        let session = activateSession(for: .login)
+        showLoginFlow(session: session)
     }
 
     // MARK: - Cleanup

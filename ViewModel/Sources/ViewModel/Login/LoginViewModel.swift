@@ -12,7 +12,7 @@ import FunCore
 import FunModel
 
 @MainActor
-public class LoginViewModel: ObservableObject, ServiceLocatorProvider {
+public class LoginViewModel: ObservableObject, SessionProvider {
 
     // MARK: - Navigation Closures
 
@@ -20,7 +20,7 @@ public class LoginViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - DI
 
-    public let serviceLocator: ServiceLocator
+    public let session: Session
     @Service(.logger) private var logger: LoggerService
     @Service(.network) private var networkService: NetworkServiceProtocol
     @Service(.toast) private var toastService: ToastServiceProtocol
@@ -35,8 +35,8 @@ public class LoginViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Initialization
 
-    public init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
+    public init(session: Session) {
+        self.session = session
     }
 
     deinit {

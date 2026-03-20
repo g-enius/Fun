@@ -16,52 +16,61 @@ import FunViewModel
 @MainActor
 public enum PreviewHelper {
 
-    /// Creates a ServiceLocator with all preview mock services registered
-    public static func makeServiceLocator() -> ServiceLocator {
-        let locator = ServiceLocator()
+    /// Creates a Session with all preview mock services registered
+    public static func makeSession() -> Session {
+        let session = PreviewSession()
 
-        locator.register(PreviewLoggerService() as LoggerService, for: .logger)
+        session.serviceLocator.register(PreviewLoggerService() as LoggerService, for: .logger)
         let favorites = PreviewFavoritesService(initialFavorites: ["asyncawait", "swiftui"])
-        locator.register(favorites as FavoritesServiceProtocol, for: .favorites)
+        session.serviceLocator.register(favorites as FavoritesServiceProtocol, for: .favorites)
 
         let toggles = PreviewFeatureToggleService()
-        locator.register(toggles as FeatureToggleServiceProtocol, for: .featureToggles)
-        locator.register(PreviewNetworkService() as NetworkServiceProtocol, for: .network)
-        locator.register(PreviewToastService() as ToastServiceProtocol, for: .toast)
-        locator.register(PreviewAIService() as AIServiceProtocol, for: .ai)
+        session.serviceLocator.register(toggles as FeatureToggleServiceProtocol, for: .featureToggles)
+        session.serviceLocator.register(PreviewNetworkService() as NetworkServiceProtocol, for: .network)
+        session.serviceLocator.register(PreviewToastService() as ToastServiceProtocol, for: .toast)
+        session.serviceLocator.register(PreviewAIService() as AIServiceProtocol, for: .ai)
 
-        return locator
+        return session
     }
 
     /// Creates a HomeViewModel configured for previews
     public static func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(serviceLocator: makeServiceLocator())
+        HomeViewModel(session: makeSession())
     }
 
     /// Creates an ItemsViewModel configured for previews
     public static func makeItemsViewModel() -> ItemsViewModel {
-        ItemsViewModel(serviceLocator: makeServiceLocator())
+        ItemsViewModel(session: makeSession())
     }
 
     /// Creates a SettingsViewModel configured for previews
     public static func makeSettingsViewModel() -> SettingsViewModel {
-        SettingsViewModel(serviceLocator: makeServiceLocator())
+        SettingsViewModel(session: makeSession())
     }
 
     /// Creates a ProfileViewModel configured for previews
     public static func makeProfileViewModel() -> ProfileViewModel {
-        ProfileViewModel(serviceLocator: makeServiceLocator())
+        ProfileViewModel(session: makeSession())
     }
 
     /// Creates a DetailViewModel configured for previews
     public static func makeDetailViewModel() -> DetailViewModel {
-        DetailViewModel(item: .asyncAwait, serviceLocator: makeServiceLocator())
+        DetailViewModel(item: .asyncAwait, session: makeSession())
     }
 
     /// Creates a LoginViewModel configured for previews
     public static func makeLoginViewModel() -> LoginViewModel {
-        LoginViewModel(serviceLocator: makeServiceLocator())
+        LoginViewModel(session: makeSession())
     }
+}
+
+// MARK: - Preview Session
+
+@MainActor
+private final class PreviewSession: Session {
+    let serviceLocator = ServiceLocator()
+    func activate() {}
+    func teardown() {}
 }
 
 // MARK: - Preview Stub Services

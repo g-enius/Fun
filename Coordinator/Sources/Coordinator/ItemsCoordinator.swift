@@ -14,16 +14,16 @@ import FunViewModel
 
 public final class ItemsCoordinator: BaseCoordinator {
 
-    private let serviceLocator: ServiceLocator
+    private let session: Session
     private var isShowingDetail = false
 
-    public init(navigationController: UINavigationController, serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
+    public init(navigationController: UINavigationController, session: Session) {
+        self.session = session
         super.init(navigationController: navigationController)
     }
 
     override public func start() {
-        let viewModel = ItemsViewModel(serviceLocator: serviceLocator)
+        let viewModel = ItemsViewModel(session: session)
         viewModel.onShowDetail = { [weak self] item in self?.showDetail(for: item) }
 
         let viewController = ItemsViewController(viewModel: viewModel)
@@ -36,7 +36,7 @@ public final class ItemsCoordinator: BaseCoordinator {
         guard !isShowingDetail else { return }
         isShowingDetail = true
 
-        let viewModel = DetailViewModel(item: item, serviceLocator: serviceLocator)
+        let viewModel = DetailViewModel(item: item, session: session)
         viewModel.onPop = { [weak self] in self?.isShowingDetail = false }
         viewModel.onShare = { [weak self] text in self?.share(text: text) }
 

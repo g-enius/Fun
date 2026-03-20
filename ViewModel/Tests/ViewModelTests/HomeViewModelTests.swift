@@ -43,22 +43,22 @@ struct HomeViewModelTests {
 
     // MARK: - Setup
 
-    private func makeServiceLocator(
+    private func makeSession(
         initialFavorites: Set<String> = [],
         featuredCarousel: Bool = true,
         simulateErrors: Bool = false
-    ) -> ServiceLocator {
+    ) -> MockSession {
         let locator = ServiceLocator()
         locator.register(MockLoggerService(), for: .logger)
         locator.register(MockNetworkService(shouldThrowError: simulateErrors), for: .network)
         locator.register(MockFavoritesService(initialFavorites: initialFavorites), for: .favorites)
         locator.register(MockFeatureToggleService(featuredCarousel: featuredCarousel, simulateErrors: simulateErrors), for: .featureToggles)
         locator.register(MockToastService(), for: .toast)
-        return locator
+        return MockSession(serviceLocator: locator)
     }
 
-    private func makeServiceLocator(scenario: FeatureScenario, initialFavorites: Set<String> = []) -> ServiceLocator {
-        makeServiceLocator(
+    private func makeSession(scenario: FeatureScenario, initialFavorites: Set<String> = []) -> MockSession {
+        makeSession(
             initialFavorites: initialFavorites,
             featuredCarousel: scenario.carousel,
             simulateErrors: scenario.simulateErrors
@@ -69,7 +69,7 @@ struct HomeViewModelTests {
 
     @Test("Initial hasError is false on creation")
     func testInitialHasErrorOnCreation() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeViewModel(session: makeSession())
 
         // hasError should always start false
         #expect(viewModel.hasError == false)
@@ -77,7 +77,7 @@ struct HomeViewModelTests {
 
     @Test("Initial currentCarouselIndex is 0 on creation")
     func testInitialCarouselIndexOnCreation() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeViewModel(session: makeSession())
 
         #expect(viewModel.currentCarouselIndex == 0)
     }
@@ -86,7 +86,7 @@ struct HomeViewModelTests {
 
     @Test("loadFeaturedItems populates data")
     func testLoadFeaturedItemsPopulatesData() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeViewModel(session: makeSession())
 
         await viewModel.loadFeaturedItems()
 
@@ -106,13 +106,14 @@ struct HomeViewModelTests {
         locator.register(MockFeatureToggleService(featuredCarousel: true), for: .featureToggles)
         locator.register(mockToast, for: .toast)
 
-        let viewModel = HomeViewModel(serviceLocator: locator)
+        let session = MockSession(serviceLocator: locator)
+        let viewModel = HomeViewModel(session: session)
 
         // Explicitly call loadFeaturedItems and wait for it
         await viewModel.loadFeaturedItems()
 
         // Verify the toast was called
-        let resolvedToast: MockToastService = locator.resolve(for: .toast)
+        let resolvedToast: MockToastService = session.serviceLocator.resolve(for: .toast)
         #expect(resolvedToast.showToastCalled == true)
         #expect(resolvedToast.lastType == .error)
     }
@@ -121,7 +122,7 @@ struct HomeViewModelTests {
 
     @Test("didTapFeaturedItem calls onShowDetail")
     func testDidTapFeaturedItemCallsOnShowDetail() async throws {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeViewModel(session: makeSession())
 
         var showDetailCalled = false
         var showDetailItem: FeaturedItem?
@@ -140,7 +141,7 @@ struct HomeViewModelTests {
 
     @Test("didTapProfile calls onShowProfile")
     func testDidTapProfileCallsOnShowProfile() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeViewModel(session: makeSession())
 
         var showProfileCalled = false
         viewModel.onShowProfile = { showProfileCalled = true }
@@ -154,21 +155,21 @@ struct HomeViewModelTests {
 
     @Test("isFavorited returns false for unfavorited item")
     func testIsFavoritedReturnsFalse() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(initialFavorites: []))
+        let viewModel = HomeViewModel(session: makeSession(initialFavorites: []))
 
         #expect(viewModel.isFavorited("unfavorited_item") == false)
     }
 
     @Test("isFavorited returns true for favorited item")
     func testIsFavoritedReturnsTrue() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(initialFavorites: ["test_item"]))
+        let viewModel = HomeViewModel(session: makeSession(initialFavorites: ["test_item"]))
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
 
     @Test("toggleFavorite updates favorites")
     func testToggleFavoriteUpdates() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(initialFavorites: []))
+        let viewModel = HomeViewModel(session: makeSession(initialFavorites: []))
 
         #expect(viewModel.isFavorited("test_item") == false)
 
@@ -182,7 +183,7 @@ struct HomeViewModelTests {
 
     @Test("toggleFavorite removes favorited item")
     func testToggleFavoriteRemoves() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(initialFavorites: ["test_item"]))
+        let viewModel = HomeViewModel(session: makeSession(initialFavorites: ["test_item"]))
 
         #expect(viewModel.isFavorited("test_item") == true)
 
@@ -198,7 +199,7 @@ struct HomeViewModelTests {
 
     @Test("Carousel visibility matches feature toggle", arguments: FeatureScenario.carouselScenarios)
     func testCarouselVisibility(scenario: FeatureScenario) async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(scenario: scenario))
+        let viewModel = HomeViewModel(session: makeSession(scenario: scenario))
 
         #expect(viewModel.isCarouselEnabled == scenario.carousel)
     }
@@ -218,7 +219,7 @@ struct HomeViewModelTests {
 
     @Test("Loading behavior based on error simulation", arguments: FeatureScenario.errorScenarios)
     func testLoadingBehavior(scenario: FeatureScenario) async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(scenario: scenario))
+        let viewModel = HomeViewModel(session: makeSession(scenario: scenario))
 
         await viewModel.loadFeaturedItems()
 
@@ -231,7 +232,7 @@ struct HomeViewModelTests {
 
     @Test("refresh reloads featured items")
     func testRefreshReloadsItems() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = HomeViewModel(session: makeSession())
 
         await viewModel.refresh()
 
@@ -244,7 +245,7 @@ struct HomeViewModelTests {
 
     @Test("retry calls loadFeaturedItems")
     func testRetryCallsLoad() async {
-        let viewModel = HomeViewModel(serviceLocator: makeServiceLocator(simulateErrors: false))
+        let viewModel = HomeViewModel(session: makeSession(simulateErrors: false))
 
         // Clear items
         viewModel.hasError = true

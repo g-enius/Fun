@@ -20,17 +20,17 @@ struct ProfileViewModelTests {
 
     // MARK: - Setup
 
-    private func makeServiceLocator() -> ServiceLocator {
+    private func makeSession() -> MockSession {
         let locator = ServiceLocator()
         locator.register(MockLoggerService(), for: .logger)
-        return locator
+        return MockSession(serviceLocator: locator)
     }
 
     // MARK: - Initialization Tests
 
     @Test("Initial state matches demo profile")
     func testInitialState() async {
-        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = ProfileViewModel(session: makeSession())
 
         #expect(viewModel.userName == UserProfile.demo.name)
         #expect(viewModel.userEmail == UserProfile.demo.email)
@@ -43,7 +43,7 @@ struct ProfileViewModelTests {
     @Test("Custom profile values are used")
     func testCustomProfileValues() async {
         let profile = UserProfile(name: "Test", email: "test@test.com", bio: "Bio", viewsCount: 1, favoritesCount: 2, daysCount: 3)
-        let viewModel = ProfileViewModel(profile: profile, serviceLocator: makeServiceLocator())
+        let viewModel = ProfileViewModel(profile: profile, session: makeSession())
 
         #expect(viewModel.userName == "Test")
         #expect(viewModel.userEmail == "test@test.com")
@@ -54,7 +54,7 @@ struct ProfileViewModelTests {
 
     @Test("Dismiss calls onDismiss")
     func testDismissCallsOnDismiss() async {
-        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = ProfileViewModel(session: makeSession())
 
         var dismissCalled = false
         viewModel.onDismiss = { dismissCalled = true }
@@ -68,7 +68,7 @@ struct ProfileViewModelTests {
 
     @Test("Logout calls onLogout")
     func testLogoutCallsOnLogout() async {
-        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = ProfileViewModel(session: makeSession())
 
         var logoutCalled = false
         viewModel.onLogout = { logoutCalled = true }
@@ -82,7 +82,7 @@ struct ProfileViewModelTests {
 
     @Test("didTapGoToItems calls onGoToItems")
     func testDidTapGoToItemsCallsOnGoToItems() async {
-        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = ProfileViewModel(session: makeSession())
 
         var goToItemsCalled = false
         viewModel.onGoToItems = { goToItemsCalled = true }

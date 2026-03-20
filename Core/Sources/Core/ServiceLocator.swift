@@ -4,10 +4,10 @@
 //
 //  Central registry for dependency injection.
 //
-//  Instance-based DI: each Session creates its own ServiceLocator and registers
+//  Session-scoped DI: each Session creates its own ServiceLocator and registers
 //  services into it. On session transition, the old ServiceLocator is released
-//  with the session — no stale services. Coordinators and ViewModels receive
-//  the current session's ServiceLocator via constructor injection.
+//  with the session — no stale services. ViewModels receive the session and
+//  conform to SessionProvider, which auto-provides serviceLocator for @Service.
 //
 
 import Foundation
@@ -65,6 +65,19 @@ public class ServiceLocator {
 @MainActor
 public protocol ServiceLocatorProvider {
     var serviceLocator: ServiceLocator { get }
+}
+
+// MARK: - SessionProvider
+
+/// Types that hold a Session reference. Provides `serviceLocator` automatically
+/// from `session.serviceLocator`, so conformers only need to store `let session: Session`.
+@MainActor
+public protocol SessionProvider: ServiceLocatorProvider {
+    var session: Session { get }
+}
+
+extension SessionProvider {
+    public var serviceLocator: ServiceLocator { session.serviceLocator }
 }
 
 // MARK: - @Service Property Wrapper

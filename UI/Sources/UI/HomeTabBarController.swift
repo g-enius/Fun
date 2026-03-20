@@ -14,7 +14,7 @@ import FunCore
 import FunModel
 import FunViewModel
 
-public class HomeTabBarController: UITabBarController, ServiceLocatorProvider {
+public class HomeTabBarController: UITabBarController, SessionProvider {
 
     // MARK: - ViewModel
 
@@ -22,7 +22,7 @@ public class HomeTabBarController: UITabBarController, ServiceLocatorProvider {
 
     // MARK: - DI
 
-    public let serviceLocator: ServiceLocator
+    public let session: Session
     @Service(.toast) private var toastService: ToastServiceProtocol
 
     // MARK: - Combine
@@ -40,9 +40,9 @@ public class HomeTabBarController: UITabBarController, ServiceLocatorProvider {
 
     // MARK: - Initialization
 
-    public init(viewModel: HomeTabBarViewModel, tabNavigationControllers: [UINavigationController], serviceLocator: ServiceLocator) {
+    public init(viewModel: HomeTabBarViewModel, tabNavigationControllers: [UINavigationController], session: Session) {
         self.viewModel = viewModel
-        self.serviceLocator = serviceLocator
+        self.session = session
         super.init(nibName: nil, bundle: nil)
         delegate = self
         viewControllers = tabNavigationControllers

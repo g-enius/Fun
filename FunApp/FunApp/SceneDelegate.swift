@@ -13,14 +13,11 @@ import FunCore
 import FunModel
 
 @MainActor
-class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider {
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     var appCoordinator: AppCoordinator?
-    var serviceLocator: ServiceLocator { appCoordinator!.serviceLocator }
     private var darkModeCancellable: AnyCancellable?
-
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
     func scene(
         _ scene: UIScene,
@@ -67,6 +64,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider 
     // MARK: - Dark Mode Observation
 
     private func subscribeToDarkMode() {
+        guard let coordinator = appCoordinator else { return }
+        let featureToggleService: FeatureToggleServiceProtocol = coordinator.serviceLocator.resolve(for: .featureToggles)
         darkModeCancellable?.cancel()
         darkModeCancellable = featureToggleService.appearanceModePublisher
             .sink { [weak self] mode in

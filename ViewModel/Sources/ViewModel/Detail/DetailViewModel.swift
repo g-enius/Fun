@@ -12,7 +12,7 @@ import FunCore
 import FunModel
 
 @MainActor
-public class DetailViewModel: ObservableObject, ServiceLocatorProvider {
+public class DetailViewModel: ObservableObject, SessionProvider {
 
     // MARK: - Navigation Closures
 
@@ -21,7 +21,7 @@ public class DetailViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - DI
 
-    public let serviceLocator: ServiceLocator
+    public let session: Session
     @Service(.logger) private var logger: LoggerService
     @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
     @Service(.ai) private var aiService: AIServiceProtocol
@@ -48,8 +48,8 @@ public class DetailViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Initialization
 
-    public init(item: FeaturedItem, serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
+    public init(item: FeaturedItem, session: Session) {
+        self.session = session
 
         self.itemTitle = item.title
         self.category = item.category
