@@ -59,13 +59,13 @@
 ## ServiceLocator & @Service
 
 ```swift
-// Instance-based DI — no .shared singleton
-class MyViewModel: ObservableObject, ServiceLocatorProvider {
-    let serviceLocator: ServiceLocator
+// Session-scoped DI — no .shared singleton
+class MyViewModel: ObservableObject, SessionProvider {
+    let session: Session
     @Service(.logger) private var logger: LoggerService
 
-    init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
+    init(session: Session) {
+        self.session = session
     }
 }
 ```

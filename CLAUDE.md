@@ -73,13 +73,13 @@ Consult these files for detailed guidance (not auto-loaded — read on demand):
 - ViewModels use closures for navigation (no coordinator protocols)
 - Navigation logic ONLY in Coordinators, never in Views
 - Protocol placement: Core = reusable abstractions, Model = domain-specific
-- Instance-based ServiceLocator with `@Service` property wrapper (`ServiceLocatorProvider` conformance)
+- Session-scoped ServiceLocator with `@Service` property wrapper — ViewModels conform to `SessionProvider`, store `let session: Session`
 - Combine over NotificationCenter for reactive state
 
 ## Testing
 - Swift Testing framework (`import Testing`, `@Test`, `#expect`, `@Suite`)
-- Each test creates its own `ServiceLocator()` instance — no `.serialized` needed, tests run in parallel
-- Use `makeServiceLocator()` helper to create per-test locator with mocks, pass via `serviceLocator:` param
+- Each test creates its own `MockSession` (from `FunModelTestSupport`) — no `.serialized` needed, tests run in parallel
+- Use `makeSession()` helper to create per-test session with mocks via `MockSession(serviceLocator:)`, pass via `session:` param
 - Consolidate thin init tests into a single test when they test the same concern
 - Centralized mocks in `Model/Sources/ModelTestSupport/Mocks/`
 - Snapshot tests with swift-snapshot-testing

@@ -55,7 +55,7 @@ Services is a sibling to the UI stack — it depends on Model and Core but NOT o
 SwiftUI views are embedded in UIKit via UIViewControllers:
 ```swift
 // In Coordinator:
-let viewModel = HomeViewModel(serviceLocator: serviceLocator)
+let viewModel = HomeViewModel(session: session)
 viewModel.onShowDetail = { [weak self] item in self?.showDetail(for: item) }
 let viewController = HomeViewController(viewModel: viewModel)
 safePush(viewController)

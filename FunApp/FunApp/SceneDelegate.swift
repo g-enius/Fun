@@ -65,9 +65,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     private func subscribeToDarkMode() {
         guard let coordinator = appCoordinator else { return }
-        let featureToggleService: FeatureToggleServiceProtocol = coordinator.serviceLocator.resolve(for: .featureToggles)
+        let toggles: FeatureToggleServiceProtocol = coordinator.serviceLocator.resolve(for: .featureToggles)
         darkModeCancellable?.cancel()
-        darkModeCancellable = featureToggleService.appearanceModePublisher
+        darkModeCancellable = toggles.appearanceModePublisher
             .sink { [weak self] mode in
                 let style: UIUserInterfaceStyle = switch mode {
                 case .system: .unspecified

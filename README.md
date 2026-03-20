@@ -145,14 +145,14 @@ protocol Session: AnyObject, ServiceLocatorProvider {
     func teardown()   // clean up session state
 }
 
-// @Service resolves from the enclosing instance's serviceLocator
-// via static subscript(_enclosingInstance:) — no global singleton
-class HomeViewModel: ObservableObject, ServiceLocatorProvider {
-    let serviceLocator: ServiceLocator
+// @Service resolves from session.serviceLocator automatically
+// via SessionProvider protocol extension — no global singleton
+class HomeViewModel: ObservableObject, SessionProvider {
+    let session: Session
     @Service(.network) private var networkService: NetworkServiceProtocol
 
-    init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
+    init(session: Session) {
+        self.session = session
     }
 }
 ```
