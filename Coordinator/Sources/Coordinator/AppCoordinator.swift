@@ -48,7 +48,7 @@ public final class AppCoordinator: BaseCoordinator {
 
     public init(navigationController: UINavigationController, sessionFactory: SessionFactory) {
         self.sessionFactory = sessionFactory
-        super.init(navigationController: navigationController, serviceLocator: ServiceLocator())
+        super.init(navigationController: navigationController)
     }
 
     // MARK: - Start

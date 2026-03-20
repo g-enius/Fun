@@ -23,7 +23,7 @@ public protocol Coordinator: AnyObject {
 open class BaseCoordinator: Coordinator, ServiceLocatorProvider {
 
     public let navigationController: UINavigationController
-    public internal(set) var serviceLocator: ServiceLocator
+    public internal(set) var serviceLocator = ServiceLocator()
 
     private var isTransitioning: Bool {
         navigationController.transitionCoordinator != nil
@@ -32,6 +32,11 @@ open class BaseCoordinator: Coordinator, ServiceLocatorProvider {
     /// Single pending action retried after the current transition completes.
     /// Handles deep links arriving mid-transition without full queue complexity.
     private var pendingAction: (@MainActor () -> Void)?
+
+    /// For root coordinators that receive serviceLocator later (e.g. from a session)
+    public init(navigationController: UINavigationController) {
+        self.navigationController = navigationController
+    }
 
     public init(navigationController: UINavigationController, serviceLocator: ServiceLocator) {
         self.navigationController = navigationController
