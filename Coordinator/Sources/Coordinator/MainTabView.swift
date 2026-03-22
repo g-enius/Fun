@@ -92,7 +92,7 @@ struct HomeTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: HomeViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: HomeViewModel(session: coordinator.session))
     }
 
     var body: some View {
@@ -115,7 +115,7 @@ struct ItemsTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ItemsViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: ItemsViewModel(session: coordinator.session))
     }
 
     var body: some View {
@@ -135,7 +135,7 @@ struct SettingsTabContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: SettingsViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: SettingsViewModel(session: coordinator.session))
     }
 
     var body: some View {
@@ -150,7 +150,7 @@ struct DetailContent: View {
 
     init(item: FeaturedItem, coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: DetailViewModel(item: item, serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: DetailViewModel(item: item, session: coordinator.session))
     }
 
     var body: some View {
@@ -165,7 +165,7 @@ struct ProfileContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ProfileViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: ProfileViewModel(session: coordinator.session))
     }
 
     var body: some View {

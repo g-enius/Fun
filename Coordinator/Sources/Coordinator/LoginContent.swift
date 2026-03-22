@@ -18,7 +18,7 @@ struct LoginContent: View {
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: LoginViewModel(serviceLocator: coordinator.serviceLocator))
+        _viewModel = StateObject(wrappedValue: LoginViewModel(session: coordinator.session))
     }
 
     var body: some View {
