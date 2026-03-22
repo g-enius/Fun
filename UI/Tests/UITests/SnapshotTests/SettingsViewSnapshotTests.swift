@@ -18,19 +18,19 @@ import FunModelTestSupport
 @MainActor
 final class SettingsViewSnapshotTests: XCTestCase {
 
-    private func makeServiceLocator() -> ServiceLocator {
+    private func makeSession() -> MockSession {
         let locator = ServiceLocator()
         locator.register(MockLoggerService(), for: .logger)
         locator.register(MockNetworkService(), for: .network)
         locator.register(MockFeatureToggleService(), for: .featureToggles)
-        return locator
+        return MockSession(serviceLocator: locator)
     }
 
     // Set to true to regenerate snapshots, then set back to false
     private var recording: Bool { false }
 
     func testSettingsView_defaultState() {
-        let viewModel = SettingsViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = SettingsViewModel(session: makeSession())
 
         let view = SettingsView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -40,7 +40,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     }
 
     func testSettingsView_darkAppearance() {
-        let viewModel = SettingsViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = SettingsViewModel(session: makeSession())
         viewModel.appearanceMode = .dark
 
         let view = SettingsView(viewModel: viewModel)
@@ -52,7 +52,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     }
 
     func testSettingsView_carouselEnabled() {
-        let viewModel = SettingsViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = SettingsViewModel(session: makeSession())
         viewModel.featuredCarouselEnabled = true
 
         let view = SettingsView(viewModel: viewModel)
@@ -63,7 +63,7 @@ final class SettingsViewSnapshotTests: XCTestCase {
     }
 
     func testSettingsView_carouselDisabled() {
-        let viewModel = SettingsViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = SettingsViewModel(session: makeSession())
         viewModel.featuredCarouselEnabled = false
 
         let view = SettingsView(viewModel: viewModel)

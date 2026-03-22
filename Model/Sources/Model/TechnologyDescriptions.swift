@@ -168,17 +168,17 @@ public enum TechnologyDescriptions {
         """
 
     private static let serviceLocatorDescription = """
-        Instance-based dependency injection using ServiceLocator + @Service property wrapper:
+        Session-scoped dependency injection using ServiceLocator + @Service property wrapper:
 
-        Conform to ServiceLocatorProvider:
+        Conform to SessionProvider:
         ```swift
-        class MyViewModel: ServiceLocatorProvider {
-            let serviceLocator: ServiceLocator
+        class MyViewModel: SessionProvider {
+            let session: Session
             @Service(.favorites) var favoritesService: FavoritesServiceProtocol
         }
         ```
 
-        @Service resolves from the enclosing instance's serviceLocator via
+        @Service resolves from session.serviceLocator automatically via
         static subscript(_enclosingInstance:) — no global singleton needed.
 
         This enables easy mocking for tests while keeping injection simple.

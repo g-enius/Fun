@@ -18,19 +18,19 @@ import FunModelTestSupport
 @MainActor
 final class ProfileViewSnapshotTests: XCTestCase {
 
-    private func makeServiceLocator() -> ServiceLocator {
+    private func makeSession() -> MockSession {
         let locator = ServiceLocator()
         locator.register(MockLoggerService(), for: .logger)
         locator.register(MockNetworkService(), for: .network)
         locator.register(MockFavoritesService(initialFavorites: ["asyncawait", "swiftui"]), for: .favorites)
-        return locator
+        return MockSession(serviceLocator: locator)
     }
 
     // Set to true to regenerate snapshots, then set back to false
     private var recording: Bool { false }
 
     func testProfileView_defaultState() {
-        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = ProfileViewModel(session: makeSession())
 
         let view = ProfileView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -40,7 +40,7 @@ final class ProfileViewSnapshotTests: XCTestCase {
     }
 
     func testProfileView_darkMode() {
-        let viewModel = ProfileViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = ProfileViewModel(session: makeSession())
 
         let view = ProfileView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)

@@ -7,6 +7,7 @@
 
 import UIKit
 
+import FunCore
 import FunModel
 import FunUI
 import FunViewModel
@@ -15,13 +16,20 @@ public final class HomeCoordinator: BaseCoordinator {
 
     // MARK: - Properties
 
+    private let session: Session
+
     /// Callback to notify parent coordinator of logout
     public var onLogout: (() -> Void)?
 
     private var isShowingDetail = false
 
+    public init(navigationController: UINavigationController, session: Session) {
+        self.session = session
+        super.init(navigationController: navigationController)
+    }
+
     override public func start() {
-        let viewModel = HomeViewModel(serviceLocator: serviceLocator)
+        let viewModel = HomeViewModel(session: session)
         viewModel.onShowDetail = { [weak self] item in self?.showDetail(for: item) }
         viewModel.onShowProfile = { [weak self] in self?.showProfile() }
 
@@ -35,7 +43,7 @@ public final class HomeCoordinator: BaseCoordinator {
         guard !isShowingDetail else { return }
         isShowingDetail = true
 
-        let viewModel = DetailViewModel(item: item, serviceLocator: serviceLocator)
+        let viewModel = DetailViewModel(item: item, session: session)
         viewModel.onPop = { [weak self] in self?.isShowingDetail = false }
         viewModel.onShare = { [weak self] text in self?.share(text: text) }
 
@@ -46,7 +54,7 @@ public final class HomeCoordinator: BaseCoordinator {
     public func showProfile() {
         let profileNavController = UINavigationController()
 
-        let viewModel = ProfileViewModel(serviceLocator: serviceLocator)
+        let viewModel = ProfileViewModel(session: session)
         viewModel.onDismiss = { [weak self] in self?.safeDismiss() }
         viewModel.onLogout = { [weak self] in self?.safeDismiss { self?.onLogout?() } }
         viewModel.onGoToItems = { [weak self] in

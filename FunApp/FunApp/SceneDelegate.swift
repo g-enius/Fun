@@ -13,14 +13,11 @@ import FunCore
 import FunModel
 
 @MainActor
-class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider {
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     var appCoordinator: AppCoordinator?
-    let serviceLocator = ServiceLocator()
     private var darkModeCancellable: AnyCancellable?
-
-    @Service(.featureToggles) private var featureToggleService: FeatureToggleServiceProtocol
 
     func scene(
         _ scene: UIScene,
@@ -43,9 +40,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider 
         // Create and start app coordinator with session factory
         let coordinator = AppCoordinator(
             navigationController: navigationController,
-            sessionFactory: AppSessionFactory(),
-            serviceLocator: serviceLocator
+            sessionFactory: AppSessionFactory()
         )
+        self.appCoordinator = coordinator
 
         // Re-subscribe to dark mode after each session activation (login → main → login)
         // so the subscription always points to the current session's FeatureToggleService
@@ -54,7 +51,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider 
         }
 
         coordinator.start()
-        self.appCoordinator = coordinator
 
         window.makeKeyAndVisible()
 
@@ -68,8 +64,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, ServiceLocatorProvider 
     // MARK: - Dark Mode Observation
 
     private func subscribeToDarkMode() {
+        guard let session = appCoordinator?.session else { return }
+        // @Service can't be used here: SceneDelegate is not a ServiceLocatorProvider,
+        // and the session (and its locator) changes on each transition — we must
+        // re-resolve from the current session's locator on every activation.
+        let toggles: FeatureToggleServiceProtocol = session.serviceLocator.resolve(for: .featureToggles)
         darkModeCancellable?.cancel()
-        darkModeCancellable = featureToggleService.appearanceModePublisher
+        darkModeCancellable = toggles.appearanceModePublisher
             .sink { [weak self] mode in
                 let style: UIUserInterfaceStyle = switch mode {
                 case .system: .unspecified

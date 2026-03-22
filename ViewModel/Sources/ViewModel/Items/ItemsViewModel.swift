@@ -12,7 +12,7 @@ import FunCore
 import FunModel
 
 @MainActor
-public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
+public class ItemsViewModel: ObservableObject, SessionProvider {
 
     // MARK: - Navigation Closures
 
@@ -20,7 +20,7 @@ public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - DI
 
-    public let serviceLocator: ServiceLocator
+    public let session: Session
     @Service(.logger) private var logger: LoggerService
     @Service(.network) private var networkService: NetworkServiceProtocol
     @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
@@ -54,8 +54,8 @@ public class ItemsViewModel: ObservableObject, ServiceLocatorProvider {
 
     // MARK: - Initialization
 
-    public init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
+    public init(session: Session) {
+        self.session = session
 
         observeFavoritesChanges()
         setupSearchBinding()

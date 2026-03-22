@@ -139,27 +139,27 @@ AuthenticatedSession: logger, network, featureToggles, favourites, toast, ai
 ```
 
 ```swift
-// Sessions activate/teardown automatically on flow transitions
-protocol Session: AnyObject {
+// Each session owns its own ServiceLocator — released on session transition
+protocol Session: AnyObject, ServiceLocatorProvider {
     func activate()   // register services
     func teardown()   // clean up session state
 }
 
-// @Service resolves from the enclosing instance's serviceLocator
-// via static subscript(_enclosingInstance:) — no global singleton
-class HomeViewModel: ObservableObject, ServiceLocatorProvider {
-    let serviceLocator: ServiceLocator
+// @Service resolves from session.serviceLocator automatically
+// via SessionProvider protocol extension — no global singleton
+class HomeViewModel: ObservableObject, SessionProvider {
+    let session: Session
     @Service(.network) private var networkService: NetworkServiceProtocol
 
-    init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
+    init(session: Session) {
+        self.session = session
     }
 }
 ```
 
 ### DI Evolution
 
-The current `@Service` property wrapper uses `static subscript(_enclosingInstance:)` to resolve from the enclosing instance's `serviceLocator`. This eliminates the global singleton (`ServiceLocator.shared`) — the app creates one instance at the top and threads it through coordinators, sessions, and ViewModels.
+The current `@Service` property wrapper uses `static subscript(_enclosingInstance:)` to resolve from the enclosing instance's `serviceLocator`. This eliminates the global singleton (`ServiceLocator.shared`) — each `Session` creates its own `ServiceLocator`, and coordinators/ViewModels receive the current session's locator via constructor injection. On session transition, the old locator is released with the session.
 
 **Future**: A Swift Macro could auto-generate `ServiceLocatorProvider` conformance + the `serviceLocator` stored property, eliminating the remaining boilerplate. On `@Observable` classes it could also auto-add `@ObservationIgnored` to each `@Service` property.
 

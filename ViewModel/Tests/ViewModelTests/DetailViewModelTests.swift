@@ -20,11 +20,11 @@ struct DetailViewModelTests {
 
     // MARK: - Setup
 
-    private func makeServiceLocator(
+    private func makeSession(
         initialFavorites: Set<String> = [],
         aiService: MockAIService = MockAIService(),
         featureToggleService: MockFeatureToggleService = MockFeatureToggleService()
-    ) -> ServiceLocator {
+    ) -> MockSession {
         let locator = ServiceLocator()
         locator.register(MockLoggerService(), for: .logger)
         locator.register(MockNetworkService(), for: .network)
@@ -32,7 +32,7 @@ struct DetailViewModelTests {
         locator.register(featureToggleService, for: .featureToggles)
         locator.register(MockToastService(), for: .toast)
         locator.register(aiService, for: .ai)
-        return locator
+        return MockSession(serviceLocator: locator)
     }
 
     private var testItem: FeaturedItem {
@@ -44,7 +44,7 @@ struct DetailViewModelTests {
     @Test("Initial state matches item data")
     func testInitialStateMatchesItem() async {
         let item = testItem
-        let viewModel = DetailViewModel(item: item, serviceLocator: makeServiceLocator())
+        let viewModel = DetailViewModel(item: item, session: makeSession())
 
         #expect(viewModel.itemTitle == item.title)
         #expect(viewModel.category == item.category)
@@ -54,14 +54,14 @@ struct DetailViewModelTests {
     @Test("isFavorited is true when item is in favorites")
     func testIsFavoritedTrue() async {
         let item = testItem
-        let viewModel = DetailViewModel(item: item, serviceLocator: makeServiceLocator(initialFavorites: [item.id]))
+        let viewModel = DetailViewModel(item: item, session: makeSession(initialFavorites: [item.id]))
 
         #expect(viewModel.isFavorited == true)
     }
 
     @Test("isFavorited is false when item is not in favorites")
     func testIsFavoritedFalse() async {
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(initialFavorites: []))
+        let viewModel = DetailViewModel(item: testItem, session: makeSession(initialFavorites: []))
 
         #expect(viewModel.isFavorited == false)
     }
@@ -70,7 +70,7 @@ struct DetailViewModelTests {
 
     @Test("didTapToggleFavorite adds item to favorites")
     func testToggleFavoriteAdds() async {
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(initialFavorites: []))
+        let viewModel = DetailViewModel(item: testItem, session: makeSession(initialFavorites: []))
 
         #expect(viewModel.isFavorited == false)
 
@@ -85,7 +85,7 @@ struct DetailViewModelTests {
     @Test("didTapToggleFavorite removes item from favorites")
     func testToggleFavoriteRemoves() async {
         let item = testItem
-        let viewModel = DetailViewModel(item: item, serviceLocator: makeServiceLocator(initialFavorites: [item.id]))
+        let viewModel = DetailViewModel(item: item, session: makeSession(initialFavorites: [item.id]))
 
         #expect(viewModel.isFavorited == true)
 
@@ -111,7 +111,7 @@ struct DetailViewModelTests {
         locator.register(MockAIService(), for: .ai)
 
         let item = testItem
-        let viewModel = DetailViewModel(item: item, serviceLocator: locator)
+        let viewModel = DetailViewModel(item: item, session: MockSession(serviceLocator: locator))
 
         #expect(viewModel.isFavorited == false)
 
@@ -128,7 +128,7 @@ struct DetailViewModelTests {
 
     @Test("didTapShare calls onShare with item title")
     func testDidTapShareCallsOnShare() async {
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator())
+        let viewModel = DetailViewModel(item: testItem, session: makeSession())
 
         var shareCalled = false
         var shareText: String?
@@ -144,7 +144,7 @@ struct DetailViewModelTests {
 
     @Test("handleBackNavigation calls onPop")
     func testHandleBackNavigationCallsOnPop() async {
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator())
+        let viewModel = DetailViewModel(item: testItem, session: makeSession())
 
         var popCalled = false
         viewModel.onPop = { popCalled = true }
@@ -156,7 +156,7 @@ struct DetailViewModelTests {
 
     @Test("handleBackNavigation with nil closure does not crash")
     func testHandleBackNavigationWithNilClosure() async {
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator())
+        let viewModel = DetailViewModel(item: testItem, session: makeSession())
 
         viewModel.handleBackNavigation() // Should not crash
     }
@@ -165,11 +165,11 @@ struct DetailViewModelTests {
 
     @Test("Works with different featured items")
     func testDifferentItems() async {
-        let locator = makeServiceLocator()
+        let session = makeSession()
 
         let items: [FeaturedItem] = [.swiftUI, .combine, .mvvm, .coordinator]
         for item in items {
-            let viewModel = DetailViewModel(item: item, serviceLocator: locator)
+            let viewModel = DetailViewModel(item: item, session: session)
             #expect(viewModel.itemTitle == item.title)
             #expect(viewModel.category == item.category)
         }
@@ -181,7 +181,7 @@ struct DetailViewModelTests {
     func testShowAISummaryTrue() async {
         let aiService = MockAIService(isAvailable: true)
         let featureToggle = MockFeatureToggleService(aiSummary: true)
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService, featureToggleService: featureToggle))
+        let viewModel = DetailViewModel(item: testItem, session: makeSession(aiService: aiService, featureToggleService: featureToggle))
 
         #expect(viewModel.showAISummary == true)
     }
@@ -190,7 +190,7 @@ struct DetailViewModelTests {
     func testShowAISummaryFalseWhenToggleOff() async {
         let aiService = MockAIService(isAvailable: true)
         let featureToggle = MockFeatureToggleService(aiSummary: false)
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService, featureToggleService: featureToggle))
+        let viewModel = DetailViewModel(item: testItem, session: makeSession(aiService: aiService, featureToggleService: featureToggle))
 
         #expect(viewModel.showAISummary == false)
     }
@@ -199,7 +199,7 @@ struct DetailViewModelTests {
     func testShowAISummaryFalseWhenUnavailable() async {
         let aiService = MockAIService(isAvailable: false)
         let featureToggle = MockFeatureToggleService(aiSummary: true)
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService, featureToggleService: featureToggle))
+        let viewModel = DetailViewModel(item: testItem, session: makeSession(aiService: aiService, featureToggleService: featureToggle))
 
         #expect(viewModel.showAISummary == false)
     }
@@ -207,7 +207,7 @@ struct DetailViewModelTests {
     @Test("generateSummary sets summary text")
     func testGenerateSummarySetsText() async {
         let aiService = MockAIService(stubbedSummary: "Test summary result")
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService))
+        let viewModel = DetailViewModel(item: testItem, session: makeSession(aiService: aiService))
 
         await viewModel.generateSummary()
 
@@ -220,7 +220,7 @@ struct DetailViewModelTests {
     @Test("generateSummary handles errors")
     func testGenerateSummaryHandlesErrors() async {
         let aiService = MockAIService(shouldThrowError: true)
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService))
+        let viewModel = DetailViewModel(item: testItem, session: makeSession(aiService: aiService))
 
         await viewModel.generateSummary()
 
@@ -232,7 +232,7 @@ struct DetailViewModelTests {
     @Test("isSummarizing is false after generation completes")
     func testIsSummarizingStateAfterCompletion() async {
         let aiService = MockAIService(stubbedSummary: "Summary")
-        let viewModel = DetailViewModel(item: testItem, serviceLocator: makeServiceLocator(aiService: aiService))
+        let viewModel = DetailViewModel(item: testItem, session: makeSession(aiService: aiService))
 
         #expect(viewModel.isSummarizing == false)
 

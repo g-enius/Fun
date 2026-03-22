@@ -59,7 +59,7 @@ Never import upward. ViewModel must NOT import UI or Coordinator. Model must NOT
 - **Views**: SwiftUI views embedded in UIHostingController via UIViewControllers
 - **Reactive**: Combine (`@Published`, `CurrentValueSubject`, `.sink`)
 - **ViewModel → Coordinator**: Optional closures (`onShowDetail`, `onShowProfile`, etc.)
-- **DI**: Instance-based ServiceLocator — no `.shared` singleton. `@Service` property wrapper resolves via `static subscript(_enclosingInstance:)` from the enclosing type's `serviceLocator` (requires `ServiceLocatorProvider` conformance). One `ServiceLocator()` created in SceneDelegate, threaded through coordinators → sessions → ViewModels.
+- **DI**: Session-scoped ServiceLocator — no `.shared` singleton. Each `Session` creates and owns its own `ServiceLocator`. On session transition, the old ServiceLocator is released with the session (no stale services). `@Service` property wrapper resolves via `static subscript(_enclosingInstance:)` from the enclosing type's `serviceLocator` (requires `ServiceLocatorProvider` conformance). Coordinators and ViewModels receive the current session's ServiceLocator via constructor injection.
 
 ## Rule Index
 Consult these files for detailed guidance (not auto-loaded — read on demand):
@@ -73,13 +73,13 @@ Consult these files for detailed guidance (not auto-loaded — read on demand):
 - ViewModels use closures for navigation (no coordinator protocols)
 - Navigation logic ONLY in Coordinators, never in Views
 - Protocol placement: Core = reusable abstractions, Model = domain-specific
-- Instance-based ServiceLocator with `@Service` property wrapper (`ServiceLocatorProvider` conformance)
+- Session-scoped ServiceLocator with `@Service` property wrapper — ViewModels conform to `SessionProvider`, store `let session: Session`
 - Combine over NotificationCenter for reactive state
 
 ## Testing
 - Swift Testing framework (`import Testing`, `@Test`, `#expect`, `@Suite`)
-- Each test creates its own `ServiceLocator()` instance — no `.serialized` needed, tests run in parallel
-- Use `makeServiceLocator()` helper to create per-test locator with mocks, pass via `serviceLocator:` param
+- Each test creates its own `MockSession` (from `FunModelTestSupport`) — no `.serialized` needed, tests run in parallel
+- Use `makeSession()` helper to create per-test session with mocks via `MockSession(serviceLocator:)`, pass via `session:` param
 - Consolidate thin init tests into a single test when they test the same concern
 - Centralized mocks in `Model/Sources/ModelTestSupport/Mocks/`
 - Snapshot tests with swift-snapshot-testing

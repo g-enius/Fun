@@ -13,16 +13,16 @@ import FunUI
 import FunViewModel
 
 /// Main app coordinator that manages the root navigation and app flow
-public final class AppCoordinator: BaseCoordinator {
+public final class AppCoordinator: BaseCoordinator, SessionProvider {
 
     // MARK: - Services
 
+    public private(set) var session: Session
     @Service(.logger) private var logger: LoggerService
 
     // MARK: - Session Management
 
     private let sessionFactory: SessionFactory
-    private var currentSession: Session?
 
     // MARK: - App Flow State
 
@@ -46,42 +46,47 @@ public final class AppCoordinator: BaseCoordinator {
 
     // MARK: - Init
 
-    public init(navigationController: UINavigationController, sessionFactory: SessionFactory, serviceLocator: ServiceLocator) {
+    public init(navigationController: UINavigationController, sessionFactory: SessionFactory) {
         self.sessionFactory = sessionFactory
-        super.init(navigationController: navigationController, serviceLocator: serviceLocator)
+        self.session = sessionFactory.makeSession(for: .login)
+        super.init(navigationController: navigationController)
     }
 
     // MARK: - Start
 
     override public func start() {
-        activateSession(for: currentFlow)
+        activateCurrentSession()
         switch currentFlow {
         case .login:
-            showLoginFlow()
+            showLoginFlow(session: session)
         case .main:
-            showMainFlow()
+            showMainFlow(session: session)
         }
     }
 
     // MARK: - Session Lifecycle
 
-    private func activateSession(for flow: AppFlow) {
-        currentSession?.teardown()
-        let session = sessionFactory.makeSession(for: flow, serviceLocator: serviceLocator)
+    private func activateCurrentSession() {
         session.activate()
-        currentSession = session
         onSessionActivated?()
+    }
+
+    private func activateSession(for flow: AppFlow) -> Session {
+        session.teardown()
+        session = sessionFactory.makeSession(for: flow)
+        activateCurrentSession()
+        return session
     }
 
     // MARK: - Flow Management
 
-    private func showLoginFlow() {
+    private func showLoginFlow(session: Session) {
         // Clear any existing main flow coordinators
         clearMainFlowCoordinators()
 
         let loginCoordinator = LoginCoordinator(
             navigationController: navigationController,
-            serviceLocator: serviceLocator
+            session: session
         )
         loginCoordinator.onLoginSuccess = { [weak self] in
             self?.transitionToMainFlow()
@@ -90,7 +95,7 @@ public final class AppCoordinator: BaseCoordinator {
         loginCoordinator.start()
     }
 
-    private func showMainFlow() {
+    private func showMainFlow(session: Session) {
         // Clear login coordinator
         loginCoordinator = nil
 
@@ -127,21 +132,21 @@ public final class AppCoordinator: BaseCoordinator {
         settingsNavController.tabBarItem.accessibilityIdentifier = AccessibilityID.Tabs.settings
 
         // Create view model for tab bar
-        let tabBarViewModel = HomeTabBarViewModel(serviceLocator: serviceLocator)
+        let tabBarViewModel = HomeTabBarViewModel(session: session)
         self.tabBarViewModel = tabBarViewModel
 
         // Create and store coordinators for each tab
         let homeCoordinator = HomeCoordinator(
             navigationController: homeNavController,
-            serviceLocator: serviceLocator
+            session: session
         )
         let itemsCoordinator = ItemsCoordinator(
             navigationController: itemsNavController,
-            serviceLocator: serviceLocator
+            session: session
         )
         let settingsCoordinator = SettingsCoordinator(
             navigationController: settingsNavController,
-            serviceLocator: serviceLocator
+            session: session
         )
 
         // Set up logout callback through home coordinator (Profile modal)
@@ -167,7 +172,7 @@ public final class AppCoordinator: BaseCoordinator {
                 itemsNavController,
                 settingsNavController
             ],
-            serviceLocator: serviceLocator
+            session: session
         )
 
         // Set as root (tab bar doesn't push, it's the container)
@@ -178,8 +183,8 @@ public final class AppCoordinator: BaseCoordinator {
 
     private func transitionToMainFlow() {
         currentFlow = .main
-        activateSession(for: .main)
-        showMainFlow()
+        let session = activateSession(for: .main)
+        showMainFlow(session: session)
 
         if let deepLink = pendingDeepLink {
             pendingDeepLink = nil
@@ -190,8 +195,8 @@ public final class AppCoordinator: BaseCoordinator {
     private func transitionToLoginFlow() {
         currentFlow = .login
         pendingDeepLink = nil
-        activateSession(for: .login)
-        showLoginFlow()
+        let session = activateSession(for: .login)
+        showLoginFlow(session: session)
     }
 
     // MARK: - Cleanup

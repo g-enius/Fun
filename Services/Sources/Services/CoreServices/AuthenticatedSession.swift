@@ -9,14 +9,12 @@ import FunCore
 import FunModel
 
 @MainActor
-public final class AuthenticatedSession: Session, ServiceLocatorProvider {
+public final class AuthenticatedSession: Session {
 
-    public let serviceLocator: ServiceLocator
+    public let serviceLocator = ServiceLocator()
     @Service(.favorites) private var favoritesService: FavoritesServiceProtocol
 
-    public init(serviceLocator: ServiceLocator) {
-        self.serviceLocator = serviceLocator
-    }
+    public init() {}
 
     public func activate() {
         let featureToggleService = DefaultFeatureToggleService()
@@ -34,6 +32,6 @@ public final class AuthenticatedSession: Session, ServiceLocatorProvider {
         favoritesService.resetFavorites()
         // Don't call serviceLocator.reset() — with @Service property wrapper,
         // live views may still resolve services during SwiftUI teardown.
-        // The next session's activate() overwrites with fresh instances.
+        // The next session creates its own ServiceLocator with fresh instances.
     }
 }

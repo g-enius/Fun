@@ -17,19 +17,19 @@ import FunModelTestSupport
 @MainActor
 final class LoginViewSnapshotTests: XCTestCase {
 
-    private func makeServiceLocator() -> ServiceLocator {
+    private func makeSession() -> MockSession {
         let locator = ServiceLocator()
         locator.register(MockLoggerService(), for: .logger)
         locator.register(MockNetworkService(), for: .network)
         locator.register(MockToastService(), for: .toast)
-        return locator
+        return MockSession(serviceLocator: locator)
     }
 
     // Set to true to regenerate snapshots, then set back to false
     private var recording: Bool { false }
 
     func testLoginView_defaultState() {
-        let viewModel = LoginViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = LoginViewModel(session: makeSession())
 
         let view = LoginView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)
@@ -39,7 +39,7 @@ final class LoginViewSnapshotTests: XCTestCase {
     }
 
     func testLoginView_loggingInState() {
-        let viewModel = LoginViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = LoginViewModel(session: makeSession())
         viewModel.isLoggingIn = true
 
         let view = LoginView(viewModel: viewModel)
@@ -50,7 +50,7 @@ final class LoginViewSnapshotTests: XCTestCase {
     }
 
     func testLoginView_darkMode() {
-        let viewModel = LoginViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = LoginViewModel(session: makeSession())
 
         let view = LoginView(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: view)

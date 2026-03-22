@@ -18,21 +18,21 @@ import FunModelTestSupport
 @MainActor
 final class ItemsViewSnapshotTests: XCTestCase {
 
-    private func makeServiceLocator() -> ServiceLocator {
+    private func makeSession() -> MockSession {
         let locator = ServiceLocator()
         locator.register(MockLoggerService(), for: .logger)
         locator.register(MockNetworkService(), for: .network)
         locator.register(MockFavoritesService(), for: .favorites)
         locator.register(MockFeatureToggleService(), for: .featureToggles)
         locator.register(MockToastService(), for: .toast)
-        return locator
+        return MockSession(serviceLocator: locator)
     }
 
     // Set to true to regenerate snapshots, then set back to false
     private var recording: Bool { false }
 
     func testItemsView_defaultState() async {
-        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = ItemsViewModel(session: makeSession())
         await viewModel.loadItems()
 
         let view = ItemsView(viewModel: viewModel)
@@ -43,7 +43,7 @@ final class ItemsViewSnapshotTests: XCTestCase {
     }
 
     func testItemsView_withSearchText() async {
-        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = ItemsViewModel(session: makeSession())
         await viewModel.loadItems()
         viewModel.searchText = "swift"
 
@@ -55,7 +55,7 @@ final class ItemsViewSnapshotTests: XCTestCase {
     }
 
     func testItemsView_darkMode() async {
-        let viewModel = ItemsViewModel(serviceLocator: makeServiceLocator())
+        let viewModel = ItemsViewModel(session: makeSession())
         await viewModel.loadItems()
 
         let view = ItemsView(viewModel: viewModel)
