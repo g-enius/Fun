@@ -85,14 +85,14 @@ struct SessionTests {
             #expect(main.serviceLocator.isRegistered(for: .favorites))
 
             main.teardown()
-            let login = LoginSession()
-            login.activate()
+            let loginSession = LoginSession()
+            loginSession.activate()
 
             // Login session has only its own services — no stale favorites
-            #expect(login.serviceLocator.isRegistered(for: .logger))
-            #expect(login.serviceLocator.isRegistered(for: .network))
-            #expect(login.serviceLocator.isRegistered(for: .featureToggles))
-            #expect(!login.serviceLocator.isRegistered(for: .favorites))
+            #expect(loginSession.serviceLocator.isRegistered(for: .logger))
+            #expect(loginSession.serviceLocator.isRegistered(for: .network))
+            #expect(loginSession.serviceLocator.isRegistered(for: .featureToggles))
+            #expect(!loginSession.serviceLocator.isRegistered(for: .favorites))
         }
 
         @Test("Favorites are fresh after session transition")

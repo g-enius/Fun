@@ -65,6 +65,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     private func subscribeToDarkMode() {
         guard let session = appCoordinator?.session else { return }
+        // @Service can't be used here: SceneDelegate is not a ServiceLocatorProvider,
+        // and the session (and its locator) changes on each transition — we must
+        // re-resolve from the current session's locator on every activation.
         let toggles: FeatureToggleServiceProtocol = session.serviceLocator.resolve(for: .featureToggles)
         darkModeCancellable?.cancel()
         darkModeCancellable = toggles.appearanceModePublisher

@@ -55,8 +55,7 @@ public final class AppCoordinator: BaseCoordinator, SessionProvider {
     // MARK: - Start
 
     override public func start() {
-        session.activate()
-        onSessionActivated?()
+        activateCurrentSession()
         switch currentFlow {
         case .login:
             showLoginFlow(session: session)
@@ -67,13 +66,16 @@ public final class AppCoordinator: BaseCoordinator, SessionProvider {
 
     // MARK: - Session Lifecycle
 
+    private func activateCurrentSession() {
+        session.activate()
+        onSessionActivated?()
+    }
+
     private func activateSession(for flow: AppFlow) -> Session {
         session.teardown()
-        let newSession = sessionFactory.makeSession(for: flow)
-        newSession.activate()
-        session = newSession
-        onSessionActivated?()
-        return newSession
+        session = sessionFactory.makeSession(for: flow)
+        activateCurrentSession()
+        return session
     }
 
     // MARK: - Flow Management

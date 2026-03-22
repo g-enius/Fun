@@ -62,6 +62,9 @@ public class ServiceLocator {
 // MARK: - ServiceLocatorProvider
 
 /// Any type that holds a ServiceLocator instance for instance-based DI resolution.
+///
+/// `@MainActor` is required because `ServiceLocator` itself is `@MainActor` —
+/// any property that returns a `ServiceLocator` must also be isolated to the main actor.
 @MainActor
 public protocol ServiceLocatorProvider {
     var serviceLocator: ServiceLocator { get }
@@ -75,6 +78,8 @@ public protocol ServiceLocatorProvider {
 public protocol SessionProvider: ServiceLocatorProvider {
     var session: Session { get }
 }
+
+// MARK: - ServiceLocatorProvider
 
 extension SessionProvider {
     public var serviceLocator: ServiceLocator { session.serviceLocator }
