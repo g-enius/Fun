@@ -8,14 +8,12 @@
 import SwiftUI
 
 import FunCoordinator
-import FunCore
 import FunModel
 
 @main
 struct FunApp: App {
     @State private var coordinator = AppCoordinator(
-        sessionFactory: AppSessionFactory(),
-        serviceLocator: ServiceLocator()
+        sessionFactory: AppSessionFactory()
     )
 
     var body: some Scene {
