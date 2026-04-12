@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>Fun App</string>
+	<string>Fun SwiftUI</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -12,27 +12,10 @@
 				<string>funapp</string>
 			</array>
 			<key>CFBundleURLName</key>
-			<string>com.charles.wang.FunApp</string>
+			<string>com.charles.wang.FunApp.swiftui</string>
 		</dict>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
-	<key>UIApplicationSceneManifest</key>
-	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
-		<key>UISceneConfigurations</key>
-		<dict>
-			<key>UIWindowSceneSessionRoleApplication</key>
-			<array>
-				<dict>
-					<key>UISceneConfigurationName</key>
-					<string>Default Configuration</string>
-					<key>UISceneDelegateClassName</key>
-					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-				</dict>
-			</array>
-		</dict>
-	</dict>
 </dict>
 </plist>

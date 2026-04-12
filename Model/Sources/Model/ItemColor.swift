@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum ItemColor: String, Sendable, Equatable {
+public enum ItemColor: String, Sendable, Hashable {
     case green
     case orange
     case blue

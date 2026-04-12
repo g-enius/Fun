@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FeaturedItem: Identifiable, Equatable, Sendable {
+public struct FeaturedItem: Identifiable, Hashable, Sendable {
     public let id: String
     public let title: String
     public let subtitle: String
@@ -75,7 +75,7 @@ public extension FeaturedItem {
     static let swiftUI = FeaturedItem(
         id: TechnologyItem.swiftUI.rawValue,
         title: "SwiftUI",
-        subtitle: "Declarative UI",
+        subtitle: "Pure SwiftUI + NavigationStack",
         iconName: "swift",
         iconColor: .blue,
         category: "UI Framework"
@@ -84,7 +84,7 @@ public extension FeaturedItem {
     static let coordinator = FeaturedItem(
         id: TechnologyItem.coordinator.rawValue,
         title: "Coordinator",
-        subtitle: "Navigation pattern",
+        subtitle: "Single ObservableObject",
         iconName: "arrow.triangle.branch",
         iconColor: .purple,
         category: "Navigation"
@@ -197,7 +197,7 @@ public extension FeaturedItem {
 
     static let deploymentTarget = FeaturedItem(
         id: TechnologyItem.deploymentTarget.rawValue,
-        title: "iOS 15+",
+        title: "iOS 16+",
         subtitle: "Minimum deployment target",
         iconName: "iphone.gen3",
         iconColor: .yellow,

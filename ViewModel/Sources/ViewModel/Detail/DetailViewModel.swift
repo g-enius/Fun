@@ -14,11 +14,6 @@ import FunModel
 @MainActor
 public class DetailViewModel: ObservableObject, SessionProvider {
 
-    // MARK: - Navigation Closures
-
-    public var onPop: (() -> Void)?
-    public var onShare: ((String) -> Void)?
-
     // MARK: - DI
 
     public let session: Session
@@ -39,6 +34,11 @@ public class DetailViewModel: ObservableObject, SessionProvider {
 
     public var showAISummary: Bool {
         featureToggleService.aiSummary && aiService.isAvailable
+    }
+
+    /// Text to share via share sheet
+    public var shareText: String {
+        L10n.Detail.shareText(itemTitle)
     }
 
     // MARK: - Private Properties
@@ -71,16 +71,6 @@ public class DetailViewModel: ObservableObject, SessionProvider {
     }
 
     // MARK: - Actions
-
-    /// Called when the view controller is removed from the navigation stack by the system (back button)
-    public func handleBackNavigation() {
-        onPop?()
-    }
-
-    public func didTapShare() {
-        let shareText = L10n.Detail.shareText(itemTitle)
-        onShare?(shareText)
-    }
 
     public func didTapToggleFavorite() {
         favoritesService.toggleFavorite(itemId)

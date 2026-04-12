@@ -206,21 +206,17 @@ struct ItemsViewModelTests {
 
     // MARK: - Coordinator Tests
 
-    @Test("didSelectItem calls onShowDetail")
-    func testDidSelectItemCallsOnShowDetail() async throws {
-        let viewModel = ItemsViewModel(session: makeSession())
-
-        var showDetailCalled = false
+    @Test("didSelectItem calls onShowDetail closure")
+    func testDidSelectItemCallsClosure() async throws {
         var showDetailItem: FeaturedItem?
-        viewModel.onShowDetail = { item in showDetailCalled = true; showDetailItem = item }
-
+        let viewModel = ItemsViewModel(session: makeSession())
+        viewModel.onShowDetail = { item in showDetailItem = item }
         await viewModel.loadItems()
 
         let item = try #require(viewModel.items.first)
 
         viewModel.didSelectItem(item)
 
-        #expect(showDetailCalled == true)
         #expect(showDetailItem?.id == item.id)
     }
 
@@ -277,7 +273,7 @@ struct ItemsViewModelTests {
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
         // Wait for the search task to complete
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await Task.sleep(for: .milliseconds(100))
 
         #expect(mockNetwork.searchItemsCallCount == 1)
         #expect(mockNetwork.lastSearchQuery == "swift")
@@ -295,7 +291,7 @@ struct ItemsViewModelTests {
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
 
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await Task.sleep(for: .milliseconds(100))
 
         #expect(viewModel.hasError == true)
         #expect(viewModel.items.isEmpty)
@@ -316,7 +312,7 @@ struct ItemsViewModelTests {
         // Perform a search
         viewModel.searchText = "swift"
         viewModel.didSelectCategory(viewModel.selectedCategory)
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await Task.sleep(for: .milliseconds(100))
         #expect(viewModel.items.count == 1)
 
         // Clear search

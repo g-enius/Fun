@@ -30,6 +30,7 @@ struct SessionTests {
             #expect(session.serviceLocator.isRegistered(for: .network))
             #expect(session.serviceLocator.isRegistered(for: .featureToggles))
             #expect(!session.serviceLocator.isRegistered(for: .favorites))
+            #expect(session.serviceLocator.isRegistered(for: .toast))
         }
     }
 
@@ -88,11 +89,12 @@ struct SessionTests {
             let loginSession = LoginSession()
             loginSession.activate()
 
-            // Login session has only its own services — no stale favorites
+            // Login session has only its own services — no stale favorites from previous session
             #expect(loginSession.serviceLocator.isRegistered(for: .logger))
             #expect(loginSession.serviceLocator.isRegistered(for: .network))
             #expect(loginSession.serviceLocator.isRegistered(for: .featureToggles))
             #expect(!loginSession.serviceLocator.isRegistered(for: .favorites))
+            #expect(loginSession.serviceLocator.isRegistered(for: .toast))
         }
 
         @Test("Favorites are fresh after session transition")
