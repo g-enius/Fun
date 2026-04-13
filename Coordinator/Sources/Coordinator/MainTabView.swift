@@ -185,26 +185,6 @@ struct ProfileTabContent: View {
 /// Wrapper that creates LoginViewModel with login success closure
 struct LoginTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: LoginViewModel
-
-    init(coordinator: AppCoordinator) {
-        self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: LoginViewModel(serviceLocator: coordinator.serviceLocator))
-    }
-
-    var body: some View {
-        LoginView(viewModel: viewModel)
-            .task {
-                viewModel.onLoginSuccess = { [weak coordinator] in
-                    coordinator?.transitionToMainFlow()
-                }
-            }
-    }
-}
-
-/// Wrapper that creates LoginViewModel with login success closure
-struct LoginContent: View {
-    let coordinator: AppCoordinator
     @State private var viewModel: LoginViewModel
 
     init(coordinator: AppCoordinator) {
