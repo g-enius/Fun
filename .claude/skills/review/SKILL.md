@@ -21,12 +21,13 @@ Review all recent code changes for completeness, correctness, and consistency wi
 3. **Architecture check**
    - Verify package dependency direction: `Coordinator → UI → ViewModel → Model → Core`, `Services → Model → Core`
    - No `import UIKit` anywhere — this branch is pure SwiftUI
+   - No `import Combine` anywhere — this branch uses AsyncSequence, zero Combine
    - No coordinator references in ViewModels (except weak closures)
    - No `print()` — use LoggerService
    - No `UserDefaults.standard` outside Services
    - Navigation logic only in Coordinators
    - Protocols in Core (reusable) or Model (domain), never in Services/ViewModel/UI/Coordinator
-   - Branch-specific: Combine + NavigationPath + single AppCoordinator (ObservableObject)
+   - Branch-specific: @Observable + AsyncStream + StreamBroadcaster (no Combine, no ObservableObject)
 
 4. **Similar pattern search**
    - Search the codebase for code that follows the same pattern as what changed
@@ -35,6 +36,7 @@ Review all recent code changes for completeness, correctness, and consistency wi
 5. **Correctness check**
    - Logic errors, type safety, concurrency (Swift 6 strict), memory management (`[weak self]`, `[weak coordinator]`)
    - Verify `@MainActor` isolation, `Sendable` conformance where needed
+   - Check `@ObservationIgnored` on properties that shouldn't trigger view updates
 
 6. **Cross-platform parity**
    - Compare with `~/Documents/Source/Fun-Android/` for the same feature

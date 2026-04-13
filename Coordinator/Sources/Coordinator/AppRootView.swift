@@ -2,9 +2,7 @@
 //  AppRootView.swift
 //  Coordinator
 //
-//  Root SwiftUI view that switches between login and main tab flow.
-//  Lives in Coordinator (not FunUI) because it depends on AppCoordinator.
-//  Moving to FunUI would create a circular dependency: Coordinator → UI → Coordinator.
+//  Root SwiftUI view that switches between login and main tab flow
 //
 
 import SwiftUI
@@ -15,7 +13,8 @@ import FunUI
 import FunViewModel
 
 public struct AppRootView: View {
-    @ObservedObject var coordinator: AppCoordinator
+    // Plain var — only reads coordinator properties, no $ bindings needed
+    var coordinator: AppCoordinator
 
     public init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
@@ -25,7 +24,7 @@ public struct AppRootView: View {
         Group {
             switch coordinator.currentFlow {
             case .login:
-                LoginContent(coordinator: coordinator)
+                LoginTabContent(coordinator: coordinator)
             case .main:
                 MainTabView(coordinator: coordinator)
             }

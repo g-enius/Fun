@@ -70,14 +70,20 @@ struct DetailViewModelTests {
 
     @Test("didTapToggleFavorite adds item to favorites")
     func testToggleFavoriteAdds() async {
-        let viewModel = DetailViewModel(item: testItem, session: makeSession(initialFavorites: []))
+        let mockFavorites = MockFavoritesService(initialFavorites: [])
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(mockFavorites, for: .favorites)
+        locator.register(MockFeatureToggleService(), for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
+        locator.register(MockAIService(), for: .ai)
+        let viewModel = DetailViewModel(item: testItem, session: MockSession(serviceLocator: locator))
 
         #expect(viewModel.isFavorited == false)
 
         viewModel.didTapToggleFavorite()
-
-        // Wait for publisher to propagate
-        await Task.yield()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }
@@ -85,14 +91,20 @@ struct DetailViewModelTests {
     @Test("didTapToggleFavorite removes item from favorites")
     func testToggleFavoriteRemoves() async {
         let item = testItem
-        let viewModel = DetailViewModel(item: item, session: makeSession(initialFavorites: [item.id]))
+        let mockFavorites = MockFavoritesService(initialFavorites: [item.id])
+        let locator = ServiceLocator()
+        locator.register(MockLoggerService(), for: .logger)
+        locator.register(MockNetworkService(), for: .network)
+        locator.register(mockFavorites, for: .favorites)
+        locator.register(MockFeatureToggleService(), for: .featureToggles)
+        locator.register(MockToastService(), for: .toast)
+        locator.register(MockAIService(), for: .ai)
+        let viewModel = DetailViewModel(item: item, session: MockSession(serviceLocator: locator))
 
         #expect(viewModel.isFavorited == true)
 
         viewModel.didTapToggleFavorite()
-
-        // Wait for publisher to propagate
-        await Task.yield()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == false)
     }
@@ -115,11 +127,8 @@ struct DetailViewModelTests {
 
         #expect(viewModel.isFavorited == false)
 
-        // Change favorites externally
         mockFavorites.addFavorite(item.id)
-
-        // Wait for publisher
-        await Task.yield()
+        await awaitObservation { _ = viewModel.isFavorited }
 
         #expect(viewModel.isFavorited == true)
     }
@@ -139,7 +148,7 @@ struct DetailViewModelTests {
     func testDifferentItems() async {
         let session = makeSession()
 
-        let items: [FeaturedItem] = [.swiftUI, .combine, .mvvm, .coordinator]
+        let items: [FeaturedItem] = [.swiftUI, .asyncSequence, .mvvm, .coordinator]
         for item in items {
             let viewModel = DetailViewModel(item: item, session: session)
             #expect(viewModel.itemTitle == item.title)

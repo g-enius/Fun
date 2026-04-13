@@ -5,7 +5,6 @@
 //  Protocol for toast notification service
 //
 
-import Combine
 import Foundation
 
 public enum ToastType: Sendable {
@@ -36,6 +35,6 @@ public struct ToastEvent: Sendable {
 public protocol ToastServiceProtocol {
     func showToast(message: String, type: ToastType)
 
-    /// Publisher for toast events
-    var toastPublisher: AnyPublisher<ToastEvent, Never> { get }
+    /// Stream for toast events
+    var toastStream: AsyncStream<ToastEvent> { get }
 }

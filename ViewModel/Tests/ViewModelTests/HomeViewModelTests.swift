@@ -112,10 +112,9 @@ struct HomeViewModelTests {
         // Explicitly call loadFeaturedItems and wait for it
         await viewModel.loadFeaturedItems()
 
-        // Verify the toast was called
-        let resolvedToast: MockToastService = session.serviceLocator.resolve(for: .toast)
-        #expect(resolvedToast.showToastCalled == true)
-        #expect(resolvedToast.lastType == .error)
+        // Verify the toast was called (use local ref, not ServiceLocator which may be reset by parallel tests)
+        #expect(mockToast.showToastCalled == true)
+        #expect(mockToast.lastType == .error)
     }
 
     // MARK: - Coordinator Tests
@@ -170,9 +169,7 @@ struct HomeViewModelTests {
         #expect(viewModel.isFavorited("test_item") == false)
 
         viewModel.toggleFavorite(for: "test_item")
-
-        // Wait for publisher to propagate
-        await Task.yield()
+        await awaitObservation { _ = viewModel.favoriteIds }
 
         #expect(viewModel.isFavorited("test_item") == true)
     }
@@ -184,9 +181,7 @@ struct HomeViewModelTests {
         #expect(viewModel.isFavorited("test_item") == true)
 
         viewModel.toggleFavorite(for: "test_item")
-
-        // Wait for publisher to propagate
-        await Task.yield()
+        await awaitObservation { _ = viewModel.favoriteIds }
 
         #expect(viewModel.isFavorited("test_item") == false)
     }

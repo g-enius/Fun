@@ -2,9 +2,7 @@
 //  MainTabView.swift
 //  Coordinator
 //
-//  Main tab view with NavigationStack per tab, profile sheet, and toast overlay.
-//  Lives in Coordinator (not FunUI) because it depends on AppCoordinator.
-//  Moving to FunUI would create a circular dependency: Coordinator → UI → Coordinator.
+//  Main tab view with NavigationStack per tab, profile sheet, and toast overlay
 //
 
 import SwiftUI
@@ -15,17 +13,17 @@ import FunUI
 import FunViewModel
 
 struct MainTabView: View {
-    @ObservedObject var coordinator: AppCoordinator
+    let coordinator: AppCoordinator
 
     var body: some View {
-        TabView(selection: $coordinator.selectedTab) {
+        TabView(selection: Bindable(coordinator).selectedTab) {
             homeTab
             itemsTab
             settingsTab
         }
-        .sheet(isPresented: $coordinator.isProfilePresented) {
+        .sheet(isPresented: Bindable(coordinator).isProfilePresented) {
             NavigationStack {
-                ProfileContent(coordinator: coordinator)
+                ProfileTabContent(coordinator: coordinator)
             }
         }
         .overlay(alignment: .top) {
@@ -42,12 +40,11 @@ struct MainTabView: View {
     // MARK: - Tabs
 
     private var homeTab: some View {
-        NavigationStack(path: $coordinator.homePath) {
+        NavigationStack(path: Bindable(coordinator).homePath) {
             HomeTabContent(coordinator: coordinator)
                 .navigationDestination(for: FeaturedItem.self) { item in
-                    coordinator.destinationView(for: item)
+                    DetailTabContent(item: item, coordinator: coordinator)
                 }
-                // Chain more .navigationDestination(for:) to handle additional pushable types.
         }
         .tabItem {
             Label(L10n.Tabs.home, systemImage: "house")
@@ -57,12 +54,11 @@ struct MainTabView: View {
     }
 
     private var itemsTab: some View {
-        NavigationStack(path: $coordinator.itemsPath) {
+        NavigationStack(path: Bindable(coordinator).itemsPath) {
             ItemsTabContent(coordinator: coordinator)
                 .navigationDestination(for: FeaturedItem.self) { item in
-                    coordinator.destinationView(for: item)
+                    DetailTabContent(item: item, coordinator: coordinator)
                 }
-                // Chain more .navigationDestination(for:) to handle additional pushable types.
         }
         .tabItem {
             Label(L10n.Tabs.items, systemImage: "list.bullet")
@@ -72,7 +68,7 @@ struct MainTabView: View {
     }
 
     private var settingsTab: some View {
-        NavigationStack(path: $coordinator.settingsPath) {
+        NavigationStack(path: Bindable(coordinator).settingsPath) {
             SettingsTabContent(coordinator: coordinator)
         }
         .tabItem {
@@ -88,21 +84,21 @@ struct MainTabView: View {
 /// Wrapper that creates HomeViewModel with navigation closures wired to coordinator
 struct HomeTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: HomeViewModel
+    @State private var viewModel: HomeViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: HomeViewModel(session: coordinator.session))
+        _viewModel = State(wrappedValue: HomeViewModel(session: coordinator.session))
     }
 
     var body: some View {
         HomeView(viewModel: viewModel)
             .task {
                 viewModel.onShowDetail = { [weak coordinator] item in
-                    coordinator?.showDetail(item, in: .home)
+                    coordinator?.homePath.append(item)
                 }
                 viewModel.onShowProfile = { [weak coordinator] in
-                    coordinator?.showProfile()
+                    coordinator?.isProfilePresented = true
                 }
             }
     }
@@ -111,18 +107,18 @@ struct HomeTabContent: View {
 /// Wrapper that creates ItemsViewModel with navigation closures wired to coordinator
 struct ItemsTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: ItemsViewModel
+    @State private var viewModel: ItemsViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ItemsViewModel(session: coordinator.session))
+        _viewModel = State(wrappedValue: ItemsViewModel(session: coordinator.session))
     }
 
     var body: some View {
         ItemsView(viewModel: viewModel)
             .task {
                 viewModel.onShowDetail = { [weak coordinator] item in
-                    coordinator?.showDetail(item, in: .items)
+                    coordinator?.itemsPath.append(item)
                 }
             }
     }
@@ -131,11 +127,11 @@ struct ItemsTabContent: View {
 /// Wrapper that creates SettingsViewModel
 struct SettingsTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: SettingsViewModel
+    @State private var viewModel: SettingsViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: SettingsViewModel(session: coordinator.session))
+        _viewModel = State(wrappedValue: SettingsViewModel(session: coordinator.session))
     }
 
     var body: some View {
@@ -144,13 +140,13 @@ struct SettingsTabContent: View {
 }
 
 /// Wrapper that creates DetailViewModel for a pushed item
-struct DetailContent: View {
+struct DetailTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: DetailViewModel
+    @State private var viewModel: DetailViewModel
 
     init(item: FeaturedItem, coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: DetailViewModel(item: item, session: coordinator.session))
+        _viewModel = State(wrappedValue: DetailViewModel(item: item, session: coordinator.session))
     }
 
     var body: some View {
@@ -159,28 +155,48 @@ struct DetailContent: View {
 }
 
 /// Wrapper that creates ProfileViewModel with navigation closures
-struct ProfileContent: View {
+struct ProfileTabContent: View {
     let coordinator: AppCoordinator
-    @StateObject private var viewModel: ProfileViewModel
+    @State private var viewModel: ProfileViewModel
 
     init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
-        _viewModel = StateObject(wrappedValue: ProfileViewModel(session: coordinator.session))
+        _viewModel = State(wrappedValue: ProfileViewModel(session: coordinator.session))
     }
 
     var body: some View {
         ProfileView(viewModel: viewModel)
             .task {
                 viewModel.onDismiss = { [weak coordinator] in
-                    coordinator?.dismissProfile()
+                    coordinator?.isProfilePresented = false
                 }
                 viewModel.onLogout = { [weak coordinator] in
-                    coordinator?.dismissProfile()
+                    coordinator?.isProfilePresented = false
                     coordinator?.transitionToLoginFlow()
                 }
                 viewModel.onGoToItems = { [weak coordinator] in
-                    coordinator?.dismissProfile()
-                    coordinator?.selectTab(.items)
+                    coordinator?.isProfilePresented = false
+                    coordinator?.selectedTab = .items
+                }
+            }
+    }
+}
+
+/// Wrapper that creates LoginViewModel with login success closure
+struct LoginTabContent: View {
+    let coordinator: AppCoordinator
+    @State private var viewModel: LoginViewModel
+
+    init(coordinator: AppCoordinator) {
+        self.coordinator = coordinator
+        _viewModel = State(wrappedValue: LoginViewModel(session: coordinator.session))
+    }
+
+    var body: some View {
+        LoginView(viewModel: viewModel)
+            .task {
+                viewModel.onLoginSuccess = { [weak coordinator] in
+                    coordinator?.transitionToMainFlow()
                 }
             }
     }

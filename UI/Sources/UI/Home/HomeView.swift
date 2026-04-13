@@ -12,7 +12,7 @@ import FunModel
 import FunViewModel
 
 public struct HomeView: View {
-    @ObservedObject private var viewModel: HomeViewModel
+    @Bindable private var viewModel: HomeViewModel
 
     public init(viewModel: HomeViewModel) {
         self.viewModel = viewModel
@@ -21,7 +21,6 @@ public struct HomeView: View {
     public var body: some View {
         content
             .navigationTitle(L10n.Tabs.home)
-            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { viewModel.didTapProfile() }) {
