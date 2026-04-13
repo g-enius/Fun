@@ -112,23 +112,6 @@ public final class AppCoordinator: SessionProvider {
         settingsPath = NavigationPath()
     }
 
-    // MARK: - Routing
-
-    // Centralised routing table — called from both homeTab and itemsTab
-    // .navigationDestination closures, so destination logic lives in one place.
-    // @ViewBuilder not required for a single expression today, but keeps
-    // this method ready for switch/if-else routing as destination types grow.
-    //
-    //   switch item.category {
-    //   case .article: ArticleDetailView(item: item)
-    //   case .video:   VideoPlayerView(item: item)
-    //   default:       DetailContent(item: item)
-    //   }
-    @ViewBuilder
-    func destinationView(for item: FeaturedItem) -> some View {
-        DetailContent(item: item, coordinator: self)
-    }
-
     // MARK: - Flow Transitions
 
     public func transitionToMainFlow() {
